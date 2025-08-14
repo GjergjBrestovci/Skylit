@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Full Stack",
+      "type": "shell",
+      "command": "npm start",
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "label": "Frontend Dev Server",
+      "type": "shell",
+      "command": "npm run dev:frontend",
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "label": "Backend Dev Server",
+      "type": "shell",
+      "command": "npm run dev:backend",
+      "problemMatcher": [],
+      "isBackground": true
+    }
+  ]
+}

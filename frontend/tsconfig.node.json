@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    // Build info cache
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    // Target/runtime
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    // Interop
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    // Types
+    "types": ["node"],
+    // Emit (none for config-only)
+    "noEmit": true,
+    // Strictness
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["vite.config.ts"]
+}
