@@ -2,8 +2,14 @@ import { useState } from 'react';
 
 export function Dashboard() {
   const [prompt, setPrompt] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ generated: string; createdAt: string } | null>(null);
 
   const handleGenerate = async () => {
+    setError(null);
+    setResult(null);
+    setLoading(true);
     try {
       const response = await fetch('http://localhost:5000/api/generate-site', {
         method: 'POST',
@@ -11,9 +17,14 @@ export function Dashboard() {
         body: JSON.stringify({ prompt }),
       });
       const data = await response.json();
-      console.log('Generated:', data);
-    } catch (error) {
-      console.error('Error generating site:', error);
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate');
+      }
+      setResult({ generated: data.generated, createdAt: data.createdAt });
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unexpected error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,11 +50,18 @@ export function Dashboard() {
           </div>
           <button
             onClick={handleGenerate}
-            disabled={!prompt.trim()}
+            disabled={!prompt.trim() || loading}
             className="inline-flex items-center justify-center rounded-md bg-gradient-to-r from-accent-cyan to-accent-purple text-background font-semibold text-sm px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition"
           >
-            Generate (placeholder)
+            {loading ? 'Generating...' : 'Generate'}
           </button>
+          {error && <p className="text-sm text-red-400">{error}</p>}
+          {result && (
+            <div className="mt-4 border border-accent-purple/30 rounded-md bg-[#222] p-4 space-y-2">
+              <div className="text-xs text-text/50 flex justify-between"><span>Generated Preview</span><span>{new Date(result.createdAt).toLocaleTimeString()}</span></div>
+              <pre className="text-xs whitespace-pre-wrap leading-relaxed text-text/80 overflow-x-auto max-h-64">{result.generated}</pre>
+            </div>
+          )}
         </section>
 
         <section className="space-y-4">
