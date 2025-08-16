@@ -10,10 +10,12 @@ export function Auth({ onAuthSuccess }: AuthProps) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
     try {
@@ -30,9 +32,21 @@ export function Auth({ onAuthSuccess }: AuthProps) {
         throw new Error(data.error || 'Authentication failed');
       }
 
-      // Store token in localStorage
-      localStorage.setItem('authToken', data.token);
-      onAuthSuccess(data.token);
+      if (isLogin) {
+        // Login success - store token and notify parent
+        localStorage.setItem('authToken', data.token);
+        onAuthSuccess(data.token);
+      } else {
+        // Registration success - check if email confirmation is required
+        if (data.emailConfirmationRequired) {
+          setSuccess(data.message);
+          // Don't auto-login, wait for email confirmation
+        } else {
+          // Auto-confirm enabled, proceed with login
+          localStorage.setItem('authToken', data.token);
+          onAuthSuccess(data.token);
+        }
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {
@@ -85,6 +99,12 @@ export function Auth({ onAuthSuccess }: AuthProps) {
             </div>
           )}
 
+          {success && (
+            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-md text-green-400 text-sm">
+              {success}
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
@@ -96,7 +116,11 @@ export function Auth({ onAuthSuccess }: AuthProps) {
 
         <div className="mt-6 text-center">
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError(null);
+              setSuccess(null);
+            }}
             className="text-accent-purple hover:text-accent-purple/80 text-sm"
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}

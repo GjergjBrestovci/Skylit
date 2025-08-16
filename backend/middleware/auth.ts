@@ -1,10 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { supabase } from '../supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export interface AuthRequest extends Request {
   userId?: string;
   user?: any;
 }
+
+// Create client for token verification
+const supabaseUrl = process.env.SUPABASE_URL!;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
+const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
 
 export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
@@ -15,10 +20,11 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
   }
 
   try {
-    // Verify the token with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    // Verify the token with Supabase using anon key client
+    const { data: { user }, error } = await supabaseAuth.auth.getUser(token);
 
     if (error || !user) {
+      console.error('Auth verification error:', error);
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
 

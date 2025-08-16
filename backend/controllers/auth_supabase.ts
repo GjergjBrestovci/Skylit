@@ -1,11 +1,5 @@
 import { Request, Response } from 'express';
-import { createClient } from '@supabase/supabase-js';
-
-// Create a client with anon key for auth operations
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
-
-const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from '../supabase';
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -19,19 +13,14 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    console.log('Attempting to register user:', email);
-
-    // Use signUp instead of admin.createUser
-    const { data, error } = await supabaseAuth.auth.signUp({
+    // Create user with Supabase Auth
+    const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      options: {
-        emailRedirectTo: undefined // Disable email confirmation for development
-      }
+      email_confirm: true // Auto-confirm for development
     });
 
     if (error) {
-      console.error('Supabase registration error:', error);
       return res.status(400).json({ error: error.message });
     }
 
@@ -39,28 +28,23 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Failed to create user' });
     }
 
-    console.log('User created successfully:', data.user.id);
+    // Sign in the user to get a session
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
-    // Check if user needs email confirmation
-    if (!data.session) {
-      return res.status(201).json({
-        message: 'Registration successful. Please check your email to confirm your account before logging in.',
-        user: {
-          id: data.user.id,
-          email: data.user.email
-        },
-        emailConfirmationRequired: true
-      });
+    if (signInError || !signInData.session) {
+      return res.status(400).json({ error: 'Failed to create session' });
     }
 
-    // If session exists (email confirmation disabled), return token
     res.status(201).json({
       message: 'User registered successfully',
       user: {
         id: data.user.id,
         email: data.user.email
       },
-      token: data.session.access_token
+      token: signInData.session.access_token
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -76,24 +60,19 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    console.log('Attempting to login user:', email);
-
-    // Sign in with Supabase Auth using anon key
-    const { data, error } = await supabaseAuth.auth.signInWithPassword({
+    // Sign in with Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
 
     if (error) {
-      console.error('Supabase login error:', error);
       return res.status(401).json({ error: error.message });
     }
 
     if (!data.user || !data.session) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-
-    console.log('Login successful:', data.user.id);
 
     res.json({
       message: 'Login successful',

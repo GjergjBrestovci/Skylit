@@ -24,10 +24,7 @@ export const register = async (req: Request, res: Response) => {
     // Use signUp instead of admin.createUser
     const { data, error } = await supabaseAuth.auth.signUp({
       email,
-      password,
-      options: {
-        emailRedirectTo: undefined // Disable email confirmation for development
-      }
+      password
     });
 
     if (error) {
@@ -41,26 +38,14 @@ export const register = async (req: Request, res: Response) => {
 
     console.log('User created successfully:', data.user.id);
 
-    // Check if user needs email confirmation
-    if (!data.session) {
-      return res.status(201).json({
-        message: 'Registration successful. Please check your email to confirm your account before logging in.',
-        user: {
-          id: data.user.id,
-          email: data.user.email
-        },
-        emailConfirmationRequired: true
-      });
-    }
-
-    // If session exists (email confirmation disabled), return token
+    // Return the session token if available
     res.status(201).json({
       message: 'User registered successfully',
       user: {
         id: data.user.id,
         email: data.user.email
       },
-      token: data.session.access_token
+      token: data.session?.access_token || 'registration_pending'
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -94,6 +79,42 @@ export const login = async (req: Request, res: Response) => {
     }
 
     console.log('Login successful:', data.user.id);
+
+    res.json({
+      message: 'Login successful',
+      user: {
+        id: data.user.id,
+        email: data.user.email
+      },
+      token: data.session.access_token
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Sign in with Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      return res.status(401).json({ error: error.message });
+    }
+
+    if (!data.user || !data.session) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
     res.json({
       message: 'Login successful',

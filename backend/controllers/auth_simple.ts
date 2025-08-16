@@ -24,10 +24,7 @@ export const register = async (req: Request, res: Response) => {
     // Use signUp instead of admin.createUser
     const { data, error } = await supabaseAuth.auth.signUp({
       email,
-      password,
-      options: {
-        emailRedirectTo: undefined // Disable email confirmation for development
-      }
+      password
     });
 
     if (error) {
@@ -41,26 +38,14 @@ export const register = async (req: Request, res: Response) => {
 
     console.log('User created successfully:', data.user.id);
 
-    // Check if user needs email confirmation
-    if (!data.session) {
-      return res.status(201).json({
-        message: 'Registration successful. Please check your email to confirm your account before logging in.',
-        user: {
-          id: data.user.id,
-          email: data.user.email
-        },
-        emailConfirmationRequired: true
-      });
-    }
-
-    // If session exists (email confirmation disabled), return token
+    // Return the session token if available
     res.status(201).json({
       message: 'User registered successfully',
       user: {
         id: data.user.id,
         email: data.user.email
       },
-      token: data.session.access_token
+      token: data.session?.access_token || 'registration_pending'
     });
   } catch (error) {
     console.error('Registration error:', error);
