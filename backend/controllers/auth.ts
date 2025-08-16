@@ -1,95 +1,89 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { pool } from '../db';
+import { supabase } from '../supabase';
 
 export const register = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: 'Name, email, and password are required' });
-  }
-
-  if (password.length < 6) {
-    return res.status(400).json({ error: 'Password must be at least 6 characters' });
-  }
-
   try {
-    // Check if user already exists
-    const [existing] = await pool.execute(
-      'SELECT id FROM users WHERE email = ?',
-      [email]
-    );
+    const { email, password } = req.body;
 
-    if ((existing as any[]).length > 0) {
-      return res.status(409).json({ error: 'User already exists with this email' });
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
 
-    // Insert user
-    const [result] = await pool.execute(
-      'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
-      [name, email, passwordHash]
-    );
+    // Create user with Supabase Auth
+    const { data, error } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true // Auto-confirm for development
+    });
 
-    const userId = (result as any).insertId;
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
 
-    // Generate JWT
-    const secret = process.env.JWT_SECRET || 'fallback_secret_change_me';
-    const token = jwt.sign({ userId }, secret, { expiresIn: '24h' });
+    if (!data.user) {
+      return res.status(400).json({ error: 'Failed to create user' });
+    }
+
+    // Sign in the user to get a session
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (signInError || !signInData.session) {
+      return res.status(400).json({ error: 'Failed to create session' });
+    }
 
     res.status(201).json({
       message: 'User registered successfully',
-      token,
-      user: { id: userId, name, email }
+      user: {
+        id: data.user.id,
+        email: data.user.email
+      },
+      token: signInData.session.access_token
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Registration failed' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
-  }
-
   try {
-    // Find user
-    const [users] = await pool.execute(
-      'SELECT id, name, email, password_hash FROM users WHERE email = ?',
-      [email]
-    );
+    const { email, password } = req.body;
 
-    const userArray = users as any[];
-    if (userArray.length === 0) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const user = userArray[0];
+    // Sign in with Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
-    // Check password
-    const isValidPassword = await bcrypt.compare(password, user.password_hash);
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    if (error) {
+      return res.status(401).json({ error: error.message });
     }
 
-    // Generate JWT
-    const secret = process.env.JWT_SECRET || 'fallback_secret_change_me';
-    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: '24h' });
+    if (!data.user || !data.session) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
     res.json({
       message: 'Login successful',
-      token,
-      user: { id: user.id, name: user.name, email: user.email }
+      user: {
+        id: data.user.id,
+        email: data.user.email
+      },
+      token: data.session.access_token
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
