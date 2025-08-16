@@ -152,15 +152,14 @@ export function Dashboard({ authToken }: DashboardProps) {
 
   return (
     <main className="flex-1 p-6 overflow-y-auto">
-      <div className="max-w-5xl mx-auto space-y-8">
-        <header className="space-y-2">
+      <div className="max-w-3xl mx-auto space-y-8">
+        <header className="space-y-2 text-center">
           <h2 className="text-3xl font-bold">Create Your Website</h2>
           <p className="text-text/70 text-sm">Configure your website preferences and let AI generate it for you.</p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Configuration Panel */}
-          <div className="space-y-6">
+        {/* Configuration Panel */}
+        <div className="space-y-6">
             {/* Website Type */}
             <div className="bg-[#1e1e1e] border border-accent-purple/20 rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Website Type</h3>
@@ -243,10 +242,7 @@ export function Dashboard({ authToken }: DashboardProps) {
                 ))}
               </select>
             </div>
-          </div>
 
-          {/* Pages and Features */}
-          <div className="space-y-6">
             {/* Pages */}
             <div className="bg-[#1e1e1e] border border-accent-purple/20 rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Pages to Include</h3>
@@ -295,7 +291,6 @@ export function Dashboard({ authToken }: DashboardProps) {
               />
             </div>
           </div>
-        </div>
 
         {/* Generate Button */}
         <div className="flex justify-center">

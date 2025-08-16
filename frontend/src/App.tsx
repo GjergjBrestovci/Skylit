@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
-import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { Auth } from './components/Auth';
 
@@ -39,10 +38,7 @@ function App() {
   return (
     <div className="min-h-screen bg-background text-text">
       <Navbar onLogout={handleLogout} />
-      <div className="flex">
-        <Sidebar />
-        <Dashboard authToken={authToken} />
-      </div>
+      <Dashboard authToken={authToken} />
     </div>
   );
 }
