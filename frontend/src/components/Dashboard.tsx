@@ -1,6 +1,10 @@
 import { useState } from 'react';
 
-export function Dashboard() {
+interface DashboardProps {
+  authToken: string;
+}
+
+export function Dashboard({ authToken }: DashboardProps) {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +17,10 @@ export function Dashboard() {
     try {
       const response = await fetch('http://localhost:5000/api/generate-site', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
         body: JSON.stringify({ prompt }),
       });
       const data = await response.json();
