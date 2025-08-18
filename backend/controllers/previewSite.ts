@@ -1,0 +1,71 @@
+import { Request, Response } from 'express';
+import { AuthRequest } from '../middleware/auth';
+
+// Store generated websites in memory for preview (in production, use database or file storage)
+const previewStorage = new Map<string, { html: string; css: string; createdAt: number }>();
+
+export const storePreview = (userId: string, html: string, css: string): string => {
+  const previewId = `${userId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  previewStorage.set(previewId, {
+    html,
+    css,
+    createdAt: Date.now()
+  });
+  
+  // Clean up old previews (older than 1 hour)
+  const oneHourAgo = Date.now() - 60 * 60 * 1000;
+  for (const [id, data] of previewStorage.entries()) {
+    if (data.createdAt < oneHourAgo) {
+      previewStorage.delete(id);
+    }
+  }
+  
+  return previewId;
+};
+
+export const getPreview = (req: Request, res: Response) => {
+  const { previewId } = req.params;
+  
+  if (!previewId) {
+    return res.status(400).json({ error: 'Preview ID is required' });
+  }
+  
+  const preview = previewStorage.get(previewId);
+  if (!preview) {
+    return res.status(404).json({ error: 'Preview not found or expired' });
+  }
+  
+  // Inject CSS into HTML
+  let fullHtml = preview.html;
+  
+  if (preview.css) {
+    // Check if there's already a <style> tag or <head> section
+    if (fullHtml.includes('<head>')) {
+      fullHtml = fullHtml.replace('</head>', `<style>${preview.css}</style></head>`);
+    } else {
+      // Add a basic head section with CSS
+      fullHtml = fullHtml.replace('<html>', `<html><head><style>${preview.css}</style></head>`);
+    }
+  }
+  
+  // Set appropriate headers for HTML content
+  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN'); // Allow iframe from same origin
+  res.send(fullHtml);
+};
+
+export const deletePreview = (req: AuthRequest, res: Response) => {
+  const { previewId } = req.params;
+  
+  if (!previewId) {
+    return res.status(400).json({ error: 'Preview ID is required' });
+  }
+  
+  const deleted = previewStorage.delete(previewId);
+  
+  if (!deleted) {
+    return res.status(404).json({ error: 'Preview not found' });
+  }
+  
+  res.json({ success: true, message: 'Preview deleted successfully' });
+};

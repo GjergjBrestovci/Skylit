@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { WebsitePreview } from './WebsitePreview';
 
 interface DashboardProps {
   authToken: string;
@@ -19,7 +20,7 @@ interface WebsiteConfig {
 interface ColorOption {
   name: string;
   value: string;
-  gradient?: string;
+  gradient: string;
 }
 
 export function Dashboard({ authToken }: DashboardProps) {
@@ -36,7 +37,13 @@ export function Dashboard({ authToken }: DashboardProps) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ generated: string; createdAt: string } | null>(null);
+  const [result, setResult] = useState<{ 
+    generated: string; 
+    createdAt: string; 
+    previewUrl?: string;
+    css?: string;
+    notes?: string;
+  } | null>(null);
 
   // Predefined color palettes for non-technical users
   const primaryColors: ColorOption[] = [
@@ -167,7 +174,13 @@ export function Dashboard({ authToken }: DashboardProps) {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to generate');
       }
-      setResult({ generated: data.generated, createdAt: data.createdAt });
+      setResult({ 
+        generated: data.generated, 
+        createdAt: data.createdAt,
+        previewUrl: data.previewUrl,
+        css: data.css,
+        notes: data.notes
+      });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Unexpected error');
     } finally {
@@ -642,13 +655,50 @@ export function Dashboard({ authToken }: DashboardProps) {
                 <span className="text-3xl animate-spin" style={{ animationDuration: '2s' }}>✨</span>
               </h3>
               <div className="space-y-6">
+                {/* Live Preview */}
+                {result.previewUrl && (
+                  <WebsitePreview 
+                    previewUrl={result.previewUrl}
+                    title="Your Generated Website"
+                    className="animate-fade-in"
+                  />
+                )}
+                
                 <div className="p-6 bg-gradient-to-br from-[#232323] to-[#1a1a1a] rounded-xl border border-accent-purple/10 shadow-inner">
                   <p className="text-sm text-accent-cyan mb-4 flex items-center gap-2">
                     <span className="text-lg">⏰</span>
                     <strong>Created:</strong> {result.createdAt}
                   </p>
-                  <div className="bg-[#1a1a1a] p-4 rounded-lg border border-accent-purple/20">
-                    <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-text/90 max-h-96 overflow-y-auto custom-scrollbar">{result.generated}</pre>
+                  
+                  {/* Code Tabs */}
+                  <div className="space-y-4">
+                    <div className="bg-[#1a1a1a] p-4 rounded-lg border border-accent-purple/20">
+                      <div className="text-sm text-accent-cyan mb-2 flex items-center gap-2">
+                        <span>📄</span>
+                        <strong>HTML Code</strong>
+                      </div>
+                      <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-text/90 max-h-96 overflow-y-auto custom-scrollbar">{result.generated}</pre>
+                    </div>
+                    
+                    {result.css && (
+                      <div className="bg-[#1a1a1a] p-4 rounded-lg border border-accent-purple/20">
+                        <div className="text-sm text-accent-cyan mb-2 flex items-center gap-2">
+                          <span>🎨</span>
+                          <strong>CSS Styles</strong>
+                        </div>
+                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-text/90 max-h-48 overflow-y-auto custom-scrollbar">{result.css}</pre>
+                      </div>
+                    )}
+                    
+                    {result.notes && (
+                      <div className="bg-[#1a1a1a] p-4 rounded-lg border border-accent-purple/20">
+                        <div className="text-sm text-accent-cyan mb-2 flex items-center gap-2">
+                          <span>📝</span>
+                          <strong>AI Notes & Suggestions</strong>
+                        </div>
+                        <pre className="text-sm overflow-x-auto whitespace-pre-wrap text-text/90 max-h-32 overflow-y-auto custom-scrollbar">{result.notes}</pre>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-4 justify-center">
