@@ -8,6 +8,7 @@ interface NewDashboardProps {
 
 interface WebsiteConfig {
   websiteType: string;
+  theme: string;
   primaryColor: string;
   accentColor: string;
   designStyle: string;
@@ -25,12 +26,13 @@ interface GenerationResult {
   notes?: string;
 }
 
-type Step = 'homepage' | 'websiteType' | 'colors' | 'style' | 'layout' | 'pages' | 'features' | 'details' | 'generating' | 'preview';
+type Step = 'homepage' | 'websiteType' | 'theme' | 'colors' | 'style' | 'layout' | 'pages' | 'features' | 'details' | 'generating' | 'preview';
 
 export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [currentStep, setCurrentStep] = useState<Step>('homepage');
   const [config, setConfig] = useState<WebsiteConfig>({
     websiteType: '',
+    theme: '',
     primaryColor: '#3B82F6',
     accentColor: '#10B981',
     designStyle: '',
@@ -52,6 +54,15 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     { value: 'blog', label: 'Blog/News', emoji: '📝', description: 'Share your thoughts and stories' },
     { value: 'saas', label: 'SaaS/App Landing', emoji: '🚀', description: 'Promote your software or app' },
     { value: 'restaurant', label: 'Restaurant/Food', emoji: '🍽️', description: 'Menu and dining experience' }
+  ];
+
+  const themeOptions = [
+    { value: 'dark-bold', label: 'Dark & Bold', emoji: '🌑', description: 'Strong dark theme with bold elements' },
+    { value: 'dark-elegant', label: 'Dark & Elegant', emoji: '🌌', description: 'Sophisticated dark theme with refined touches' },
+    { value: 'modern-grey', label: 'Modern Grey', emoji: '🔘', description: 'Sleek grey theme with contemporary feel' },
+    { value: 'light-airy', label: 'Light & Airy', emoji: '☁️', description: 'Clean and spacious bright theme' },
+    { value: 'light-bold', label: 'Light & Bold', emoji: '☀️', description: 'Vibrant light theme with strong accents' },
+    { value: 'light-minimal', label: 'Light & Minimal', emoji: '🤍', description: 'Pure and simple bright design' }
   ];
 
   const colorPalettes = [
@@ -151,12 +162,13 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     
     try {
       const selectedType = websiteTypes.find(t => t.value === config.websiteType)?.label;
+      const selectedTheme = themeOptions.find(t => t.value === config.theme)?.label;
       const selectedStyle = designStyles.find(s => s.value === config.designStyle)?.label;
       const selectedLayout = layoutOptions.find(l => l.value === config.layout)?.label;
       const selectedPages = config.pages.map(p => availablePages.find(page => page.value === p)?.label).join(', ');
       const selectedFeatures = config.features.map(f => availableFeatures.find(feat => feat.value === f)?.label).join(', ');
 
-      let prompt = `Create a ${selectedType} website with ${selectedStyle} design style using a ${selectedLayout} layout. `;
+      let prompt = `Create a ${selectedType} website with ${selectedTheme} theme and ${selectedStyle} design style using a ${selectedLayout} layout. `;
       prompt += `Primary color: ${config.primaryColor}, Accent color: ${config.accentColor}. `;
       prompt += `Include these pages: ${selectedPages}. `;
       
@@ -189,6 +201,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     setCurrentStep('homepage');
     setConfig({
       websiteType: '',
+      theme: '',
       primaryColor: '#3B82F6',
       accentColor: '#10B981',
       designStyle: '',
@@ -285,12 +298,38 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 {websiteTypes.map((type) => (
                   <button
                     key={type.value}
-                    onClick={() => nextStep('colors', { websiteType: type.value })}
+                    onClick={() => nextStep('theme', { websiteType: type.value })}
                     className="group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-accent-cyan/10 text-left"
                   >
                     <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{type.emoji}</div>
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{type.label}</h3>
                     <p className="text-sm sm:text-base text-text/60">{type.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'theme':
+        return (
+          <div {...commonProps}>
+            <div className={stepConfig.contentClass}>
+              <div className="text-center space-y-3 sm:space-y-4">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Choose your theme</h2>
+                <p className="text-lg sm:text-xl text-text/70">Pick the overall mood and brightness for your website</p>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {themeOptions.map((theme) => (
+                  <button
+                    key={theme.value}
+                    onClick={() => nextStep('colors', { theme: theme.value })}
+                    className="group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-accent-cyan/10 text-left"
+                  >
+                    <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{theme.emoji}</div>
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{theme.label}</h3>
+                    <p className="text-sm sm:text-base text-text/60">{theme.description}</p>
                   </button>
                 ))}
               </div>
