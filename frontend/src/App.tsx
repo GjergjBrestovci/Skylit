@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Navbar } from './components/Navbar';
-import { Dashboard } from './components/Dashboard';
+import { NewDashboard } from './components/NewDashboard';
 import { Auth } from './components/Auth';
 
 function App() {
@@ -38,8 +37,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background text-text">
-      <Navbar onLogout={handleLogout} />
-      <Dashboard authToken={authToken} />
+      <NewDashboard onLogout={handleLogout} />
     </div>
   );
 }
