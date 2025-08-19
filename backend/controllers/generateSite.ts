@@ -10,24 +10,34 @@ export const generateSite = async (req: AuthRequest, res: Response) => {
     return res.status(400).json({ error: 'Prompt is required.' });
   }
   try {
-    const { enhanced } = await enhancePrompt(prompt);
-    const aiResult = await generateWebsiteFromPrompt(enhanced);
+    console.log('🔄 Enhancing user prompt...');
+    const promptResult = await enhancePrompt(prompt);
+    
+    console.log('🤖 Generating website with enhanced prompt...');
+    const aiResult = await generateWebsiteFromPrompt(promptResult.enhanced);
     const timestamp = new Date().toISOString();
 
     // Store preview for live viewing
-    const previewId = storePreview(req.userId!, aiResult.html, aiResult.css);
+    const previewId = storePreview(req.userId!, aiResult.html, aiResult.css, aiResult.javascript);
+
+    console.log('✅ Website generated successfully');
 
     return res.json({
       prompt,
-      enhancedPrompt: enhanced,
+      enhancedPrompt: promptResult.enhanced,
+      analysis: promptResult.analysis,
+      requirements: promptResult.requirements,
       generated: aiResult.html, // keep existing key for backward compatibility
+      html: aiResult.html,
       css: aiResult.css,
+      javascript: aiResult.javascript,
       notes: aiResult.notes,
       model: aiResult.model,
       createdAt: timestamp,
       userId: req.userId,
       previewId: previewId,
-      previewUrl: `/api/preview/${previewId}`
+      previewUrl: `/api/preview/${previewId}`,
+      enhancementUsedAI: promptResult.usedKey
     });
   } catch (e) {
     console.error('generateSite error', e);
