@@ -50,7 +50,16 @@ export const getPreview = (req: Request, res: Response) => {
   
   // Set appropriate headers for HTML content
   res.setHeader('Content-Type', 'text/html');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN'); // Allow iframe from same origin
+  
+  // Remove X-Frame-Options to allow iframe embedding
+  // Use Content-Security-Policy for more modern and flexible control
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'self' http://localhost:* https://localhost:*");
+  
+  // Allow cross-origin requests for preview (needed for different ports)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
   res.send(fullHtml);
 };
 

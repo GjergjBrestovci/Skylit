@@ -12,11 +12,13 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handleLoad = () => {
+    console.log('Preview iframe loaded successfully');
     setLoading(false);
     setError(false);
   };
 
   const handleError = () => {
+    console.error('Preview iframe failed to load');
     setLoading(false);
     setError(true);
   };
@@ -27,6 +29,8 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
 
   const baseUrl = 'http://localhost:5000';
   const fullUrl = previewUrl.startsWith('http') ? previewUrl : `${baseUrl}${previewUrl}`;
+
+  console.log('WebsitePreview - Preview URL:', fullUrl);
 
   if (isFullscreen) {
     return (
