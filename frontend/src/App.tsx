@@ -20,6 +20,7 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
     setAuthToken(null);
   };
 

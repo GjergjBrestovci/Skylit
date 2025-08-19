@@ -33,8 +33,11 @@ export function Auth({ onAuthSuccess }: AuthProps) {
       }
 
       if (isLogin) {
-        // Login success - store token and notify parent
+        // Login success - store tokens and notify parent
         localStorage.setItem('authToken', data.token);
+        if (data.refreshToken) {
+          localStorage.setItem('refreshToken', data.refreshToken);
+        }
         onAuthSuccess(data.token);
       } else {
         // Registration success - check if email confirmation is required
@@ -44,6 +47,9 @@ export function Auth({ onAuthSuccess }: AuthProps) {
         } else {
           // Auto-confirm enabled, proceed with login
           localStorage.setItem('authToken', data.token);
+          if (data.refreshToken) {
+            localStorage.setItem('refreshToken', data.refreshToken);
+          }
           onAuthSuccess(data.token);
         }
       }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { WebsitePreview } from './WebsitePreview';
+import { apiClient } from '../utils/apiClient';
 
 interface DashboardProps {
   authToken: string;
@@ -161,19 +162,8 @@ export function Dashboard({ authToken }: DashboardProps) {
     
     try {
       const prompt = generatePrompt();
-      const response = await fetch('http://localhost:5000/api/generate-site', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
-        body: JSON.stringify({ prompt }),
-      });
+      const data = await apiClient.post('/api/generate-site', { prompt });
       
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate');
-      }
       setResult({ 
         generated: data.generated, 
         createdAt: data.createdAt,

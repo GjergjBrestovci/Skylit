@@ -87,10 +87,47 @@ export const login = async (req: Request, res: Response) => {
     res.json({
       message: 'Login successful',
       user: { id: data.user.id, email: data.user.email },
-      token: data.session.access_token
+      token: data.session.access_token,
+      refreshToken: data.session.refresh_token
     });
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ error: 'Refresh token required' });
+    }
+
+    if (!supabaseConfigured) {
+      return res.status(503).json({ error: 'Auth service not configured (missing SUPABASE env vars)' });
+    }
+
+    const { data, error } = await supabaseAuth.auth.refreshSession({
+      refresh_token: refreshToken
+    });
+
+    if (error || !data.session) {
+      console.error('Token refresh error:', error);
+      return res.status(401).json({ 
+        error: 'Invalid refresh token', 
+        code: 'REFRESH_FAILED' 
+      });
+    }
+
+    res.json({
+      message: 'Token refreshed successfully',
+      user: { id: data.user.id, email: data.user.email },
+      token: data.session.access_token,
+      refreshToken: data.session.refresh_token
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

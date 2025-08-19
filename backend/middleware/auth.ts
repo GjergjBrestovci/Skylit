@@ -13,7 +13,7 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
   if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
+    return res.status(401).json({ error: 'Access token required', code: 'NO_TOKEN' });
   }
   if (!supabaseConfigured) {
     return res.status(503).json({ error: 'Auth not configured (missing SUPABASE env vars)' });
@@ -24,7 +24,20 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
 
     if (error || !user) {
       console.error('Auth verification error:', error);
-      return res.status(403).json({ error: 'Invalid or expired token' });
+      
+      // Check if it's specifically a token expiration error
+      if (error?.message?.includes('expired') || error?.code === 'bad_jwt') {
+        return res.status(401).json({ 
+          error: 'Token has expired', 
+          code: 'TOKEN_EXPIRED',
+          message: 'Please log in again'
+        });
+      }
+      
+      return res.status(403).json({ 
+        error: 'Invalid or expired token', 
+        code: 'INVALID_TOKEN' 
+      });
     }
 
     req.userId = user.id;
@@ -32,6 +45,9 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
-    return res.status(403).json({ error: 'Invalid or expired token' });
+    return res.status(403).json({ 
+      error: 'Invalid or expired token', 
+      code: 'AUTH_ERROR' 
+    });
   }
 };
