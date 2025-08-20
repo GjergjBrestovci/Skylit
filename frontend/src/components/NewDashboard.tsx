@@ -37,6 +37,7 @@ type Step = 'homepage' | 'websiteType' | 'theme' | 'colors' | 'style' | 'layout'
 
 export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [currentStep, setCurrentStep] = useState<Step>('homepage');
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [config, setConfig] = useState<WebsiteConfig>({
     websiteType: '',
     theme: '',
@@ -139,10 +140,20 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
   // Navigation functions
   const nextStep = (step: Step, updates?: Partial<WebsiteConfig>) => {
-    if (updates) {
-      setConfig(prev => ({ ...prev, ...updates }));
-    }
-    setCurrentStep(step);
+    setIsTransitioning(true);
+    
+    // Add a slight delay for visual feedback
+    setTimeout(() => {
+      if (updates) {
+        setConfig(prev => ({ ...prev, ...updates }));
+      }
+      setCurrentStep(step);
+    }, 150);
+    
+    // Reset transition state
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 400);
   };
 
   const handlePageToggle = (pageValue: string) => {
@@ -232,7 +243,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   // Step renderers
   const renderHomepage = () => (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-[#0a0a0a] to-background">
-      <div className="text-center max-w-4xl px-4 sm:px-6 space-y-8 sm:space-y-12">
+      <div className="text-center max-w-4xl px-4 sm:px-6 space-y-8 sm:space-y-12 animate-page-fade-in">
         {/* Hero Section */}
         <div className="space-y-4 sm:space-y-6">
           <div className="space-y-3 sm:space-y-4">
@@ -251,7 +262,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         </div>
 
         {/* CTA Button */}
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-4 sm:space-y-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
           <button
             onClick={() => nextStep('websiteType')}
             className="group relative px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl font-bold text-white rounded-2xl overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-accent-cyan/25 w-full sm:w-auto"
@@ -276,7 +287,16 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
             { icon: '🎨', title: 'Your Style', desc: 'Customized to your brand' },
             { icon: '📱', title: 'Mobile Ready', desc: 'Looks perfect on any device' }
           ].map((feature, i) => (
-            <div key={i} className="space-y-3 opacity-80 hover:opacity-100 transition-opacity duration-300 p-4">
+            <div 
+              key={i} 
+              className="space-y-3 opacity-80 hover:opacity-100 transition-all duration-500 p-4 animate-slide-up" 
+              style={{ 
+                animationDelay: `${0.6 + (i * 0.2)}s`, 
+                animationFillMode: 'both',
+                transform: 'translateY(20px)',
+                opacity: '0'
+              }}
+            >
               <div className="text-2xl sm:text-3xl">{feature.icon}</div>
               <h3 className="text-base sm:text-lg font-semibold text-white">{feature.title}</h3>
               <p className="text-sm text-text/60">{feature.desc}</p>
@@ -302,7 +322,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       case 'websiteType':
         return (
           <div {...commonProps}>
-            <div className={stepConfig.contentClass}>
+            <div className={`${stepConfig.contentClass} animate-page-fade-in`}>
               <div className="text-center space-y-3 sm:space-y-4">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">What are you building?</h2>
                 <p className="text-lg sm:text-xl text-text/70">Choose the type that best fits your vision</p>
@@ -765,8 +785,10 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0a0a] to-background">
-      {renderStepContent()}
+    <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0a0a] to-background page-transition-container">
+      <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
+        {renderStepContent()}
+      </div>
     </div>
   );
 }
