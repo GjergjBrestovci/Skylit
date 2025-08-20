@@ -3,7 +3,7 @@ import { WebsitePreview } from './WebsitePreview';
 import { apiClient } from '../utils/apiClient';
 
 interface DashboardProps {
-  authToken: string;
+  authToken?: string;
 }
 
 interface WebsiteConfig {
@@ -162,7 +162,10 @@ export function Dashboard({ authToken }: DashboardProps) {
     
     try {
       const prompt = generatePrompt();
-      const data = await apiClient.post('/api/generate-site', { prompt });
+      const data = await apiClient.post('/api/generate-site', { 
+        prompt,
+        ...(authToken && { authToken })
+      });
       
       setResult({ 
         generated: data.generated, 
