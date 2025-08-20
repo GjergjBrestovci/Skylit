@@ -12,39 +12,11 @@ import {
   AVAILABLE_PAGES,
   AVAILABLE_FEATURES
 } from '../constants/websiteOptions';
+import type { WebsiteConfig, GenerationResult, Step } from '../types';
 
 interface NewDashboardProps {
   onLogout: () => void;
 }
-
-interface WebsiteConfig {
-  websiteType: string;
-  theme: string;
-  primaryColor: string;
-  accentColor: string;
-  designStyle: string;
-  layout: string;
-  pages: string[];
-  features: string[];
-  additionalDetails: string;
-}
-
-interface GenerationResult {
-  generated: string;
-  html: string;
-  css?: string;
-  javascript?: string;
-  notes?: string;
-  analysis?: string;
-  requirements?: string[];
-  enhancedPrompt?: string;
-  createdAt: string;
-  previewUrl?: string;
-  model?: string;
-  enhancementUsedAI?: boolean;
-}
-
-type Step = 'homepage' | 'websiteType' | 'theme' | 'colors' | 'style' | 'layout' | 'pages' | 'features' | 'details' | 'generating' | 'preview';
 
 export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [currentStep, setCurrentStep] = useState<Step>('homepage');
