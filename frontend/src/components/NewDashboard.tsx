@@ -322,18 +322,18 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       case 'websiteType':
         return (
           <div {...commonProps}>
-            <div className={`${stepConfig.contentClass} animate-page-fade-in`}>
-              <div className="text-center space-y-3 sm:space-y-4">
+            <div className={stepConfig.contentClass}>
+              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">What are you building?</h2>
                 <p className="text-lg sm:text-xl text-text/70">Choose the type that best fits your vision</p>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {websiteTypes.map((type) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-content-in content-flow-1">
+                {websiteTypes.map((type, index) => (
                   <button
                     key={type.value}
                     onClick={() => nextStep('theme', { websiteType: type.value })}
-                    className="group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-accent-cyan/10 text-left"
+                    className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-accent-cyan/10 text-left animate-stagger-in stagger-${Math.min(index + 1, 6)}`}
                   >
                     <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{type.emoji}</div>
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{type.label}</h3>
@@ -349,17 +349,17 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         return (
           <div {...commonProps}>
             <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4">
+              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Choose your theme</h2>
                 <p className="text-lg sm:text-xl text-text/70">Pick the overall mood and brightness for your website</p>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {themeOptions.map((theme) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-content-in content-flow-1">
+                {themeOptions.map((theme, index) => (
                   <button
                     key={theme.value}
                     onClick={() => nextStep('colors', { theme: theme.value })}
-                    className="group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-accent-cyan/10 text-left"
+                    className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-accent-cyan/10 text-left animate-stagger-in stagger-${Math.min(index + 1, 6)}`}
                   >
                     <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{theme.emoji}</div>
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{theme.label}</h3>
@@ -375,17 +375,17 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         return (
           <div {...commonProps}>
             <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4">
+              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Pick your colors</h2>
                 <p className="text-lg sm:text-xl text-text/70">Choose a palette that represents your brand</p>
               </div>
               
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                {colorPalettes.map((palette) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6 animate-content-in content-flow-1">
+                {colorPalettes.map((palette, index) => (
                   <button
                     key={palette.name}
                     onClick={() => nextStep('style', { primaryColor: palette.primary, accentColor: palette.accent })}
-                    className="group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105"
+                    className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 animate-stagger-in stagger-${Math.min(index + 1, 6)}`}
                   >
                     <div className="flex space-x-2 sm:space-x-3 mb-3 sm:mb-4 justify-center">
                       <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full" style={{ backgroundColor: palette.primary }}></div>
@@ -403,17 +403,17 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         return (
           <div {...commonProps}>
             <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4">
+              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">What's your style?</h2>
                 <p className="text-lg sm:text-xl text-text/70">Choose the design direction that speaks to you</p>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                {designStyles.map((style) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 animate-content-in content-flow-1">
+                {designStyles.map((style, index) => (
                   <button
                     key={style.value}
                     onClick={() => nextStep('layout', { designStyle: style.value })}
-                    className="group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 text-left"
+                    className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 text-left animate-stagger-in stagger-${Math.min(index + 1, 6)}`}
                   >
                     <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{style.emoji}</div>
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{style.label}</h3>
@@ -429,17 +429,17 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         return (
           <div {...commonProps}>
             <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4">
+              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Choose your layout</h2>
                 <p className="text-lg sm:text-xl text-text/70">How do you want to structure your content?</p>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {layoutOptions.map((layout) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-content-in content-flow-1">
+                {layoutOptions.map((layout, index) => (
                   <button
                     key={layout.value}
                     onClick={() => nextStep('pages', { layout: layout.value })}
-                    className="group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 text-center"
+                    className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 text-center animate-stagger-in stagger-${Math.min(index + 1, 6)}`}
                   >
                     <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{layout.emoji}</div>
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{layout.label}</h3>
@@ -455,17 +455,17 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         return (
           <div {...commonProps}>
             <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4">
+              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">What pages do you need?</h2>
                 <p className="text-lg sm:text-xl text-text/70">Select all the pages you want to include</p>
               </div>
               
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
-                {availablePages.map((page) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 animate-content-in content-flow-1">
+                {availablePages.map((page, index) => (
                   <button
                     key={page.value}
                     onClick={() => handlePageToggle(page.value)}
-                    className={`p-4 sm:p-6 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                    className={`p-4 sm:p-6 rounded-xl border-2 transition-all duration-300 hover:scale-105 animate-stagger-in stagger-${Math.min(index + 1, 6)} ${
                       config.pages.includes(page.value)
                         ? 'border-accent-cyan bg-accent-cyan/20'
                         : 'border-accent-purple/30 bg-[#1a1a1a] hover:border-accent-cyan/50'
@@ -494,17 +494,17 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         return (
           <div {...commonProps}>
             <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4">
+              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Add some features</h2>
                 <p className="text-lg sm:text-xl text-text/70">What functionality would you like?</p>
               </div>
               
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
-                {availableFeatures.map((feature) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 animate-content-in content-flow-1">
+                {availableFeatures.map((feature, index) => (
                   <button
                     key={feature.value}
                     onClick={() => handleFeatureToggle(feature.value)}
-                    className={`p-4 sm:p-6 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                    className={`p-4 sm:p-6 rounded-xl border-2 transition-all duration-300 hover:scale-105 animate-stagger-in stagger-${Math.min(index + 1, 6)} ${
                       config.features.includes(feature.value)
                         ? 'border-accent-cyan bg-accent-cyan/20'
                         : 'border-accent-purple/30 bg-[#1a1a1a] hover:border-accent-cyan/50'

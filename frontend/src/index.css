@@ -89,6 +89,39 @@ body {
   }
 }
 
+@keyframes stagger-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes header-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes content-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes page-fade-out {
   from {
     opacity: 1;
@@ -141,8 +174,43 @@ body {
   animation: page-fade-out 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.animate-stagger-in {
+  animation: stagger-fade-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-header-in {
+  animation: header-slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-content-in {
+  animation: content-slide-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+/* Staggered animation delays for natural flow */
+.stagger-1 { animation-delay: 0ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 160ms; }
+.stagger-4 { animation-delay: 240ms; }
+.stagger-5 { animation-delay: 320ms; }
+.stagger-6 { animation-delay: 400ms; }
+
+/* Header comes in first */
+.header-first { animation-delay: 0ms; }
+
+/* Content flows naturally */
+.content-flow-1 { animation-delay: 120ms; }
+.content-flow-2 { animation-delay: 200ms; }
+.content-flow-3 { animation-delay: 280ms; }
+.content-flow-4 { animation-delay: 360ms; }
+
+/* Page transition states */
+.page-entering-stagger {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 /* Custom scrollbar */
