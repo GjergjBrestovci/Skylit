@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import { WebsitePreview } from './WebsitePreview';
 import { apiClient } from '../utils/apiClient';
+import { StepContainer } from './ui/StepContainer';
+import { OptionButton, ColorPaletteButton, ToggleButton } from './ui/OptionButtons';
+import {
+  WEBSITE_TYPES,
+  THEME_OPTIONS,
+  COLOR_PALETTES,
+  DESIGN_STYLES,
+  LAYOUT_OPTIONS,
+  AVAILABLE_PAGES,
+  AVAILABLE_FEATURES
+} from '../constants/websiteOptions';
 
 interface NewDashboardProps {
   onLogout: () => void;
@@ -54,90 +65,6 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [showCode, setShowCode] = useState(false);
   const [activeCodeTab, setActiveCodeTab] = useState<'html' | 'css' | 'javascript' | 'notes' | 'analysis'>('html');
 
-  // Data definitions
-  const websiteTypes = [
-    { value: 'business', label: 'Business/Corporate', emoji: '🏢', description: 'Professional websites for companies' },
-    { value: 'portfolio', label: 'Portfolio/Personal', emoji: '🎨', description: 'Showcase your work and skills' },
-    { value: 'ecommerce', label: 'E-commerce/Store', emoji: '🛒', description: 'Sell products online' },
-    { value: 'blog', label: 'Blog/News', emoji: '📝', description: 'Share your thoughts and stories' },
-    { value: 'saas', label: 'SaaS/App Landing', emoji: '🚀', description: 'Promote your software or app' },
-    { value: 'restaurant', label: 'Restaurant/Food', emoji: '🍽️', description: 'Menu and dining experience' }
-  ];
-
-  const themeOptions = [
-    { value: 'dark-bold', label: 'Dark & Bold', emoji: '🌑', description: 'Strong dark theme with bold elements' },
-    { value: 'dark-elegant', label: 'Dark & Elegant', emoji: '🌌', description: 'Sophisticated dark theme with refined touches' },
-    { value: 'modern-grey', label: 'Modern Grey', emoji: '🔘', description: 'Sleek grey theme with contemporary feel' },
-    { value: 'light-airy', label: 'Light & Airy', emoji: '☁️', description: 'Clean and spacious bright theme' },
-    { value: 'light-bold', label: 'Light & Bold', emoji: '☀️', description: 'Vibrant light theme with strong accents' },
-    { value: 'light-minimal', label: 'Light & Minimal', emoji: '🤍', description: 'Pure and simple bright design' }
-  ];
-
-  const colorPalettes = [
-    { name: 'Ocean Blue', primary: '#0EA5E9', accent: '#06B6D4' },
-    { name: 'Forest Green', primary: '#10B981', accent: '#059669' },
-    { name: 'Sunset Orange', primary: '#F59E0B', accent: '#EF4444' },
-    { name: 'Royal Purple', primary: '#8B5CF6', accent: '#A855F7' },
-    { name: 'Rose Pink', primary: '#EC4899', accent: '#F43F5E' },
-    { name: 'Modern Indigo', primary: '#6366F1', accent: '#8B5CF6' },
-    { name: 'Emerald', primary: '#10B981', accent: '#34D399' },
-    { name: 'Amber', primary: '#F59E0B', accent: '#FBBF24' },
-    { name: 'Teal', primary: '#14B8A6', accent: '#5EEAD4' },
-    { name: 'Crimson', primary: '#DC2626', accent: '#F87171' },
-    { name: 'Slate', primary: '#64748B', accent: '#94A3B8' },
-    { name: 'Violet', primary: '#7C3AED', accent: '#A78BFA' }
-  ];
-
-  const designStyles = [
-    { value: 'modern', label: 'Modern & Clean', emoji: '✨', description: 'Sleek and contemporary' },
-    { value: 'minimal', label: 'Minimal & Simple', emoji: '🎯', description: 'Less is more approach' },
-    { value: 'bold', label: 'Bold & Vibrant', emoji: '🔥', description: 'Eye-catching and energetic' },
-    { value: 'elegant', label: 'Elegant & Sophisticated', emoji: '👑', description: 'Refined and luxurious' },
-    { value: 'playful', label: 'Playful & Fun', emoji: '🎉', description: 'Creative and engaging' },
-    { value: 'professional', label: 'Professional & Trust', emoji: '💼', description: 'Serious and reliable' },
-    { value: 'artistic', label: 'Artistic & Creative', emoji: '🎨', description: 'Unique and expressive' },
-    { value: 'vintage', label: 'Vintage & Classic', emoji: '🕰️', description: 'Timeless and nostalgic' }
-  ];
-
-  const layoutOptions = [
-    { value: 'header-hero-features', label: 'Classic Layout', emoji: '📄', description: 'Header + Hero + Features' },
-    { value: 'single-page', label: 'Single Page', emoji: '📱', description: 'Everything on one scroll' },
-    { value: 'grid-layout', label: 'Grid Based', emoji: '⚡', description: 'Modern grid system' },
-    { value: 'sidebar-layout', label: 'Sidebar Layout', emoji: '📋', description: 'Content with side navigation' },
-    { value: 'full-screen', label: 'Full Screen', emoji: '🖥️', description: 'Immersive experience' },
-    { value: 'magazine', label: 'Magazine Style', emoji: '📰', description: 'Editorial content layout' }
-  ];
-
-  const availablePages = [
-    { value: 'home', label: 'Home', emoji: '🏠' },
-    { value: 'about', label: 'About Us', emoji: '👥' },
-    { value: 'services', label: 'Services', emoji: '⚙️' },
-    { value: 'portfolio', label: 'Portfolio', emoji: '🎨' },
-    { value: 'contact', label: 'Contact', emoji: '📞' },
-    { value: 'blog', label: 'Blog', emoji: '📝' },
-    { value: 'team', label: 'Team', emoji: '👨‍👩‍👧‍👦' },
-    { value: 'testimonials', label: 'Testimonials', emoji: '⭐' },
-    { value: 'faq', label: 'FAQ', emoji: '❓' },
-    { value: 'pricing', label: 'Pricing', emoji: '💰' },
-    { value: 'gallery', label: 'Gallery', emoji: '🖼️' },
-    { value: 'careers', label: 'Careers', emoji: '💼' }
-  ];
-
-  const availableFeatures = [
-    { value: 'contact-form', label: 'Contact Form', emoji: '📝' },
-    { value: 'newsletter', label: 'Newsletter', emoji: '📧' },
-    { value: 'social-media', label: 'Social Links', emoji: '🔗' },
-    { value: 'testimonials', label: 'Testimonials', emoji: '⭐' },
-    { value: 'gallery', label: 'Image Gallery', emoji: '🖼️' },
-    { value: 'pricing-table', label: 'Pricing Table', emoji: '💰' },
-    { value: 'search', label: 'Search Function', emoji: '🔍' },
-    { value: 'chat-widget', label: 'Live Chat', emoji: '💬' },
-    { value: 'booking', label: 'Appointment Booking', emoji: '📅' },
-    { value: 'reviews', label: 'Customer Reviews', emoji: '⭐' },
-    { value: 'analytics', label: 'Analytics Tracking', emoji: '📊' },
-    { value: 'multilingual', label: 'Multi-language', emoji: '🌍' }
-  ];
-
   // Navigation functions
   const nextStep = (step: Step, updates?: Partial<WebsiteConfig>) => {
     setIsTransitioning(true);
@@ -179,12 +106,12 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     setError(null);
     
     try {
-      const selectedType = websiteTypes.find(t => t.value === config.websiteType)?.label;
-      const selectedTheme = themeOptions.find(t => t.value === config.theme)?.label;
-      const selectedStyle = designStyles.find(s => s.value === config.designStyle)?.label;
-      const selectedLayout = layoutOptions.find(l => l.value === config.layout)?.label;
-      const selectedPages = config.pages.map(p => availablePages.find(page => page.value === p)?.label).join(', ');
-      const selectedFeatures = config.features.map(f => availableFeatures.find(feat => feat.value === f)?.label).join(', ');
+      const selectedType = WEBSITE_TYPES.find(t => t.value === config.websiteType)?.label;
+      const selectedTheme = THEME_OPTIONS.find(t => t.value === config.theme)?.label;
+      const selectedStyle = DESIGN_STYLES.find(s => s.value === config.designStyle)?.label;
+      const selectedLayout = LAYOUT_OPTIONS.find(l => l.value === config.layout)?.label;
+      const selectedPages = config.pages.map(p => AVAILABLE_PAGES.find(page => page.value === p)?.label).join(', ');
+      const selectedFeatures = config.features.map(f => AVAILABLE_FEATURES.find(feat => feat.value === f)?.label).join(', ');
 
       let prompt = `Create a ${selectedType} website with ${selectedTheme} theme and ${selectedStyle} design style using a ${selectedLayout} layout. `;
       prompt += `Primary color: ${config.primaryColor}, Accent color: ${config.accentColor}. `;
@@ -308,172 +235,135 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   );
 
   const renderStepContent = () => {
-    const stepConfig = {
-      backgroundColor: 'min-h-screen bg-gradient-to-br from-background to-[#0a0a0a]',
-      containerClass: 'min-h-screen flex items-center justify-center px-4 sm:px-6 py-8',
-      contentClass: 'w-full max-w-6xl space-y-6 sm:space-y-8'
-    };
-
-    const commonProps = {
-      className: stepConfig.containerClass
-    };
-
     switch (currentStep) {
       case 'websiteType':
         return (
-          <div {...commonProps}>
-            <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">What are you building?</h2>
-                <p className="text-lg sm:text-xl text-text/70">Choose the type that best fits your vision</p>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-content-in content-flow-1">
-                {websiteTypes.map((type, index) => (
-                  <button
-                    key={type.value}
-                    onClick={() => nextStep('theme', { websiteType: type.value })}
-                    className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-accent-cyan/10 text-left animate-stagger-in stagger-${Math.min(index + 1, 6)}`}
-                  >
-                    <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{type.emoji}</div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{type.label}</h3>
-                    <p className="text-sm sm:text-base text-text/60">{type.description}</p>
-                  </button>
-                ))}
-              </div>
+          <StepContainer 
+            title="What are you building?" 
+            subtitle="Choose the type that best fits your vision"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {WEBSITE_TYPES.map((type, index) => (
+                <OptionButton
+                  key={type.value}
+                  value={type.value}
+                  label={type.label}
+                  emoji={type.emoji}
+                  description={type.description}
+                  onClick={() => nextStep('theme', { websiteType: type.value })}
+                  animationIndex={index}
+                />
+              ))}
             </div>
-          </div>
+          </StepContainer>
         );
 
       case 'theme':
         return (
-          <div {...commonProps}>
-            <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Choose your theme</h2>
-                <p className="text-lg sm:text-xl text-text/70">Pick the overall mood and brightness for your website</p>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-content-in content-flow-1">
-                {themeOptions.map((theme, index) => (
-                  <button
-                    key={theme.value}
-                    onClick={() => nextStep('colors', { theme: theme.value })}
-                    className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-accent-cyan/10 text-left animate-stagger-in stagger-${Math.min(index + 1, 6)}`}
-                  >
-                    <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{theme.emoji}</div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{theme.label}</h3>
-                    <p className="text-sm sm:text-base text-text/60">{theme.description}</p>
-                  </button>
-                ))}
-              </div>
+          <StepContainer 
+            title="Choose your theme" 
+            subtitle="Pick the overall mood and brightness for your website"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {THEME_OPTIONS.map((theme, index) => (
+                <OptionButton
+                  key={theme.value}
+                  value={theme.value}
+                  label={theme.label}
+                  emoji={theme.emoji}
+                  description={theme.description}
+                  onClick={() => nextStep('colors', { theme: theme.value })}
+                  animationIndex={index}
+                />
+              ))}
             </div>
-          </div>
+          </StepContainer>
         );
 
       case 'colors':
         return (
-          <div {...commonProps}>
-            <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Pick your colors</h2>
-                <p className="text-lg sm:text-xl text-text/70">Choose a palette that represents your brand</p>
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6 animate-content-in content-flow-1">
-                {colorPalettes.map((palette, index) => (
-                  <button
-                    key={palette.name}
-                    onClick={() => nextStep('style', { primaryColor: palette.primary, accentColor: palette.accent })}
-                    className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 animate-stagger-in stagger-${Math.min(index + 1, 6)}`}
-                  >
-                    <div className="flex space-x-2 sm:space-x-3 mb-3 sm:mb-4 justify-center">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full" style={{ backgroundColor: palette.primary }}></div>
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full" style={{ backgroundColor: palette.accent }}></div>
-                    </div>
-                    <h3 className="text-sm sm:text-lg lg:text-xl font-bold text-white text-center">{palette.name}</h3>
-                  </button>
-                ))}
-              </div>
+          <StepContainer 
+            title="Pick your colors" 
+            subtitle="Choose a palette that represents your brand"
+          >
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
+              {COLOR_PALETTES.map((palette, index) => (
+                <ColorPaletteButton
+                  key={palette.name}
+                  name={palette.name}
+                  primary={palette.primary}
+                  accent={palette.accent}
+                  onClick={() => nextStep('style', { primaryColor: palette.primary, accentColor: palette.accent })}
+                  animationIndex={index}
+                />
+              ))}
             </div>
-          </div>
+          </StepContainer>
         );
 
       case 'style':
         return (
-          <div {...commonProps}>
-            <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">What's your style?</h2>
-                <p className="text-lg sm:text-xl text-text/70">Choose the design direction that speaks to you</p>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 animate-content-in content-flow-1">
-                {designStyles.map((style, index) => (
-                  <button
-                    key={style.value}
-                    onClick={() => nextStep('layout', { designStyle: style.value })}
-                    className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 text-left animate-stagger-in stagger-${Math.min(index + 1, 6)}`}
-                  >
-                    <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{style.emoji}</div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{style.label}</h3>
-                    <p className="text-sm sm:text-base text-text/60">{style.description}</p>
-                  </button>
-                ))}
-              </div>
+          <StepContainer 
+            title="What's your style?" 
+            subtitle="Choose the design direction that speaks to you"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {DESIGN_STYLES.map((style, index) => (
+                <OptionButton
+                  key={style.value}
+                  value={style.value}
+                  label={style.label}
+                  emoji={style.emoji}
+                  description={style.description}
+                  onClick={() => nextStep('layout', { designStyle: style.value })}
+                  animationIndex={index}
+                />
+              ))}
             </div>
-          </div>
+          </StepContainer>
         );
 
       case 'layout':
         return (
-          <div {...commonProps}>
-            <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Choose your layout</h2>
-                <p className="text-lg sm:text-xl text-text/70">How do you want to structure your content?</p>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-content-in content-flow-1">
-                {layoutOptions.map((layout, index) => (
-                  <button
-                    key={layout.value}
-                    onClick={() => nextStep('pages', { layout: layout.value })}
-                    className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 text-center animate-stagger-in stagger-${Math.min(index + 1, 6)}`}
-                  >
-                    <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{layout.emoji}</div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{layout.label}</h3>
-                    <p className="text-sm sm:text-base text-text/60">{layout.description}</p>
-                  </button>
-                ))}
-              </div>
+          <StepContainer 
+            title="Choose your layout" 
+            subtitle="How do you want to structure your content?"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {LAYOUT_OPTIONS.map((layout, index) => (
+                <OptionButton
+                  key={layout.value}
+                  value={layout.value}
+                  label={layout.label}
+                  emoji={layout.emoji}
+                  description={layout.description}
+                  onClick={() => nextStep('pages', { layout: layout.value })}
+                  animationIndex={index}
+                  className="text-center"
+                />
+              ))}
             </div>
-          </div>
+          </StepContainer>
         );
 
       case 'pages':
         return (
-          <div {...commonProps}>
-            <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">What pages do you need?</h2>
-                <p className="text-lg sm:text-xl text-text/70">Select all the pages you want to include</p>
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 animate-content-in content-flow-1">
-                {availablePages.map((page, index) => (
-                  <button
+          <StepContainer 
+            title="What pages do you need?" 
+            subtitle="Select all the pages you want to include"
+          >
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+                {AVAILABLE_PAGES.map((page, index) => (
+                  <ToggleButton
                     key={page.value}
+                    value={page.value}
+                    label={page.label}
+                    emoji={page.emoji}
+                    isSelected={config.pages.includes(page.value)}
                     onClick={() => handlePageToggle(page.value)}
-                    className={`p-4 sm:p-6 rounded-xl border-2 transition-all duration-300 hover:scale-105 animate-stagger-in stagger-${Math.min(index + 1, 6)} ${
-                      config.pages.includes(page.value)
-                        ? 'border-accent-cyan bg-accent-cyan/20'
-                        : 'border-accent-purple/30 bg-[#1a1a1a] hover:border-accent-cyan/50'
-                    }`}
-                  >
-                    <div className="text-2xl sm:text-3xl mb-2">{page.emoji}</div>
-                    <h3 className="text-white font-bold text-sm sm:text-base">{page.label}</h3>
-                  </button>
+                    animationIndex={index}
+                  />
                 ))}
               </div>
               
@@ -487,32 +377,27 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 </button>
               </div>
             </div>
-          </div>
+          </StepContainer>
         );
 
       case 'features':
         return (
-          <div {...commonProps}>
-            <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Add some features</h2>
-                <p className="text-lg sm:text-xl text-text/70">What functionality would you like?</p>
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 animate-content-in content-flow-1">
-                {availableFeatures.map((feature, index) => (
-                  <button
+          <StepContainer 
+            title="Add some features" 
+            subtitle="What functionality would you like?"
+          >
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+                {AVAILABLE_FEATURES.map((feature, index) => (
+                  <ToggleButton
                     key={feature.value}
+                    value={feature.value}
+                    label={feature.label}
+                    emoji={feature.emoji}
+                    isSelected={config.features.includes(feature.value)}
                     onClick={() => handleFeatureToggle(feature.value)}
-                    className={`p-4 sm:p-6 rounded-xl border-2 transition-all duration-300 hover:scale-105 animate-stagger-in stagger-${Math.min(index + 1, 6)} ${
-                      config.features.includes(feature.value)
-                        ? 'border-accent-cyan bg-accent-cyan/20'
-                        : 'border-accent-purple/30 bg-[#1a1a1a] hover:border-accent-cyan/50'
-                    }`}
-                  >
-                    <div className="text-2xl sm:text-3xl mb-2">{feature.emoji}</div>
-                    <h3 className="text-white font-bold text-xs sm:text-sm">{feature.label}</h3>
-                  </button>
+                    animationIndex={index}
+                  />
                 ))}
               </div>
               
@@ -525,61 +410,55 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 </button>
               </div>
             </div>
-          </div>
+          </StepContainer>
         );
 
       case 'details':
         return (
-          <div {...commonProps}>
-            <div className={stepConfig.contentClass}>
-              <div className="text-center space-y-3 sm:space-y-4">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Any special requests?</h2>
-                <p className="text-lg sm:text-xl text-text/70">Tell us more about your vision (optional)</p>
-              </div>
+          <StepContainer 
+            title="Any special requests?" 
+            subtitle="Tell us more about your vision (optional)"
+          >
+            <div className="max-w-2xl mx-auto space-y-6">
+              <textarea
+                rows={6}
+                value={config.additionalDetails}
+                onChange={(e) => setConfig(prev => ({ ...prev, additionalDetails: e.target.value }))}
+                placeholder="Describe any specific requirements, content ideas, or special features you'd like..."
+                className="w-full p-4 sm:p-6 bg-[#1a1a1a] border-2 border-accent-purple/30 rounded-xl text-white placeholder-text/50 focus:outline-none focus:border-accent-cyan/50 transition-all duration-300 text-base sm:text-lg"
+              />
               
-              <div className="max-w-2xl mx-auto space-y-6">
-                <textarea
-                  rows={6}
-                  value={config.additionalDetails}
-                  onChange={(e) => setConfig(prev => ({ ...prev, additionalDetails: e.target.value }))}
-                  placeholder="Describe any specific requirements, content ideas, or special features you'd like..."
-                  className="w-full p-4 sm:p-6 bg-[#1a1a1a] border-2 border-accent-purple/30 rounded-xl text-white placeholder-text/50 focus:outline-none focus:border-accent-cyan/50 transition-all duration-300 text-base sm:text-lg"
-                />
-                
-                <div className="text-center">
-                  <button
-                    onClick={generateWebsite}
-                    className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
-                  >
-                    Create My Website! 🚀
-                  </button>
-                </div>
+              <div className="text-center">
+                <button
+                  onClick={generateWebsite}
+                  className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                >
+                  Create My Website! 🚀
+                </button>
               </div>
-
-              {error && (
-                <div className="max-w-2xl mx-auto p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-center">
-                  {error}
-                </div>
-              )}
             </div>
-          </div>
+
+            {error && (
+              <div className="max-w-2xl mx-auto p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-center">
+                {error}
+              </div>
+            )}
+          </StepContainer>
         );
 
       case 'generating':
         return (
-          <div {...commonProps}>
-            <div className="text-center space-y-6 sm:space-y-8">
-              <div className="space-y-3 sm:space-y-4">
-                <div className="text-5xl sm:text-6xl animate-bounce">🪄</div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">Creating your masterpiece...</h2>
-                <p className="text-lg sm:text-xl text-text/70">Our AI is crafting the perfect website for you</p>
-              </div>
-              
+          <StepContainer 
+            title="Creating your masterpiece..." 
+            subtitle="Our AI is crafting the perfect website for you"
+          >
+            <div className="text-center space-y-6">
+              <div className="text-5xl sm:text-6xl animate-bounce">🪄</div>
               <div className="flex justify-center">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-accent-cyan/30 border-t-accent-cyan rounded-full animate-spin"></div>
               </div>
             </div>
-          </div>
+          </StepContainer>
         );
 
       default:
