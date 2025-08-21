@@ -9,6 +9,15 @@ class ApiClient {
   private baseUrl = 'http://localhost:5000';
   private getToken = () => localStorage.getItem('authToken');
   private getRefreshToken = () => localStorage.getItem('refreshToken');
+  private decodeToken = (token: string): any | null => {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+      return JSON.parse(atob(payload));
+    } catch {
+      return null;
+    }
+  };
   private setTokens = (token: string, refreshToken?: string) => {
     localStorage.setItem('authToken', token);
     if (refreshToken) {
@@ -65,9 +74,22 @@ class ApiClient {
         body: body ? JSON.stringify(body) : undefined
       });
     };
+    // Attempt proactive refresh if token is close to expiry (<60s)
+    let token = this.getToken();
+    if (token) {
+      const decoded = this.decodeToken(token);
+      if (decoded?.exp) {
+        const secondsLeft = decoded.exp - Date.now() / 1000;
+        if (secondsLeft < 60) {
+          const refreshed = await this.refreshAccessToken();
+          if (refreshed) {
+            token = this.getToken();
+          }
+        }
+      }
+    }
 
-    // First attempt with current token
-    const token = this.getToken();
+    // First attempt with (possibly refreshed) token
     let response = await makeRequest(token || undefined);
 
     // If unauthorized and we have a refresh token, try to refresh

@@ -50,7 +50,9 @@ export const register = async (req: Request, res: Response) => {
     res.status(201).json({
       message: 'User registered successfully',
       user: { id: data.user.id, email: data.user.email },
-      token: data.session.access_token
+  token: data.session.access_token,
+  // Include refresh token for consistency with login response
+  refreshToken: data.session.refresh_token
     });
   } catch (error) {
     console.error('Registration error:', error);

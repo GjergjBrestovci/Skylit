@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiClient } from './utils/apiClient';
 import { NewDashboard } from './components/NewDashboard';
 import { Auth } from './components/Auth';
 
@@ -7,10 +8,21 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing token in localStorage
-    const token = localStorage.getItem('authToken');
-    setAuthToken(token);
-    setLoading(false);
+    const init = async () => {
+      const token = localStorage.getItem('authToken');
+      setAuthToken(token);
+      if (token) {
+        // Trigger a lightweight protected call to validate/refresh if needed
+        try {
+          await apiClient.get('/api/get-projects');
+        } catch (err) {
+          // If it fails due to auth, user will be forced to login
+          console.warn('Initial token validation failed:', err);
+        }
+      }
+      setLoading(false);
+    };
+    init();
   }, []);
 
   const handleAuthSuccess = (token: string) => {
