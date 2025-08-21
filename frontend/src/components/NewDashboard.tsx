@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { WebsitePreview } from './WebsitePreview';
+import { Sidebar } from '../components/Sidebar';
 import { apiClient } from '../utils/apiClient';
 import { StepContainer } from './ui/StepContainer';
 import { OptionButton, ColorPaletteButton, ToggleButton } from './ui/OptionButtons';
@@ -259,59 +260,28 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const renderHomepage = () => (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-[#0a0a0a] to-background">
       <div className="text-center max-w-4xl px-4 sm:px-6 space-y-8 sm:space-y-12 animate-page-fade-in">
-        {/* Hero Section */}
         <div className="space-y-4 sm:space-y-6">
           <div className="space-y-3 sm:space-y-4">
-            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500 bg-clip-text text-transparent animate-pulse">
-              Skylit AI
-            </h1>
-            <p className="text-lg sm:text-2xl md:text-3xl text-text/90 font-light">
-              Dream it. Build it. Launch it.
-            </p>
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500 bg-clip-text text-transparent animate-pulse">Skylit AI</h1>
+            <p className="text-lg sm:text-2xl md:text-3xl text-text/90 font-light">Dream it. Build it. Launch it.</p>
           </div>
-          
-          <p className="text-base sm:text-lg md:text-xl text-text/70 max-w-2xl mx-auto leading-relaxed px-2">
-            Transform your ideas into stunning websites in minutes. 
-            Our AI understands your vision and crafts the perfect digital experience.
-          </p>
+          <p className="text-base sm:text-lg md:text-xl text-text/70 max-w-2xl mx-auto leading-relaxed px-2">Transform your ideas into stunning websites in minutes. Our AI understands your vision and crafts the perfect digital experience.</p>
         </div>
-
-        {/* CTA Button */}
         <div className="space-y-4 sm:space-y-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
-          <button
-            onClick={() => nextStep('websiteType')}
-            className="group relative px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl font-bold text-white rounded-2xl overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-accent-cyan/25 w-full sm:w-auto"
-          >
+          <button onClick={() => nextStep('websiteType')} className="group relative px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl font-bold text-white rounded-2xl overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-accent-cyan/25 w-full sm:w-auto">
             <div className="absolute inset-0 bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500 opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-accent-purple to-accent-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative z-10 flex items-center justify-center gap-3">
-              Build My Dream Website
-              <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform duration-300">🚀</span>
-            </span>
+            <span className="relative z-10 flex items-center justify-center gap-3">Build My Dream Website <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform duration-300">🚀</span></span>
           </button>
-          
-          <p className="text-xs sm:text-sm text-text/50 px-4">
-            No coding required • Takes 2-3 minutes • Get live preview instantly
-          </p>
+          <p className="text-xs sm:text-sm text-text/50 px-4">No coding required • Takes 2-3 minutes • Get live preview instantly</p>
         </div>
-
-        {/* Features */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-3xl mx-auto">
           {[
             { icon: '⚡', title: 'Lightning Fast', desc: 'Generate in under 60 seconds' },
             { icon: '🎨', title: 'Your Style', desc: 'Customized to your brand' },
             { icon: '📱', title: 'Mobile Ready', desc: 'Looks perfect on any device' }
           ].map((feature, i) => (
-            <div 
-              key={i} 
-              className="space-y-3 opacity-80 hover:opacity-100 transition-all duration-500 p-4 animate-slide-up" 
-              style={{ 
-                animationDelay: `${0.6 + (i * 0.2)}s`, 
-                animationFillMode: 'both',
-                transform: 'translateY(20px)',
-                opacity: '0'
-              }}
-            >
+            <div key={i} className="space-y-3 opacity-80 hover:opacity-100 transition-all duration-500 p-4 animate-slide-up" style={{ animationDelay: `${0.6 + (i * 0.2)}s`, animationFillMode: 'both', transform: 'translateY(20px)', opacity: '0' }}>
               <div className="text-2xl sm:text-3xl">{feature.icon}</div>
               <h3 className="text-base sm:text-lg font-semibold text-white">{feature.title}</h3>
               <p className="text-sm text-text/60">{feature.desc}</p>
@@ -578,12 +548,10 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       <div className="border-b border-accent-purple/20 bg-[#1a1a1a] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-3">
+            <div className="space-y-1 w-full">
+              <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-xl sm:text-2xl font-bold text-white">Your Website is Ready! 🎉</h1>
-                <span className="px-2 py-1 bg-accent-cyan/20 border border-accent-cyan/30 rounded-full text-xs text-accent-cyan font-semibold">
-                  BETA
-                </span>
+                <span className="px-2 py-1 bg-accent-cyan/20 border border-accent-cyan/30 rounded-full text-xs text-accent-cyan font-semibold">BETA</span>
               </div>
               <p className="text-sm sm:text-base text-text/60">
                 Created on {result && new Date(result.createdAt).toLocaleDateString()}
@@ -765,15 +733,43 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   );
 
   // Main render
+  const openProjectFromSidebar = (p: { id: string; name: string; createdAt: string; previewUrl?: string }) => {
+    setResult({
+      generated: '<!-- Loaded project placeholder -->',
+      html: '<!-- Project HTML not loaded (API integration TBD) -->',
+      css: undefined,
+      javascript: undefined,
+      notes: `Viewing stored project: ${p.name}`,
+      analysis: undefined,
+      requirements: [],
+      enhancedPrompt: undefined,
+      createdAt: p.createdAt,
+      previewUrl: p.previewUrl,
+      model: undefined,
+      enhancementUsedAI: false
+    });
+    setCurrentStep('preview');
+  };
+
   if (currentStep === 'preview' && result) {
-    return renderPreview();
+    return (
+      <div className="flex w-full min-h-screen">
+        <Sidebar onLogout={onLogout} onCreateNew={startOver} onOpenProject={openProjectFromSidebar} />
+        <main className="flex-1 overflow-x-hidden">
+          {renderPreview()}
+        </main>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0a0a] to-background page-transition-container">
-      <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
-        {renderStepContent()}
-      </div>
+    <div className="flex w-full min-h-screen bg-background">
+      <Sidebar onLogout={onLogout} onCreateNew={startOver} onOpenProject={openProjectFromSidebar} />
+      <main className="flex-1 bg-gradient-to-br from-background via-[#0a0a0a] to-background page-transition-container overflow-x-hidden">
+        <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
+          {renderStepContent()}
+        </div>
+      </main>
     </div>
   );
 }

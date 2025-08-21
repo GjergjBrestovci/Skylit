@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Logo } from './ui/Logo';
 
 interface AuthProps {
   onAuthSuccess: (token: string) => void;
@@ -63,11 +64,9 @@ export function Auth({ onAuthSuccess }: AuthProps) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="bg-[#1e1e1e] border border-accent-purple/20 rounded-lg p-8 w-full max-w-md">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-accent-cyan mb-2">Skylit AI</h1>
-          <h2 className="text-xl font-semibold">
-            {isLogin ? 'Sign In' : 'Create Account'}
-          </h2>
+        <div className="text-center mb-6 space-y-3">
+          <Logo size={56} withText className="mx-auto justify-center" textSizeClass="text-3xl" />
+          <h2 className="text-xl font-semibold">{isLogin ? 'Sign In' : 'Create Account'}</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
