@@ -50,8 +50,14 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [jsLines, setJsLines] = useState<string[]>([]);
   const typingTimerRef = useRef<number | null>(null);
   const phaseTimerRef = useRef<number | null>(null);
+  // Removed manual phase scheduling; phases advance based on completion conditions
+  const maxHtmlLines = 30;
+  const maxCssLines = 18;
+  const maxJsLines = 14;
+  const placeholderEnhancedRef = useRef('');
+  const enhancedPhaseWaitStartRef = useRef<number | null>(null);
 
-  // Effect to progress prompt typing when in phase 0 or 1
+  // Effect to progress prompt typing when in phase 0 or 1 (independent of API completion)
   useEffect(() => {
     if (currentStep !== 'generating') return;
     if (generationPhase === 0 && displayedRawPrompt.length < rawPrompt.length) {
@@ -64,52 +70,94 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           setDisplayedEnhancedPrompt(enhancedPrompt.slice(0, displayedEnhancedPrompt.length + 4));
         }, 20);
       }
+    } else if (generationPhase === 1 && !enhancedPrompt) {
+      // Type a placeholder enhanced version while waiting for real enhancedPrompt
+      if (!placeholderEnhancedRef.current) {
+        placeholderEnhancedRef.current = rawPrompt
+          .replace(/Create a/i, 'Generate a fully responsive')
+          .concat('\n\nOptimizing requirements…');
+      }
+      const target = placeholderEnhancedRef.current;
+      if (displayedEnhancedPrompt.length < target.length) {
+        typingTimerRef.current = window.setTimeout(() => {
+          setDisplayedEnhancedPrompt(target.slice(0, displayedEnhancedPrompt.length + 4));
+        }, 35);
+      }
     }
     return () => {
       if (typingTimerRef.current) window.clearTimeout(typingTimerRef.current);
     };
   }, [generationPhase, displayedRawPrompt, rawPrompt, enhancedPrompt, displayedEnhancedPrompt, currentStep]);
 
-  // Code line streaming based on phase
+  // Code line streaming based on phase (continuous while in that phase regardless of API state)
   useEffect(() => {
     if (currentStep !== 'generating') return;
-    if (generationPhase === 2 && codeLines.length < 10) {
+    if (generationPhase === 2 && codeLines.length < maxHtmlLines) {
       phaseTimerRef.current = window.setTimeout(() => {
         setCodeLines(prev => [...prev, sampleHtmlLines[prev.length % sampleHtmlLines.length]]);
-      }, 120);
-    } else if (generationPhase === 3 && cssLines.length < 8) {
+      }, 180);
+    } else if (generationPhase === 3 && cssLines.length < maxCssLines) {
       phaseTimerRef.current = window.setTimeout(() => {
         setCssLines(prev => [...prev, sampleCssLines[prev.length % sampleCssLines.length]]);
-      }, 140);
-    } else if (generationPhase === 4 && jsLines.length < 8) {
+      }, 220);
+    } else if (generationPhase === 4 && jsLines.length < maxJsLines) {
       phaseTimerRef.current = window.setTimeout(() => {
         setJsLines(prev => [...prev, sampleJsLines[prev.length % sampleJsLines.length]]);
-      }, 160);
+      }, 260);
     }
     return () => {
       if (phaseTimerRef.current) window.clearTimeout(phaseTimerRef.current);
     };
   }, [generationPhase, codeLines.length, cssLines.length, jsLines.length, currentStep]);
 
-  // Auto advance phases when API is done (fast-forward)
+  // Phase advancement logic (automatic & conditional)
   useEffect(() => {
     if (currentStep !== 'generating') return;
-    if (!isApiDone) return;
-    if (isApiDone && generationPhase < 4) {
-      const id = window.setTimeout(() => setGenerationPhase(p => p + 1), 650);
-      return () => window.clearTimeout(id);
-    }
-  }, [isApiDone, generationPhase, currentStep]);
 
-  // Transition to preview when animation complete & API done
-  useEffect(() => {
-    if (currentStep === 'generating' && isApiDone && generationPhase >= 4 && jsLines.length >= 8) {
-      if (pendingResult) {
-        setResult(pendingResult);
-        setCurrentStep('preview');
+    // Phase 0 -> 1 when raw prompt done typing
+    if (generationPhase === 0 && rawPrompt && displayedRawPrompt.length >= rawPrompt.length) {
+      setGenerationPhase(1);
+      return;
+    }
+
+    // Phase 1 (prompt enhancement) completion conditions
+    if (generationPhase === 1) {
+      const targetEnhanced = enhancedPrompt || placeholderEnhancedRef.current;
+      const targetDone = targetEnhanced && displayedEnhancedPrompt.length >= targetEnhanced.length;
+
+      if (targetDone) {
+        // If we only have placeholder and not real enhanced prompt yet, wait a bit for real
+        if (!enhancedPrompt) {
+          if (enhancedPhaseWaitStartRef.current === null) {
+            enhancedPhaseWaitStartRef.current = Date.now();
+          } else if (Date.now() - enhancedPhaseWaitStartRef.current > 6000) {
+            setGenerationPhase(2);
+          }
+        } else {
+          // Real enhanced prompt finished
+            setGenerationPhase(2);
+        }
       }
     }
-  }, [currentStep, isApiDone, generationPhase, jsLines.length, pendingResult]);
+
+    // Phase 2 (HTML) -> 3 when enough lines
+    if (generationPhase === 2 && codeLines.length >= maxHtmlLines) {
+      setGenerationPhase(3);
+      return;
+    }
+
+    // Phase 3 (CSS) -> 4 when enough lines
+    if (generationPhase === 3 && cssLines.length >= maxCssLines) {
+      setGenerationPhase(4);
+      return;
+    }
+
+    // Finish when JS done & API done
+    if (generationPhase === 4 && jsLines.length >= maxJsLines && isApiDone && pendingResult) {
+      setResult(pendingResult);
+      setCurrentStep('preview');
+    }
+  }, [currentStep, generationPhase, rawPrompt, displayedRawPrompt, displayedEnhancedPrompt, enhancedPrompt, codeLines.length, cssLines.length, jsLines.length, isApiDone, pendingResult]);
 
   const sampleHtmlLines = [
     '<header class="site-header">',
@@ -193,6 +241,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     setEnhancedPrompt(undefined);
     setIsApiDone(false);
     setPendingResult(null);
+  placeholderEnhancedRef.current = '';
+  enhancedPhaseWaitStartRef.current = null;
 
     const selectedType = WEBSITE_TYPES.find(t => t.value === config.websiteType)?.label;
     const selectedTheme = THEME_OPTIONS.find(t => t.value === config.theme)?.label;
@@ -208,8 +258,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     if (config.additionalDetails.trim()) prompt += `Additional requirements: ${config.additionalDetails}`;
     setRawPrompt(prompt);
 
-    // Kick off prompt typing
-    setGenerationPhase(0);
+  // Kick off prompt typing & scheduled phase progression
+  setGenerationPhase(0);
 
     // Fire API call without blocking animation progression
     (async () => {
@@ -232,8 +282,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         setPendingResult(pending);
         if (data.enhancedPrompt) {
           setEnhancedPrompt(data.enhancedPrompt);
-          // Move to phase 1 to type enhanced prompt once raw done
-          setTimeout(() => setGenerationPhase(p => (p < 1 ? 1 : p)), 500);
+          if (generationPhase < 1) setGenerationPhase(1);
         }
         setIsApiDone(true);
       } catch (err) {
@@ -562,7 +611,6 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                   setCurrentStep('preview');
                 }
               }}
-              onPhaseAdvance={() => setGenerationPhase(p => Math.min(4, p + 1))}
             />
           </StepContainer>
         );

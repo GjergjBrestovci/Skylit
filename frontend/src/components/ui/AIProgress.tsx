@@ -11,7 +11,6 @@ interface AIProgressProps {
   jsLines: string[];
   isApiDone: boolean;
   onSkip: () => void;
-  onPhaseAdvance: () => void; // request next phase
 }
 
 // Pure presentational component (logic/intervals handled by parent NewDashboard)
@@ -25,8 +24,7 @@ export function AIProgress({
   cssLines,
   jsLines,
   isApiDone,
-  onSkip,
-  onPhaseAdvance
+  onSkip
 }: AIProgressProps) {
   const phaseTitles = [
     'Understanding your idea',
@@ -144,18 +142,11 @@ export function AIProgress({
 
       <div className="flex flex-col sm:flex-row justify-center gap-3">
         <button
-          onClick={onPhaseAdvance}
-          disabled={phase >= 4 || !isApiDone}
-          className="px-5 py-3 rounded-lg text-sm font-semibold bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/40 hover:bg-accent-cyan/30 disabled:opacity-40 disabled:cursor-not-allowed transition"
-        >
-          {phase >= 4 ? 'Waiting for AI…' : 'Advance Phase'}
-        </button>
-        <button
           onClick={onSkip}
           disabled={!isApiDone}
           className="px-5 py-3 rounded-lg text-sm font-semibold bg-accent-purple/20 text-accent-purple border border-accent-purple/40 hover:bg-accent-purple/30 disabled:opacity-40 disabled:cursor-not-allowed transition"
         >
-          {isApiDone ? 'Skip Animation' : 'AI Working…'}
+          {isApiDone ? 'Skip to Preview' : 'AI Working…'}
         </button>
       </div>
     </div>
