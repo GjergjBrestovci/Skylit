@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { WebsitePreview } from './WebsitePreview';
 import { apiClient } from '../utils/apiClient';
 import { StepContainer } from './ui/StepContainer';
 import { OptionButton, ColorPaletteButton, ToggleButton } from './ui/OptionButtons';
+import { AIProgress } from './ui/AIProgress';
 import {
   WEBSITE_TYPES,
   THEME_OPTIONS,
@@ -36,6 +37,112 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [showCode, setShowCode] = useState(false);
   const [activeCodeTab, setActiveCodeTab] = useState<'html' | 'css' | 'javascript' | 'notes' | 'analysis'>('html');
+  // Generation animation state
+  const [rawPrompt, setRawPrompt] = useState('');
+  const [enhancedPrompt, setEnhancedPrompt] = useState<string | undefined>(undefined);
+  const [pendingResult, setPendingResult] = useState<GenerationResult | null>(null);
+  const [isApiDone, setIsApiDone] = useState(false);
+  const [generationPhase, setGenerationPhase] = useState(0); // 0..4
+  const [displayedRawPrompt, setDisplayedRawPrompt] = useState('');
+  const [displayedEnhancedPrompt, setDisplayedEnhancedPrompt] = useState('');
+  const [codeLines, setCodeLines] = useState<string[]>([]);
+  const [cssLines, setCssLines] = useState<string[]>([]);
+  const [jsLines, setJsLines] = useState<string[]>([]);
+  const typingTimerRef = useRef<number | null>(null);
+  const phaseTimerRef = useRef<number | null>(null);
+
+  // Effect to progress prompt typing when in phase 0 or 1
+  useEffect(() => {
+    if (currentStep !== 'generating') return;
+    if (generationPhase === 0 && displayedRawPrompt.length < rawPrompt.length) {
+      typingTimerRef.current = window.setTimeout(() => {
+        setDisplayedRawPrompt(rawPrompt.slice(0, displayedRawPrompt.length + 3));
+      }, 25);
+    } else if (generationPhase === 1 && enhancedPrompt) {
+      if (displayedEnhancedPrompt.length < enhancedPrompt.length) {
+        typingTimerRef.current = window.setTimeout(() => {
+          setDisplayedEnhancedPrompt(enhancedPrompt.slice(0, displayedEnhancedPrompt.length + 4));
+        }, 20);
+      }
+    }
+    return () => {
+      if (typingTimerRef.current) window.clearTimeout(typingTimerRef.current);
+    };
+  }, [generationPhase, displayedRawPrompt, rawPrompt, enhancedPrompt, displayedEnhancedPrompt, currentStep]);
+
+  // Code line streaming based on phase
+  useEffect(() => {
+    if (currentStep !== 'generating') return;
+    if (generationPhase === 2 && codeLines.length < 10) {
+      phaseTimerRef.current = window.setTimeout(() => {
+        setCodeLines(prev => [...prev, sampleHtmlLines[prev.length % sampleHtmlLines.length]]);
+      }, 120);
+    } else if (generationPhase === 3 && cssLines.length < 8) {
+      phaseTimerRef.current = window.setTimeout(() => {
+        setCssLines(prev => [...prev, sampleCssLines[prev.length % sampleCssLines.length]]);
+      }, 140);
+    } else if (generationPhase === 4 && jsLines.length < 8) {
+      phaseTimerRef.current = window.setTimeout(() => {
+        setJsLines(prev => [...prev, sampleJsLines[prev.length % sampleJsLines.length]]);
+      }, 160);
+    }
+    return () => {
+      if (phaseTimerRef.current) window.clearTimeout(phaseTimerRef.current);
+    };
+  }, [generationPhase, codeLines.length, cssLines.length, jsLines.length, currentStep]);
+
+  // Auto advance phases when API is done (fast-forward)
+  useEffect(() => {
+    if (currentStep !== 'generating') return;
+    if (!isApiDone) return;
+    if (isApiDone && generationPhase < 4) {
+      const id = window.setTimeout(() => setGenerationPhase(p => p + 1), 650);
+      return () => window.clearTimeout(id);
+    }
+  }, [isApiDone, generationPhase, currentStep]);
+
+  // Transition to preview when animation complete & API done
+  useEffect(() => {
+    if (currentStep === 'generating' && isApiDone && generationPhase >= 4 && jsLines.length >= 8) {
+      if (pendingResult) {
+        setResult(pendingResult);
+        setCurrentStep('preview');
+      }
+    }
+  }, [currentStep, isApiDone, generationPhase, jsLines.length, pendingResult]);
+
+  const sampleHtmlLines = [
+    '<header class="site-header">',
+    '  <nav class="nav flex">',
+    '    <a class="logo">Brand</a>',
+    '    <ul class="menu">',
+    '      <li><a>Home</a></li>',
+    '      <li><a>Features</a></li>',
+    '    </ul>',
+    '  </nav>',
+    '</header>',
+    '<main class="hero">'
+  ];
+  const sampleCssLines = [
+    '.site-header { backdrop-filter: blur(8px); }',
+    '.hero { display:grid; place-items:center; }',
+    '.btn-primary { background:linear-gradient(var(--c1), var(--c2)); }',
+    'h1 { font-size:clamp(2.5rem,6vw,4rem); }',
+    '@media (max-width:640px){ .menu{display:none;} }',
+    '.card { box-shadow:0 8px 30px -10px #000; }',
+    '.accent { color: var(--accent); }',
+    'footer { opacity:.85; }'
+  ];
+  const sampleJsLines = [
+    'document.querySelectorAll("[data-toggle]")',
+    '  .forEach(btn=>btn.addEventListener("click",()=>{',
+    '    document.body.classList.toggle("menu-open")',
+    '  }))',
+    'const observer = new IntersectionObserver(() => {})',
+    'observer.observe(document.querySelector(".hero"))',
+    'console.log("AI site ready")',
+    '/* end */'
+  ];
 
   // Navigation functions
   const nextStep = (step: Step, updates?: Partial<WebsiteConfig>) => {
@@ -76,49 +183,64 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const generateWebsite = async () => {
     setCurrentStep('generating');
     setError(null);
-    
-    try {
-      const selectedType = WEBSITE_TYPES.find(t => t.value === config.websiteType)?.label;
-      const selectedTheme = THEME_OPTIONS.find(t => t.value === config.theme)?.label;
-      const selectedStyle = DESIGN_STYLES.find(s => s.value === config.designStyle)?.label;
-      const selectedLayout = LAYOUT_OPTIONS.find(l => l.value === config.layout)?.label;
-      const selectedPages = config.pages.map(p => AVAILABLE_PAGES.find(page => page.value === p)?.label).join(', ');
-      const selectedFeatures = config.features.map(f => AVAILABLE_FEATURES.find(feat => feat.value === f)?.label).join(', ');
+    // Reset generation animation state
+    setGenerationPhase(0);
+    setDisplayedRawPrompt('');
+    setDisplayedEnhancedPrompt('');
+    setCodeLines([]);
+    setCssLines([]);
+    setJsLines([]);
+    setEnhancedPrompt(undefined);
+    setIsApiDone(false);
+    setPendingResult(null);
 
-      let prompt = `Create a ${selectedType} website with ${selectedTheme} theme and ${selectedStyle} design style using a ${selectedLayout} layout. `;
-      prompt += `Primary color: ${config.primaryColor}, Accent color: ${config.accentColor}. `;
-      prompt += `Include these pages: ${selectedPages}. `;
-      
-      if (selectedFeatures) {
-        prompt += `Add these features: ${selectedFeatures}. `;
-      }
-      
-      if (config.additionalDetails.trim()) {
-        prompt += `Additional requirements: ${config.additionalDetails}`;
-      }
+    const selectedType = WEBSITE_TYPES.find(t => t.value === config.websiteType)?.label;
+    const selectedTheme = THEME_OPTIONS.find(t => t.value === config.theme)?.label;
+    const selectedStyle = DESIGN_STYLES.find(s => s.value === config.designStyle)?.label;
+    const selectedLayout = LAYOUT_OPTIONS.find(l => l.value === config.layout)?.label;
+    const selectedPages = config.pages.map(p => AVAILABLE_PAGES.find(page => page.value === p)?.label).join(', ');
+    const selectedFeatures = config.features.map(f => AVAILABLE_FEATURES.find(feat => feat.value === f)?.label).join(', ');
 
-      const data = await apiClient.post('/api/generate-site', { prompt });
-      
-      setResult({
-        generated: data.generated,
-        html: data.html || data.generated,
-        css: data.css,
-        javascript: data.javascript,
-        notes: data.notes,
-        analysis: data.analysis,
-        requirements: data.requirements,
-        enhancedPrompt: data.enhancedPrompt,
-        createdAt: data.createdAt,
-        previewUrl: data.previewUrl,
-        model: data.model,
-        enhancementUsedAI: data.enhancementUsedAI
-      });
-      
-      setCurrentStep('preview');
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to generate website');
-      setCurrentStep('details'); // Go back to last step
-    }
+    let prompt = `Create a ${selectedType} website with ${selectedTheme} theme and ${selectedStyle} design style using a ${selectedLayout} layout. `;
+    prompt += `Primary color: ${config.primaryColor}, Accent color: ${config.accentColor}. `;
+    prompt += `Include these pages: ${selectedPages}. `;
+    if (selectedFeatures) prompt += `Add these features: ${selectedFeatures}. `;
+    if (config.additionalDetails.trim()) prompt += `Additional requirements: ${config.additionalDetails}`;
+    setRawPrompt(prompt);
+
+    // Kick off prompt typing
+    setGenerationPhase(0);
+
+    // Fire API call without blocking animation progression
+    (async () => {
+      try {
+        const data = await apiClient.post('/api/generate-site', { prompt });
+        const pending: GenerationResult = {
+          generated: data.generated,
+          html: data.html || data.generated,
+          css: data.css,
+          javascript: data.javascript,
+          notes: data.notes,
+          analysis: data.analysis,
+          requirements: data.requirements,
+          enhancedPrompt: data.enhancedPrompt,
+          createdAt: data.createdAt,
+          previewUrl: data.previewUrl,
+          model: data.model,
+          enhancementUsedAI: data.enhancementUsedAI
+        };
+        setPendingResult(pending);
+        if (data.enhancedPrompt) {
+          setEnhancedPrompt(data.enhancedPrompt);
+          // Move to phase 1 to type enhanced prompt once raw done
+          setTimeout(() => setGenerationPhase(p => (p < 1 ? 1 : p)), 500);
+        }
+        setIsApiDone(true);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to generate website');
+        setCurrentStep('details');
+      }
+    })();
   };
 
   const startOver = () => {
@@ -421,15 +543,27 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       case 'generating':
         return (
           <StepContainer 
-            title="Creating your masterpiece..." 
-            subtitle="Our AI is crafting the perfect website for you"
+            title="AI is building your site" 
+            subtitle="Sit back while we enhance and generate everything"
           >
-            <div className="text-center space-y-6">
-              <div className="text-5xl sm:text-6xl animate-bounce">🪄</div>
-              <div className="flex justify-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-accent-cyan/30 border-t-accent-cyan rounded-full animate-spin"></div>
-              </div>
-            </div>
+            <AIProgress
+              rawPrompt={rawPrompt}
+              enhancedPrompt={enhancedPrompt}
+              phase={generationPhase}
+              displayedRaw={displayedRawPrompt}
+              displayedEnhanced={displayedEnhancedPrompt}
+              codeLines={codeLines}
+              cssLines={cssLines}
+              jsLines={jsLines}
+              isApiDone={isApiDone}
+              onSkip={() => {
+                if (isApiDone && pendingResult) {
+                  setResult(pendingResult);
+                  setCurrentStep('preview');
+                }
+              }}
+              onPhaseAdvance={() => setGenerationPhase(p => Math.min(4, p + 1))}
+            />
           </StepContainer>
         );
 
