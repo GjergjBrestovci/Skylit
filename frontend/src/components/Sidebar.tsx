@@ -176,7 +176,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       </button>
       <aside
         ref={sidebarRef}
-        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col bg-[#151515]/90 backdrop-blur-md shadow-[0_0_0_1px_rgba(255,255,255,0.04)] ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-[4.75rem]' : 'w-72'} transition-[width,transform,background-color] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
+        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${collapsed ? 'bg-transparent backdrop-blur-0 shadow-none' : 'bg-[#151515]/90 backdrop-blur-md shadow-[0_0_0_1px_rgba(255,255,255,0.04)]'} ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-[4.75rem]' : 'w-72'} transition-[width,transform,background-color,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
       >
         <div className="p-4 flex items-center gap-2">        
           <button
@@ -185,7 +185,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
             aria-label="Expand navigation"
           >
             <Logo size={48} withText={!collapsed} textSizeClass="text-2xl" />
-            {collapsed && <span className="absolute -bottom-1 text-[10px] font-semibold tracking-wide text-text/40 select-none">MENU</span>}
           </button>
           {!collapsed && (
             <div className="ml-auto flex items-center gap-2">
