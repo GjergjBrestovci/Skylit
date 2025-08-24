@@ -9,6 +9,7 @@ interface ProjectItem {
   name: string;
   createdAt: string;
   previewUrl?: string;
+  previewId?: string;
 }
 
 interface NotificationItem {
@@ -127,7 +128,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
           id: p.id || p._id || p.projectId || Math.random().toString(36).slice(2),
             name: p.name || p.title || 'Untitled Project',
             createdAt: p.createdAt || p.date || new Date().toISOString(),
-            previewUrl: p.previewUrl || p.url || p.preview
+            previewUrl: p.previewUrl || p.url || p.preview,
+            previewId: p.previewId || (() => {
+              const url: string | undefined = p.previewUrl || p.url || p.preview;
+              if (!url || typeof url !== 'string') return undefined;
+              try {
+                const parts = url.split('?')[0].split('/').filter(Boolean);
+                return parts[parts.length - 1];
+              } catch { return undefined; }
+            })()
         }));
       setProjects(list.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     } catch (err: any) {
@@ -139,11 +148,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
 
   useEffect(() => { loadProjects(); }, []);
 
-  const deleteProject = async (id: string) => {
+  const deleteProject = async (project: ProjectItem) => {
     if (!confirm('Delete this project? This action cannot be undone.')) return;
     try {
-      await apiClient.delete(`/api/projects/${id}`); // Assuming RESTful path
-      setProjects(p => p.filter(pr => pr.id !== id));
+      // Align with existing backend route that deletes previews: DELETE /api/preview/:previewId
+      const previewId = project.previewId;
+      if (previewId) {
+        await apiClient.delete(`/api/preview/${previewId}`);
+      } else {
+        pushNotification('No preview reference found; removed locally only', 'warning');
+      }
+      setProjects(p => p.filter(pr => pr.id !== project.id));
       pushNotification('Project deleted', 'info');
     } catch (err: any) {
       pushNotification('Failed to delete project', 'error');
@@ -176,9 +191,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       </button>
       <aside
         ref={sidebarRef}
-        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${collapsed ? 'bg-transparent backdrop-blur-0 shadow-none' : 'bg-[#151515]/90 backdrop-blur-md shadow-[0_0_0_1px_rgba(255,255,255,0.04)]'} ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-[4.75rem]' : 'w-72'} transition-[width,transform,background-color,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
+        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${collapsed ? 'bg-transparent backdrop-blur-0 shadow-none' : 'bg-[#151515]/90 backdrop-blur-md shadow-[0_0_0_1px_rgba(255,255,255,0.04)]'} ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-16' : 'w-72'} transition-[width,transform,background-color,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
       >
-        <div className="p-4 flex items-center gap-2">        
+        <div className={`${collapsed ? 'p-1 justify-center' : 'p-4 gap-2'} flex items-center`}>        
           <button
             onClick={() => setCollapsed(false)}
             className={`relative flex items-center justify-center rounded-xl transition-all duration-300 focus:outline-none ${collapsed ? 'w-14 h-14' : 'w-14 h-14'} hover:scale-[1.02] active:scale-[0.98]`}
@@ -273,9 +288,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
                       </>
                     )}
                   </button>
-                  {!collapsed && (
+          {!collapsed && (
                     <button
-                      onClick={() => deleteProject(p.id)}
+            onClick={() => deleteProject(p)}
                       className="text-text/40 hover:text-red-400 text-xs"
                       title="Delete"
                     >🗑</button>
