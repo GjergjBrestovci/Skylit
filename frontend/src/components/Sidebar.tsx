@@ -200,9 +200,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       </button>
       <aside
         ref={sidebarRef}
-        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${collapsed ? 'bg-transparent backdrop-blur-0 shadow-none' : 'bg-[#151515]/90 backdrop-blur-md shadow-[0_0_0_1px_rgba(255,255,255,0.04)]'} ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-16' : 'w-72'} transition-[width,transform,background-color,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
+        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${collapsed ? 'bg-transparent backdrop-blur-0 shadow-none' : 'bg-background shadow-[0_0_0_1px_rgba(255,255,255,0.04)]'} ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-16' : 'w-72'} transition-[width,transform,background-color,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
       >
-        <div className={`${collapsed ? 'p-1 justify-center' : 'p-4 gap-2'} flex items-center`}>        
+            <div className={`${collapsed ? 'p-1 justify-center' : 'p-4 gap-2'} flex items-center`}>        
           <button
             onClick={() => setCollapsed(false)}
             className={`relative flex items-center justify-center rounded-xl transition-all duration-300 focus:outline-none ${collapsed ? 'w-14 h-14' : 'w-14 h-14'} hover:scale-[1.02] active:scale-[0.98]`}
@@ -216,12 +216,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
                 {theme === 'dark' ? '🌙' : theme === 'light' ? '🔆' : '🖥'}
               </button>
               <button onClick={() => setShowNotifications(s => !s)} className="text-text/60 hover:text-white text-lg transition-transform duration-300 hover:scale-110 focus:outline-none" title="Notifications">🔔</button>
-              <button
-                onClick={() => setCollapsed(true)}
-                className="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-md bg-[#1f1f1f]/60 text-text/60 hover:text-white hover:bg-[#222] transition-colors focus:outline-none"
-                title="Collapse sidebar"
-                aria-label="Collapse sidebar"
-              >‹</button>
+                  <button
+                    onClick={() => setCollapsed(true)}
+                    className="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-md bg-background text-text/60 hover:text-text hover:bg-background/80 transition-colors focus:outline-none"
+                    title="Collapse sidebar"
+                    aria-label="Collapse sidebar"
+                  >‹</button>
             </div>
           )}
         </div>
@@ -239,14 +239,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
         )}
         {/* Theme Switcher */}
   {!collapsed && (
-    <div className="p-4 animate-fade-in" style={{animationDelay:'60ms'}}>
+      <div className="p-4 animate-fade-in" style={{animationDelay:'60ms'}}>
             <p className="text-xs uppercase tracking-wide text-text/50 mb-2">Theme</p>
             <div className="flex gap-2">
               {(['dark','light','system'] as ThemeChoice[]).map(t => (
                 <button
                   key={t}
                   onClick={() => handleThemeChange(t)}
-      className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all duration-300 backdrop-blur-sm ${theme===t ? 'bg-accent-cyan text-black shadow-[0_0_0_1px_rgba(0,255,255,0.35)]' : 'bg-[#1f1f1f]/50 text-text/60 hover:text-text hover:bg-[#262626]'}`}
+    className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all duration-300 ${theme===t ? 'bg-accent-cyan text-black shadow-[0_0_0_1px_rgba(0,255,255,0.35)]' : 'bg-background text-text/60 hover:text-text hover:bg-background/80'}`}
                 >{t.charAt(0).toUpperCase()+t.slice(1)}</button>
               ))}
             </div>
@@ -257,24 +257,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
           <div className="p-4 flex flex-wrap gap-2 animate-fade-in" style={{animationDelay:'90ms'}}>
             <button onClick={onCreateNew} className="flex-1 px-3 py-2 rounded-md bg-accent-cyan text-black text-xs font-semibold hover:brightness-110 transition-all focus:outline-none">➕ New</button>
             <button onClick={loadProjects} className="flex-1 px-3 py-2 rounded-md bg-accent-purple/80 text-white text-xs font-semibold hover:brightness-110 transition-all focus:outline-none">⟳ Reload</button>
-            <button onClick={() => pushNotification('Data refreshed')} className="flex-1 px-3 py-2 rounded-md bg-[#222] text-text text-xs font-semibold hover:bg-[#2a2a2a] transition-all focus:outline-none">🔄 Refresh</button>
+            <button onClick={() => pushNotification('Data refreshed')} className="flex-1 px-3 py-2 rounded-md bg-background text-text text-xs font-semibold hover:bg-background/80 transition-all focus:outline-none">🔄 Refresh</button>
           </div>
         )}
         {/* Search */}
         {!collapsed && (
-          <div className="p-4 animate-fade-in" style={{animationDelay:'120ms'}}>
+      <div className="p-4 animate-fade-in" style={{animationDelay:'120ms'}}>
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search projects..."
-              className="w-full px-3 py-2 rounded-md bg-[#1f1f1f]/60 text-sm focus:outline-none focus:ring-0 focus:bg-[#232323] transition-colors placeholder:text-text/40"
+        className="w-full px-3 py-2 rounded-md bg-background text-sm focus:outline-none focus:ring-0 focus:bg-background/80 transition-colors placeholder:text-text/40"
             />
           </div>
         )}
         {/* Projects List */}
         {!collapsed && (
-          <div className="flex-1 overflow-y-auto custom-scrollbar animate-fade-in" style={{animationDelay:'150ms'}}>
+      <div className="flex-1 overflow-y-auto custom-scrollbar animate-fade-in" style={{animationDelay:'150ms'}}>
           <p className="px-4 py-2 text-xs uppercase tracking-wide text-text/50">Projects</p>
           {loadingProjects && <p className="px-4 text-xs text-text/60">Loading...</p>}
           {projectError && <p className="px-4 text-xs text-red-400">{projectError}</p>}
@@ -283,7 +283,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
           )}
           <ul className="space-y-1 px-2 pb-4">
             {filteredProjects.map(p => (
-              <li key={p.id} className="group rounded-md border border-transparent hover:border-accent-purple/30 hover:bg-[#1f1f1f] transition-colors" title={collapsed ? p.name : undefined}>
+        <li key={p.id} className="group rounded-md border border-transparent hover:border-accent-purple/30 hover:bg-background transition-colors" title={collapsed ? p.name : undefined}>
                 <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-2'} px-3 py-2`}>
                   <button
                     onClick={() => onOpenProject(p)}
@@ -316,9 +316,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
         {/* Nav Links (placeholder for future sections) */}
         {!collapsed && (
           <div className="p-4 flex flex-wrap gap-2 animate-fade-in" style={{animationDelay:'180ms'}}>
-            <button className="flex-1 px-2 py-2 rounded-md bg-[#1f1f1f]/60 text-xs text-text/70 hover:text-white hover:bg-[#232323] focus:outline-none">🏠 Dashboard</button>
-            <button className="flex-1 px-2 py-2 rounded-md bg-[#1f1f1f]/60 text-xs text-text/70 hover:text-white hover:bg-[#232323] focus:outline-none">👤 Profile</button>
-            <button className="flex-1 px-2 py-2 rounded-md bg-[#1f1f1f]/60 text-xs text-text/70 hover:text-white hover:bg-[#232323] focus:outline-none">⚙ Settings</button>
+            <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">🏠 Dashboard</button>
+            <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">👤 Profile</button>
+            <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">⚙ Settings</button>
           </div>
         )}
         {!collapsed && (
@@ -330,7 +330,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       </aside>
       {/* Notifications Panel */}
       {showNotifications && !collapsed && (
-        <div className="fixed top-0 hidden lg:block h-full bg-[#181818]/90 backdrop-blur-md shadow-[0_0_0_1px_rgba(255,255,255,0.04)] z-30 flex flex-col transition-all" style={{ left: collapsed ? '5rem' : '18rem', width: '20rem' }}>
+        <div className="fixed top-0 hidden lg:block h-full bg-background shadow-[0_0_0_1px_rgba(255,255,255,0.04)] z-30 flex flex-col transition-all" style={{ left: collapsed ? '5rem' : '18rem', width: '20rem' }}>
           <div className="p-4 border-b border-accent-purple/20 flex items-center justify-between">
             <h3 className="text-sm font-semibold">Notifications</h3>
             <button onClick={() => setShowNotifications(false)} className="text-text/60 hover:text-white text-xs">Close</button>

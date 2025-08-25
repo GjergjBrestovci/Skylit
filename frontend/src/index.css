@@ -50,6 +50,10 @@ body {
 .light .bg-accent-purple .text-white,
 .light .from-accent-cyan.to-accent-purple .text-white { color: #ffffff !important; }
 
+/* Avoid white-on-white inside generic background containers when light */
+.light .bg-background .text-white,
+.light .bg-background [class*="text-white/"] { color: #111111 !important; }
+
 #root { 
   min-height: 100vh; 
 }

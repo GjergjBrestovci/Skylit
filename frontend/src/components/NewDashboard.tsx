@@ -545,7 +545,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const renderPreview = () => (
     <div className="min-h-screen bg-background">
       {/* Header with toggle */}
-      <div className="border-b border-accent-purple/20 bg-[#1a1a1a] sticky top-0 z-50">
+  <div className="border-b border-accent-purple/20 bg-background sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-4">
             <div className="space-y-1 w-full sm:flex-1 sm:min-w-0">
