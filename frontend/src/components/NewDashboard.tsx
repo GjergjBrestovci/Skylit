@@ -545,12 +545,12 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const renderPreview = () => (
     <div className="min-h-screen bg-background">
       {/* Header with toggle */}
-  <div className="border-b border-accent-purple/20 bg-background sticky top-0 z-50">
+      <div className="bg-background sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-4">
             <div className="space-y-1 w-full sm:flex-1 sm:min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-bold text-white">Your Website is Ready! 🎉</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-text">Your Website is Ready! 🎉</h1>
                 <span className="px-2 py-1 bg-accent-cyan/20 border border-accent-cyan/30 rounded-full text-xs text-accent-cyan font-semibold">BETA</span>
               </div>
               <p className="text-sm sm:text-base text-text/60 truncate">

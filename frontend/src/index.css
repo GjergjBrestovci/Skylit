@@ -7,6 +7,12 @@ body {
   @apply bg-background text-text font-sans antialiased;
 }
 
+/* Sidebar specific dark color override */
+.dark .sidebar-bg { background-color: #121212 !important; }
+
+/* Light mode uses bg-background token for sidebar */
+.light .sidebar-bg { background-color: #f7f7f7 !important; }
+
 /* Light mode overrides (root element gets class="light") */
 .light body { background-color: #f7f7f7; color: #111111; }
 
