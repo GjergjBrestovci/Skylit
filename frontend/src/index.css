@@ -8,12 +8,20 @@ body {
 }
 
 /* Light mode overrides (root element gets class="light") */
-.light body {
-  background-color: #f7f7f7;
-  color: #111111;
-}
+.light body { background-color: #f7f7f7; color: #111111; }
+
+/* Core theme tokens to flip globally */
+.light .bg-background { background-color: #f7f7f7 !important; }
+.light .text-text { color: #111111 !important; }
+.light [class*="text-text/"] { color: rgba(17,17,17,0.7) !important; }
+
+/* Gradient tokens used throughout pages */
+.light .from-background { --tw-gradient-from: #f7f7f7 !important; --tw-gradient-to: rgba(247,247,247,0) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+.light .to-background { --tw-gradient-to: #f7f7f7 !important; }
+.light .via-\[\#0a0a0a\] { --tw-gradient-via-position: ; --tw-gradient-stops: var(--tw-gradient-from), #eeeeee, var(--tw-gradient-to) !important; }
 
 /* Common dark-surface utility overrides for light mode */
+.light .bg-\[\#0a0a0a\] { background-color: #f7f7f7 !important; color: #111111; }
 .light .bg-\[\#1a1a1a\] { background-color: #ffffff !important; color: #111111; }
 .light .bg-\[\#232323\] { background-color: #f3f4f6 !important; color: #111111; }
 .light .bg-\[\#151515\]\/90 { background-color: rgba(255,255,255,0.9) !important; color: #111111; }
@@ -22,10 +30,14 @@ body {
 .light .bg-\[\#202020\] { background-color: #ffffff !important; color: #111111; }
 .light .bg-\[\#181818\] { background-color: #ffffff !important; color: #111111; }
 
-/* Text utilities that clash on light backgrounds */
-.light .text-white { color: #111111 !important; }
-.light .text-text { color: #111111 !important; }
-.light [class*="text-text/"] { color: rgba(17,17,17,0.7) !important; }
+/* Within flipped light containers, force .text-white to dark for readability */
+.light .bg-\[\#0a0a0a\] .text-white,
+.light .bg-\[\#1a1a1a\] .text-white,
+.light .bg-\[\#232323\] .text-white,
+.light .bg-\[\#151515\] .text-white,
+.light .bg-\[\#1f1f1f\] .text-white,
+.light .bg-\[\#202020\] .text-white,
+.light .bg-\[\#181818\] .text-white { color: #111111 !important; }
 
 /* Subtle borders/shadows in light mode */
 .light .shadow-\[0_0_0_1px_rgba\(255,255,255,0\.04\)\] { box-shadow: 0 0 0 1px rgba(0,0,0,0.06) !important; }
@@ -33,8 +45,10 @@ body {
 .light .border-\[\#1a1a1a\],
 .light .border-accent-purple\/20 { border-color: rgba(0,0,0,0.08) !important; }
 
-/* Buttons on accent backgrounds keep white text for contrast */
-.light .bg-accent-cyan .text-white, .light .bg-accent-purple .text-white { color: #ffffff !important; }
+/* Preserve contrast on accent surfaces */
+.light .bg-accent-cyan .text-white,
+.light .bg-accent-purple .text-white,
+.light .from-accent-cyan.to-accent-purple .text-white { color: #ffffff !important; }
 
 #root { 
   min-height: 100vh; 
