@@ -200,7 +200,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       </button>
       <aside
         ref={sidebarRef}
-        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${collapsed ? 'bg-transparent backdrop-blur-0 shadow-none' : 'bg-background shadow-[0_0_0_1px_rgba(255,255,255,0.04)]'} ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-16' : 'w-72'} transition-[width,transform,background-color,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
+        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${collapsed ? 'bg-transparent shadow-none' : 'bg-transparent shadow-none'} ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-16' : 'w-72'} transition-[width,transform] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
       >
             <div className={`${collapsed ? 'p-1 justify-center' : 'p-4 gap-2'} flex items-center`}>        
           <button
@@ -330,7 +330,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       </aside>
       {/* Notifications Panel */}
       {showNotifications && !collapsed && (
-        <div className="fixed top-0 hidden lg:block h-full bg-background shadow-[0_0_0_1px_rgba(255,255,255,0.04)] z-30 flex flex-col transition-all" style={{ left: collapsed ? '5rem' : '18rem', width: '20rem' }}>
+        <div className="fixed top-0 hidden lg:block h-full bg-transparent z-30 flex flex-col transition-all" style={{ left: collapsed ? '5rem' : '18rem', width: '20rem' }}>
           <div className="p-4 border-b border-accent-purple/20 flex items-center justify-between">
             <h3 className="text-sm font-semibold">Notifications</h3>
             <button onClick={() => setShowNotifications(false)} className="text-text/60 hover:text-white text-xs">Close</button>

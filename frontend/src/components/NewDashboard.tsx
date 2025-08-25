@@ -765,7 +765,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   return (
     <div className="flex w-full min-h-screen bg-background">
       <Sidebar onLogout={onLogout} onCreateNew={startOver} onOpenProject={openProjectFromSidebar} />
-      <main className="flex-1 bg-gradient-to-br from-background via-[#0a0a0a] to-background page-transition-container overflow-x-hidden">
+      <main className="flex-1 bg-background page-transition-container overflow-x-hidden">
         <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
           {renderStepContent()}
         </div>
