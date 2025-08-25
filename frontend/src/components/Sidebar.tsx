@@ -107,6 +107,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
     applyTheme(choice);
   };
 
+  // Quick toggle cycles dark -> light -> system -> dark
+  const cycleTheme = () => {
+    const order: ThemeChoice[] = ['dark', 'light', 'system'];
+    const idx = order.indexOf(theme);
+    const next = order[(idx + 1) % order.length];
+    handleThemeChange(next);
+    pushNotification(`Theme: ${next}`, 'info');
+  };
+
   // Listen for system theme changes when in system mode
   useEffect(() => {
     if (theme !== 'system') return;
@@ -203,6 +212,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
           </button>
           {!collapsed && (
             <div className="ml-auto flex items-center gap-2">
+              <button onClick={cycleTheme} className="text-text/60 hover:text-white text-lg transition-transform duration-300 hover:scale-110 focus:outline-none" title={`Toggle theme (${theme})`} aria-label="Toggle theme">
+                {theme === 'dark' ? '🌙' : theme === 'light' ? '🔆' : '🖥'}
+              </button>
               <button onClick={() => setShowNotifications(s => !s)} className="text-text/60 hover:text-white text-lg transition-transform duration-300 hover:scale-110 focus:outline-none" title="Notifications">🔔</button>
               <button
                 onClick={() => setCollapsed(true)}

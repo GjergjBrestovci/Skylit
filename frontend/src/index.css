@@ -7,6 +7,35 @@ body {
   @apply bg-background text-text font-sans antialiased;
 }
 
+/* Light mode overrides (root element gets class="light") */
+.light body {
+  background-color: #f7f7f7;
+  color: #111111;
+}
+
+/* Common dark-surface utility overrides for light mode */
+.light .bg-\[\#1a1a1a\] { background-color: #ffffff !important; color: #111111; }
+.light .bg-\[\#232323\] { background-color: #f3f4f6 !important; color: #111111; }
+.light .bg-\[\#151515\]\/90 { background-color: rgba(255,255,255,0.9) !important; color: #111111; }
+.light .bg-\[\#151515\] { background-color: #ffffff !important; color: #111111; }
+.light .bg-\[\#1f1f1f\] { background-color: #f8f9fb !important; color: #111111; }
+.light .bg-\[\#202020\] { background-color: #ffffff !important; color: #111111; }
+.light .bg-\[\#181818\] { background-color: #ffffff !important; color: #111111; }
+
+/* Text utilities that clash on light backgrounds */
+.light .text-white { color: #111111 !important; }
+.light .text-text { color: #111111 !important; }
+.light [class*="text-text/"] { color: rgba(17,17,17,0.7) !important; }
+
+/* Subtle borders/shadows in light mode */
+.light .shadow-\[0_0_0_1px_rgba\(255,255,255,0\.04\)\] { box-shadow: 0 0 0 1px rgba(0,0,0,0.06) !important; }
+.light .border-\[\#232323\],
+.light .border-\[\#1a1a1a\],
+.light .border-accent-purple\/20 { border-color: rgba(0,0,0,0.08) !important; }
+
+/* Buttons on accent backgrounds keep white text for contrast */
+.light .bg-accent-cyan .text-white, .light .bg-accent-purple .text-white { color: #ffffff !important; }
+
 #root { 
   min-height: 100vh; 
 }
