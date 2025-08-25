@@ -107,6 +107,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
     applyTheme(choice);
   };
 
+  // Get dynamic sidebar background color based on theme
+  const getSidebarBg = () => {
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let isDark = theme === 'dark' || (theme === 'system' && systemPrefersDark);
+    return isDark ? '#121212' : '#f7f7f7';
+  };
+
   // Quick toggle cycles dark -> light -> system -> dark
   const cycleTheme = () => {
     const order: ThemeChoice[] = ['dark', 'light', 'system'];
@@ -200,7 +207,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       </button>
       <aside
         ref={sidebarRef}
-        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col sidebar-bg ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-16' : 'w-72'} transition-[width,transform] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
+        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-16' : 'w-72'} transition-[width,transform] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
+        style={{ backgroundColor: getSidebarBg() }}
       >
             <div className={`${collapsed ? 'p-1 justify-center' : 'p-4 gap-2'} flex items-center`}>        
           <button
@@ -330,7 +338,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       </aside>
       {/* Notifications Panel */}
       {showNotifications && !collapsed && (
-        <div className="fixed top-0 hidden lg:block h-full sidebar-bg z-30 flex flex-col transition-all" style={{ left: collapsed ? '5rem' : '18rem', width: '20rem' }}>
+        <div 
+          className="fixed top-0 hidden lg:block h-full z-30 flex flex-col transition-all" 
+          style={{ left: collapsed ? '5rem' : '18rem', width: '20rem', backgroundColor: getSidebarBg() }}
+        >
           <div className="p-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold">Notifications</h3>
             <button onClick={() => setShowNotifications(false)} className="text-text/60 hover:text-text text-xs">Close</button>
