@@ -35,30 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
     } catch { return true; }
   });
   const sidebarRef = useRef<HTMLDivElement | null>(null);
-
-  // Collapse on outside click (desktop) or overlay click (mobile)
-  useEffect(() => {
-    const handlePointerDown = (e: PointerEvent) => {
-      if (!sidebarRef.current) return;
-      if (sidebarRef.current.contains(e.target as Node)) return; // inside
-      // If expanded (not collapsed) and pointer is outside, collapse
-      if (!collapsed) setCollapsed(true);
-      // If mobile menu open and click outside, close it
-      if (open) setOpen(false);
-    };
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (!collapsed) setCollapsed(true);
-        if (open) setOpen(false);
-      }
-    };
-    window.addEventListener('pointerdown', handlePointerDown, { capture: true });
-    window.addEventListener('keydown', handleEscape);
-    return () => {
-      window.removeEventListener('pointerdown', handlePointerDown, { capture: true } as any);
-      window.removeEventListener('keydown', handleEscape);
-    };
-  }, [collapsed, open]);
+  const notificationsRef = useRef<HTMLDivElement | null>(null);
 
   // Persist collapse state
   useEffect(() => {
@@ -73,6 +50,42 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
   const [showNotifications, setShowNotifications] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
   const [username, setUsername] = useState<string>('User');
+
+  // Collapse on outside click (desktop) or overlay click (mobile)
+  useEffect(() => {
+    const handlePointerDown = (e: PointerEvent) => {
+      if (!sidebarRef.current) return;
+      
+      // Check if click is inside sidebar or notifications panel
+      const isInsideSidebar = sidebarRef.current.contains(e.target as Node);
+      const isInsideNotifications = notificationsRef.current?.contains(e.target as Node);
+      
+      if (isInsideSidebar || isInsideNotifications) return; // inside sidebar or notifications
+      
+      // If expanded (not collapsed) and pointer is outside, collapse
+      if (!collapsed) setCollapsed(true);
+      // If mobile menu open and click outside, close it
+      if (open) setOpen(false);
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        // If notifications are open, close them first
+        if (showNotifications) {
+          setShowNotifications(false);
+          return;
+        }
+        // Otherwise, collapse sidebar or close mobile menu
+        if (!collapsed) setCollapsed(true);
+        if (open) setOpen(false);
+      }
+    };
+    window.addEventListener('pointerdown', handlePointerDown, { capture: true });
+    window.addEventListener('keydown', handleEscape);
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown, { capture: true } as any);
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [collapsed, open, showNotifications]);
 
   // Decode token for user info
   useEffect(() => {
@@ -342,6 +355,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       {/* Notifications Panel */}
       {showNotifications && !collapsed && (
         <div 
+          ref={notificationsRef}
           className="fixed top-0 hidden lg:flex h-full z-30 flex-col transition-all" 
           style={{ left: collapsed ? '5rem' : '18rem', width: '20rem', backgroundColor: getSidebarBg() }}
         >
