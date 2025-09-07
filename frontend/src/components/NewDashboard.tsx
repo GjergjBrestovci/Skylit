@@ -271,7 +271,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
   // Step renderers
   const renderHomepage = () => (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-[#0a0a0a] to-background">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center max-w-4xl px-4 sm:px-6 space-y-8 sm:space-y-12 animate-page-fade-in">
         <div className="space-y-4 sm:space-y-6">
           <div className="space-y-3 sm:space-y-4">
@@ -857,13 +857,17 @@ function TokensFab() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed right-4 bottom-4 z-[55] px-4 py-2 rounded-full bg-accent-purple text-white shadow-lg hover:brightness-110 transition flex items-center gap-2"
-        title="View tokens / billing"
+        className={`fixed top-4 right-4 z-[55] px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-accent-purple text-white shadow-lg hover:brightness-110 transition flex items-center gap-2 border border-white/10 ${
+          typeof credits === 'number' && credits < 3 ? 'ring-2 ring-red-400/60' : 'ring-1 ring-accent-cyan/30'
+        }`}
+        title="Open Billing / Credits"
+        aria-label="Open Billing / Credits"
       >
-        <span>🔮 Tokens</span>
+        <span className="text-base">�</span>
+        <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Billing</span>
         {typeof credits === 'number' && (
-          <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/10">
-            {credits}
+          <span className="ml-1 text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/10">
+            Credits: {credits}
           </span>
         )}
       </button>
