@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { createPaymentIntent, createSubscription, PRICING_PLANS, PricingPlan } from '../services/stripe';
+import { getCredits } from '../services/credits';
 
 // Get available pricing plans
 export const getPricingPlans = async (req: AuthRequest, res: Response) => {
@@ -67,13 +68,8 @@ export const createSubscriptionPayment = async (req: AuthRequest, res: Response)
 // Get user's current credits and plan
 export const getUserCredits = async (req: AuthRequest, res: Response) => {
   try {
-    // TODO: Implement database query to get user's credits
-    // For now, return mock data
-    res.json({
-      credits: 10,
-      plan: 'basic',
-      subscriptionStatus: 'active'
-    });
+  const info = getCredits(req.userId!);
+  res.json(info);
   } catch (error) {
     console.error('Get user credits error:', error);
     res.status(500).json({ error: 'Failed to fetch user credits' });

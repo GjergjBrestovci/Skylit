@@ -3,6 +3,7 @@ import { enhancePrompt } from '../services/ai/promptEnhancer';
 import { AuthRequest } from '../middleware/auth';
 import { generateWebsiteFromPrompt } from '../services/ai/generateWebsite';
 import { storePreview } from './previewSite';
+import { consumeCredit, getCredits } from '../services/credits';
 
 export const generateSite = async (req: AuthRequest, res: Response) => {
   const { prompt, techStack } = req.body as { prompt?: string; techStack?: string };
@@ -11,12 +12,11 @@ export const generateSite = async (req: AuthRequest, res: Response) => {
   }
   
   try {
-    // TODO: Check user credits before proceeding
-    // For now, we'll allow generation but in production you'd check:
-    // const userCredits = await getUserCredits(req.userId!);
-    // if (userCredits.credits < 1) {
-    //   return res.status(402).json({ error: 'Insufficient credits', code: 'NO_CREDITS' });
-    // }
+    // Check user credits before proceeding
+    const { credits } = getCredits(req.userId!);
+    if (credits < 1) {
+      return res.status(402).json({ error: 'Insufficient credits', code: 'NO_CREDITS' });
+    }
     
     console.log('🔄 Enhancing user prompt...');
     const promptResult = await enhancePrompt(prompt);
@@ -28,9 +28,12 @@ export const generateSite = async (req: AuthRequest, res: Response) => {
     // Store preview for live viewing
     const previewId = storePreview(req.userId!, aiResult.html, aiResult.css, aiResult.javascript);
 
-    console.log('✅ Website generated successfully');
+  console.log('✅ Website generated successfully');
 
-    return res.json({
+  // Consume one credit on success
+  consumeCredit(req.userId!);
+
+  return res.json({
       prompt,
       enhancedPrompt: promptResult.enhanced,
       analysis: promptResult.analysis,
@@ -46,7 +49,7 @@ export const generateSite = async (req: AuthRequest, res: Response) => {
       previewId: previewId,
       previewUrl: `/api/preview/${previewId}`,
       enhancementUsedAI: promptResult.usedKey
-    });
+  });
   } catch (e) {
     console.error('generateSite error', e);
     return res.status(500).json({ error: 'Failed to generate site' });

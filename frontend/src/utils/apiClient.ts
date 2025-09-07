@@ -111,7 +111,10 @@ class ApiClient {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || `Request failed with status ${response.status}`);
+      const err: any = new Error(data?.error || `Request failed with status ${response.status}`);
+      err.status = response.status;
+      if (data && typeof data.code === 'string') err.code = data.code;
+      throw err;
     }
 
     return data;
