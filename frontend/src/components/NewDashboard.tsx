@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { WebsitePreview } from './WebsitePreview';
 import { Sidebar } from '../components/Sidebar';
+import { BillingPage } from '../components/BillingPage';
 import { TechStackSelector } from './TechStackSelector';
 import { apiClient } from '../utils/apiClient';
 import { StepContainer } from './ui/StepContainer';
@@ -806,6 +807,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         <main className="flex-1 overflow-x-hidden">
           {renderPreview()}
         </main>
+  {/* Floating Tokens Button */}
+  <TokensFab />
       </div>
     );
   }
@@ -818,6 +821,53 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           {renderStepContent()}
         </div>
       </main>
+      {/* Floating Tokens Button */}
+      <TokensFab />
     </div>
+  );
+}
+
+// Local state and token FAB below the component for clarity
+function TokensFab() {
+  const [open, setOpen] = useState(false);
+  const [credits, setCredits] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchCredits = async () => {
+      try {
+        const data = await apiClient.get('/api/user-credits');
+        if (data && typeof data.credits === 'number') setCredits(data.credits);
+      } catch {}
+    };
+    fetchCredits();
+  }, []);
+
+  const handleClose = () => {
+    setOpen(false);
+    // Refresh credits after closing billing in case of purchase
+    (async () => {
+      try {
+        const data = await apiClient.get('/api/user-credits');
+        if (data && typeof data.credits === 'number') setCredits(data.credits);
+      } catch {}
+    })();
+  };
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed right-4 bottom-4 z-[55] px-4 py-2 rounded-full bg-accent-purple text-white shadow-lg hover:brightness-110 transition flex items-center gap-2"
+        title="View tokens / billing"
+      >
+        <span>🔮 Tokens</span>
+        {typeof credits === 'number' && (
+          <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/10">
+            {credits}
+          </span>
+        )}
+      </button>
+      <BillingPage open={open} onClose={handleClose} />
+    </>
   );
 }

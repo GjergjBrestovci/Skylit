@@ -53,7 +53,7 @@ Fully functional AI website generator with:
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v18 or higher)
+- Node.js 18.x (tested) or Node.js 20+ (recommended)
 - npm or yarn
 - Supabase account
 
@@ -94,6 +94,8 @@ Fully functional AI website generator with:
    ```
    - Frontend: http://localhost:5173
    - Backend: http://localhost:5000
+
+If you see a Node version error from Vite, ensure you're on Node 18.x or upgrade to Node 20+. This repo currently pins Vite 5.x for Node 18 compatibility.
 
 ## 📝 Available Scripts
 
