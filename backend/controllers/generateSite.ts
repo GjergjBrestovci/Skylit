@@ -5,16 +5,24 @@ import { generateWebsiteFromPrompt } from '../services/ai/generateWebsite';
 import { storePreview } from './previewSite';
 
 export const generateSite = async (req: AuthRequest, res: Response) => {
-  const { prompt } = req.body as { prompt?: string };
+  const { prompt, techStack } = req.body as { prompt?: string; techStack?: string };
   if (!prompt || !prompt.trim()) {
     return res.status(400).json({ error: 'Prompt is required.' });
   }
+  
   try {
+    // TODO: Check user credits before proceeding
+    // For now, we'll allow generation but in production you'd check:
+    // const userCredits = await getUserCredits(req.userId!);
+    // if (userCredits.credits < 1) {
+    //   return res.status(402).json({ error: 'Insufficient credits', code: 'NO_CREDITS' });
+    // }
+    
     console.log('🔄 Enhancing user prompt...');
     const promptResult = await enhancePrompt(prompt);
     
     console.log('🤖 Generating website with enhanced prompt...');
-    const aiResult = await generateWebsiteFromPrompt(promptResult.enhanced);
+    const aiResult = await generateWebsiteFromPrompt(promptResult.enhanced, techStack || 'vanilla');
     const timestamp = new Date().toISOString();
 
     // Store preview for live viewing

@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.55.0",
+    "@types/stripe": "^8.0.417",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
     "mysql2": "^3.9.7",
-    "openai": "^5.12.2"
+    "openai": "^5.12.2",
+    "stripe": "^18.5.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

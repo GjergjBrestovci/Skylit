@@ -16,6 +16,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Special handling for Stripe webhooks (they need raw body)
+app.use('/api/webhook/stripe', express.raw({ type: 'application/json' }));
+
+// Regular JSON parsing for other routes
 app.use(express.json());
 
 app.use('/api', apiRouter);

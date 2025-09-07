@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Logo } from './ui/Logo';
+import { CreditsDisplay } from './CreditsDisplay';
 import { apiClient } from '../utils/apiClient';
 
 type ThemeChoice = 'system' | 'dark' | 'light';
@@ -329,6 +330,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
             <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">⚙ Settings</button>
           </div>
         )}
+        {/* Credits Display */}
+        {!collapsed && <CreditsDisplay />}
         {!collapsed && (
           <div className="p-4 flex items-center justify-between text-xs text-text/60 transition-colors">          
             <button onClick={onLogout} className="px-3 py-2 rounded-md bg-red-500/20 text-red-300 hover:bg-red-500/30 font-semibold text-[11px] transition-colors focus:outline-none">Logout</button>
