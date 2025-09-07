@@ -46,6 +46,99 @@ export interface FeatureOption {
   emoji: string;
 }
 
+export interface TechStackOption {
+  value: string;
+  label: string;
+  name: string;
+  icon: string;
+  description: string;
+  frontend: string;
+  backend?: string;
+  database?: string;
+  deployment?: string;
+  complexity: 'Beginner' | 'Intermediate' | 'Advanced';
+  features?: string[];
+}
+
+export const TECH_STACKS: TechStackOption[] = [
+  {
+    value: 'vanilla',
+    label: 'Vanilla Web',
+    name: 'Vanilla Web',
+    icon: '🌐',
+    description: 'Pure HTML, CSS, and JavaScript - simple and fast',
+    frontend: 'HTML/CSS/JS',
+    deployment: 'Any host',
+    complexity: 'Beginner',
+    features: ['Fast loading', 'No build process', 'Works everywhere']
+  },
+  {
+    value: 'react',
+    label: 'React + Node.js',
+    name: 'React + Node.js',
+    icon: '⚛️',
+    description: 'Modern React frontend with Node.js backend',
+    frontend: 'React',
+    backend: 'Node.js',
+    database: 'MongoDB',
+    deployment: 'Vercel/Railway',
+    complexity: 'Intermediate',
+    features: ['Component-based', 'SPA routing', 'API integration', 'State management']
+  },
+  {
+    value: 'vue',
+    label: 'Vue.js + Express',
+    name: 'Vue.js + Express',
+    icon: '💚',
+    description: 'Vue.js frontend with Express.js backend',
+    frontend: 'Vue.js',
+    backend: 'Express.js',
+    database: 'PostgreSQL',
+    deployment: 'Netlify/Heroku',
+    complexity: 'Intermediate',
+    features: ['Easy to learn', 'Reactive data', 'REST API', 'Progressive']
+  },
+  {
+    value: 'nextjs',
+    label: 'Next.js Full-Stack',
+    name: 'Next.js Full-Stack',
+    icon: '🚀',
+    description: 'Next.js with built-in API routes and database',
+    frontend: 'Next.js',
+    backend: 'Next.js API',
+    database: 'Prisma + PostgreSQL',
+    deployment: 'Vercel',
+    complexity: 'Advanced',
+    features: ['SSR/SSG', 'Built-in API', 'TypeScript', 'Optimized performance']
+  },
+  {
+    value: 'svelte',
+    label: 'SvelteKit',
+    name: 'SvelteKit',
+    icon: '🧡',
+    description: 'SvelteKit full-stack framework',
+    frontend: 'Svelte',
+    backend: 'SvelteKit',
+    database: 'SQLite',
+    deployment: 'Netlify/Vercel',
+    complexity: 'Intermediate',
+    features: ['No virtual DOM', 'Compiled', 'Small bundles', 'Full-stack']
+  },
+  {
+    value: 'angular',
+    label: 'Angular + NestJS',
+    name: 'Angular + NestJS',
+    icon: '🅰️',
+    description: 'Angular frontend with NestJS backend',
+    frontend: 'Angular',
+    backend: 'NestJS',
+    database: 'TypeORM + PostgreSQL',
+    deployment: 'AWS/GCP',
+    complexity: 'Advanced',
+    features: ['Enterprise-ready', 'TypeScript first', 'Dependency injection', 'CLI tools']
+  },
+];
+
 export const WEBSITE_TYPES: WebsiteType[] = [
   { value: 'business', label: 'Business/Corporate', emoji: '🏢', description: 'Professional websites for companies' },
   { value: 'portfolio', label: 'Portfolio/Personal', emoji: '🎨', description: 'Showcase your work and skills' },

@@ -339,7 +339,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       {/* Notifications Panel */}
       {showNotifications && !collapsed && (
         <div 
-          className="fixed top-0 hidden lg:block h-full z-30 flex flex-col transition-all" 
+          className="fixed top-0 hidden lg:flex h-full z-30 flex-col transition-all" 
           style={{ left: collapsed ? '5rem' : '18rem', width: '20rem', backgroundColor: getSidebarBg() }}
         >
           <div className="p-4 flex items-center justify-between">

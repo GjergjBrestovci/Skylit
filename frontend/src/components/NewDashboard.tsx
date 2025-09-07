@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { WebsitePreview } from './WebsitePreview';
 import { Sidebar } from '../components/Sidebar';
+import { TechStackSelector } from './TechStackSelector';
 import { apiClient } from '../utils/apiClient';
 import { StepContainer } from './ui/StepContainer';
 import { OptionButton, ColorPaletteButton, ToggleButton } from './ui/OptionButtons';
@@ -13,7 +14,8 @@ import {
   DESIGN_STYLES,
   LAYOUT_OPTIONS,
   AVAILABLE_PAGES,
-  AVAILABLE_FEATURES
+  AVAILABLE_FEATURES,
+  TECH_STACKS
 } from '../constants/websiteOptions';
 import type { WebsiteConfig, GenerationResult, Step } from '../types';
 
@@ -33,7 +35,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     layout: '',
     pages: [],
     features: [],
-    additionalDetails: ''
+    additionalDetails: '',
+    techStack: 'vanilla' // Default to vanilla
   });
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<GenerationResult | null>(null);
@@ -140,7 +143,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     '  }))',
     'const observer = new IntersectionObserver(() => {})',
     'observer.observe(document.querySelector(".hero"))',
-    'console.log("AI site ready")',
+    'window.addEventListener("load", () => console.debug("Site ready"));',
     '/* end */'
   ];
 
@@ -200,11 +203,16 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     const selectedLayout = LAYOUT_OPTIONS.find(l => l.value === config.layout)?.label;
     const selectedPages = config.pages.map(p => AVAILABLE_PAGES.find(page => page.value === p)?.label).join(', ');
     const selectedFeatures = config.features.map(f => AVAILABLE_FEATURES.find(feat => feat.value === f)?.label).join(', ');
+    const selectedTechStack = TECH_STACKS.find(t => t.value === config.techStack)?.name;
 
     let prompt = `Create a ${selectedType} website with ${selectedTheme} theme and ${selectedStyle} design style using a ${selectedLayout} layout. `;
     prompt += `Primary color: ${config.primaryColor}, Accent color: ${config.accentColor}. `;
     prompt += `Include these pages: ${selectedPages}. `;
     if (selectedFeatures) prompt += `Add these features: ${selectedFeatures}. `;
+    if (selectedTechStack && selectedTechStack !== 'Vanilla Web') {
+      const techStackInfo = TECH_STACKS.find(t => t.value === config.techStack);
+      prompt += `Generate using ${selectedTechStack} tech stack (Frontend: ${techStackInfo?.frontend}${techStackInfo?.backend ? `, Backend: ${techStackInfo.backend}` : ''}${techStackInfo?.database ? `, Database: ${techStackInfo.database}` : ''}). `;
+    }
     if (config.additionalDetails.trim()) prompt += `Additional requirements: ${config.additionalDetails}`;
     setRawPrompt(prompt);
 
@@ -213,7 +221,10 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     // Fire API call without blocking animation progression
     (async () => {
       try {
-        const data = await apiClient.post('/api/generate-site', { prompt });
+        const data = await apiClient.post('/api/generate-site', { 
+          prompt,
+          techStack: config.techStack 
+        });
         const pending: GenerationResult = {
           generated: data.generated,
           html: data.html || data.generated,
@@ -249,7 +260,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       layout: '',
       pages: [],
       features: [],
-      additionalDetails: ''
+      additionalDetails: '',
+      techStack: 'vanilla'
     });
     setResult(null);
     setError(null);
@@ -486,18 +498,54 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 className="w-full p-4 sm:p-6 bg-[#1a1a1a] border-2 border-accent-purple/30 rounded-xl text-white placeholder-text/50 focus:outline-none focus:border-accent-cyan/50 transition-all duration-300 text-base sm:text-lg"
               />
               
-              <div className="text-center">
+              <div className="text-center space-y-4">
+                <button
+                  onClick={() => nextStep('techStack')}
+                  className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                >
+                  Next: Advanced Options 🛠️
+                </button>
+                <p className="text-sm text-text/50">
+                  Choose your tech stack for development-ready code
+                </p>
+              </div>
+            </div>
+
+            {error && (
+              <div className="max-w-2xl mx-auto p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-center">
+                {error}
+              </div>
+            )}
+          </StepContainer>
+        );
+
+      case 'techStack':
+        return (
+          <StepContainer 
+            title="Choose Your Tech Stack" 
+            subtitle="Select the technologies you want for your website"
+          >
+            <div className="max-w-6xl mx-auto space-y-8">
+              <TechStackSelector 
+                selectedStack={config.techStack || 'vanilla'}
+                onSelect={(stackValue) => setConfig(prev => ({ ...prev, techStack: stackValue }))}
+              />
+              
+              <div className="text-center space-y-4">
                 <button
                   onClick={generateWebsite}
                   className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
                 >
                   Create My Website! 🚀
                 </button>
+                <p className="text-sm text-text/50">
+                  Ready to generate with {TECH_STACKS.find(t => t.value === config.techStack)?.name || 'Vanilla Web'}
+                </p>
               </div>
             </div>
 
             {error && (
-              <div className="max-w-2xl mx-auto p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-center">
+              <div className="max-w-6xl mx-auto p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-center">
                 {error}
               </div>
             )}

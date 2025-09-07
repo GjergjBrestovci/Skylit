@@ -10,6 +10,7 @@ export interface WebsiteConfig {
   pages: string[];
   features: string[];
   additionalDetails: string;
+  techStack?: string;
 }
 
 export interface GenerationResult {
@@ -27,4 +28,4 @@ export interface GenerationResult {
   enhancementUsedAI?: boolean;
 }
 
-export type Step = 'homepage' | 'websiteType' | 'theme' | 'colors' | 'style' | 'layout' | 'pages' | 'features' | 'details' | 'generating' | 'preview';
+export type Step = 'homepage' | 'websiteType' | 'theme' | 'colors' | 'style' | 'layout' | 'pages' | 'features' | 'details' | 'techStack' | 'generating' | 'preview';
