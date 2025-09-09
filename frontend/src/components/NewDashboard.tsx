@@ -58,21 +58,6 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [jsLines, setJsLines] = useState<string[]>([]);
   const typingTimerRef = useRef<number | null>(null);
   const codeTimerRef = useRef<number | null>(null);
-  // Credits awareness for UX controls
-  const [creditsCount, setCreditsCount] = useState<number | null>(null);
-
-  useEffect(() => {
-    const fetchCredits = async () => {
-      try {
-        const data = await apiClient.get('/api/user-credits');
-        if (typeof data?.credits === 'number') setCreditsCount(data.credits);
-      } catch {}
-    };
-    fetchCredits();
-    const refresh = () => fetchCredits();
-    window.addEventListener('credits:refresh', refresh as any);
-    return () => window.removeEventListener('credits:refresh', refresh as any);
-  }, []);
   const placeholderEnhancedRef = useRef('');
 
   // Enhancement typing
@@ -279,9 +264,9 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   // Enhancement starts automatically
 
     // Fire API call without blocking animation progression
-  (async () => {
+    (async () => {
       try {
-    const data = await apiClient.post('/api/generate-site', { 
+        const data = await apiClient.post('/api/generate-site', { 
           prompt,
           techStack: config.techStack 
         });
@@ -299,20 +284,11 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           model: data.model,
           enhancementUsedAI: data.enhancementUsedAI
         };
-  setPendingResult(pending);
+        setPendingResult(pending);
   if (data.enhancedPrompt) setEnhancedPrompt(data.enhancedPrompt);
         setIsApiDone(true);
-
-  // Refresh credits count for any UI that displays it
-  try { await apiClient.get('/api/user-credits'); } catch {}
-  // Notify listeners (e.g., TokensFab) to refetch credits
-  try { window.dispatchEvent(new Event('credits:refresh')); } catch {}
-      } catch (err: any) {
-        const msg = err?.message || 'Failed to generate website';
-        const insufficient = err?.status === 402 || err?.code === 'NO_CREDITS';
-        setError(insufficient ? 'Insufficient credits. Please add more to continue.' : msg);
-        // Surface a smoother path to billing
-        window.dispatchEvent(new Event('billing:open'));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to generate website');
         setCurrentStep('details');
       }
     })();
@@ -418,7 +394,6 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
             </div>
           </StepContainer>
         );
-
 
       case 'colors':
         return (
@@ -569,31 +544,23 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
               />
               
               <div className="text-center space-y-4">
-                {creditsCount !== null && creditsCount <= 0 ? (
-                  <button
-                    onClick={() => window.dispatchEvent(new Event('billing:open'))}
-                    disabled
-                    aria-disabled
-                    className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 rounded-xl font-bold text-lg sm:text-xl transition-all duration-300 shadow-xl bg-white/5 text-text/40 cursor-not-allowed border border-white/10"
-                  >
-                    Add Credits to Continue
-                  </button>
-                ) : (
-                  <button
-                    onClick={generateWebsite}
-                    className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
-                  >
-                    Create My Website! 🚀
-                  </button>
-                )}
-                <p className="text-sm text-text/50">We'll refine your prompt before coding begins.</p>
-                {creditsCount !== null && creditsCount <= 0 && (
-                  <p className="text-sm text-red-400/90">
-                    0 credits remaining — <button className="underline underline-offset-4 hover:text-red-300" onClick={() => window.dispatchEvent(new Event('billing:open'))}>add credits to continue</button>.
-                  </p>
-                )}
+                <button
+                  onClick={() => nextStep('techStack')}
+                  className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                >
+                  Next: Advanced Options 🛠️
+                </button>
+                <p className="text-sm text-text/50">
+                  Choose your tech stack for development-ready code
+                </p>
               </div>
             </div>
+
+            {error && (
+              <div className="max-w-2xl mx-auto p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-center">
+                {error}
+              </div>
+            )}
           </StepContainer>
         );
 
@@ -952,16 +919,13 @@ function TokensFab() {
   const [credits, setCredits] = useState<number | null>(null);
 
   useEffect(() => {
-  const fetchCredits = async () => {
+    const fetchCredits = async () => {
       try {
         const data = await apiClient.get('/api/user-credits');
         if (data && typeof data.credits === 'number') setCredits(data.credits);
       } catch {}
     };
-  fetchCredits();
-  const handler = () => fetchCredits();
-  window.addEventListener('credits:refresh', handler as any);
-  return () => window.removeEventListener('credits:refresh', handler as any);
+    fetchCredits();
   }, []);
 
   const handleClose = () => {
@@ -975,36 +939,23 @@ function TokensFab() {
     })();
   };
 
-  const low = typeof credits === 'number' && credits < 3;
-  const badgeClasses = low
-    ? 'bg-red-500/15 text-red-300 border-red-400/30'
-    : 'bg-accent-cyan/20 text-accent-cyan border-accent-cyan/30';
-
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed top-4 right-4 z-[55] group"
-        title="Billing & Credits"
-        aria-label="Open Billing and view credits"
+        className={`fixed top-4 right-4 z-[55] px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-accent-purple text-white shadow-lg hover:brightness-110 transition flex items-center gap-2 border border-white/10 ${
+          typeof credits === 'number' && credits < 3 ? 'ring-2 ring-red-400/60' : 'ring-1 ring-accent-cyan/30'
+        }`}
+        title="Open Billing / Credits"
+        aria-label="Open Billing / Credits"
       >
-        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md px-2.5 py-1.5 transition-all duration-200 hover:bg-white/10 hover:shadow-lg hover:shadow-black/20">
-          {/* Minimal credit card icon (inline SVG) */}
-          <svg className="h-4 w-4 text-white/90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="3" y="6" width="18" height="12" rx="2" ry="2" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-            <line x1="7" y1="15" x2="10" y2="15" />
-          </svg>
-          {/* Expanding label on hover for minimal look */}
-          <span className="max-w-0 overflow-hidden group-hover:max-w-[140px] transition-all duration-300 text-xs font-medium text-white/90">
-            Billing
+        <span className="text-base">�</span>
+        <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Billing</span>
+        {typeof credits === 'number' && (
+          <span className="ml-1 text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/10">
+            Credits: {credits}
           </span>
-          {typeof credits === 'number' && (
-            <span className={`ml-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${badgeClasses}`}>
-              {credits}
-            </span>
-          )}
-        </div>
+        )}
       </button>
       <BillingPage open={open} onClose={handleClose} />
     </>
