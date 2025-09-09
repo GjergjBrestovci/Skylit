@@ -13,7 +13,7 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
     // Fetch user's projects from Supabase
     const { data, error } = await supabase
       .from('projects')
-      .select('*')
+      .select('id, title, prompt, preview_url, created_at, updated_at')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
@@ -22,8 +22,17 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
       return res.status(500).json({ error: 'Failed to fetch projects' });
     }
 
+    // Transform data to match frontend expectations
+    const projects = (data || []).map((project: any) => ({
+      id: project.id,
+      name: project.title,
+      createdAt: project.created_at,
+      previewUrl: project.preview_url,
+      previewId: project.preview_url ? project.preview_url.split('/').pop() : undefined
+    }));
+
     res.json({
-      projects: data || []
+      projects
     });
   } catch (error) {
     console.error('Get projects error:', error);

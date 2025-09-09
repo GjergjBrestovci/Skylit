@@ -125,10 +125,54 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         codeTimerRef.current = window.setTimeout(() => setJsLines(p => [...p, sampleJsLines[p.length % sampleJsLines.length]]), 170);
       } else setCodeStage('done');
     } else if (codeStage === 'done' && isApiDone && pendingResult) {
-      setTimeout(() => { setResult(pendingResult); setCurrentStep('preview'); }, 400);
+      setTimeout(() => { 
+        setResult(pendingResult); 
+        setCurrentStep('preview');
+        // Save the project to database for future access
+        if (rawPrompt) {
+          saveProjectToDatabase(pendingResult, rawPrompt);
+        }
+      }, 400);
     }
     return () => { if (codeTimerRef.current) window.clearTimeout(codeTimerRef.current); };
   }, [currentStep, generationStage, codeStage, codeLines.length, cssLines.length, jsLines.length, isApiDone, pendingResult]);
+
+  // Function to save project to database
+  const saveProjectToDatabase = async (result: GenerationResult, prompt: string) => {
+    try {
+      // Generate a meaningful title from the prompt or config
+      const title = config.websiteType 
+        ? `${config.websiteType} Website`
+        : prompt.length > 50 
+          ? prompt.substring(0, 50) + '...'
+          : prompt || 'Generated Website';
+
+      await apiClient.post('/api/save-project', {
+        title,
+        prompt: prompt,
+        generated_code: JSON.stringify({
+          html: result.html,
+          css: result.css,
+          javascript: result.javascript,
+          config: config,
+          enhancedPrompt: result.enhancedPrompt,
+          analysis: result.analysis,
+          requirements: result.requirements,
+          notes: result.notes,
+          model: result.model,
+          previewUrl: result.previewUrl,
+          enhancementUsedAI: result.enhancementUsedAI
+        })
+      });
+      
+      console.log('Project saved successfully');
+      // Refresh the projects list in the sidebar
+      window.dispatchEvent(new Event('projects:refresh'));
+    } catch (error) {
+      console.warn('Failed to save project:', error);
+      // Don't show error to user as this is not critical to the main flow
+    }
+  };
 
   const sampleHtmlLines = [
     '<header class="site-header">',
@@ -815,22 +859,64 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   );
 
   // Main render
-  const openProjectFromSidebar = (p: { id: string; name: string; createdAt: string; previewUrl?: string }) => {
-    setResult({
-      generated: '<!-- Loaded project placeholder -->',
-      html: '<!-- Project HTML not loaded (API integration TBD) -->',
-      css: undefined,
-      javascript: undefined,
-      notes: `Viewing stored project: ${p.name}`,
-      analysis: undefined,
-      requirements: [],
-      enhancedPrompt: undefined,
-      createdAt: p.createdAt,
-      previewUrl: p.previewUrl,
-      model: undefined,
-      enhancementUsedAI: false
-    });
-    setCurrentStep('preview');
+  const openProjectFromSidebar = async (p: { id: string; name: string; createdAt: string; previewUrl?: string }) => {
+    try {
+      // Fetch the full project data from the database
+      const response = await apiClient.get(`/api/get-project/${p.id}`) as { project: any };
+      const project = response.project;
+
+      // Restore the project state
+      setResult({
+        generated: project.html || '<!-- No HTML content available -->',
+        html: project.html || '<!-- No HTML content available -->',
+        css: project.css,
+        javascript: project.javascript,
+        notes: project.notes || `Loaded project: ${p.name}`,
+        analysis: project.analysis,
+        requirements: project.requirements || [],
+        enhancedPrompt: project.enhancedPrompt,
+        createdAt: project.createdAt || p.createdAt,
+        previewUrl: project.previewUrl || p.previewUrl,
+        model: project.model,
+        enhancementUsedAI: project.enhancementUsedAI || false
+      });
+
+      // If the project has a config, restore it too
+      if (project.config) {
+        setConfig(project.config);
+      }
+
+      // Set the prompts if available
+      if (project.prompt) {
+        setRawPrompt(project.prompt);
+        setDisplayedRawPrompt(project.prompt);
+      }
+      if (project.enhancedPrompt) {
+        setEnhancedPrompt(project.enhancedPrompt);
+        setDisplayedEnhancedPrompt(project.enhancedPrompt);
+        setEnhancementComplete(true);
+      }
+
+      setCurrentStep('preview');
+    } catch (error) {
+      console.error('Failed to load project:', error);
+      // Fallback to showing a placeholder with available info
+      setResult({
+        generated: '<!-- Failed to load project data -->',
+        html: '<!-- Failed to load project data -->',
+        css: undefined,
+        javascript: undefined,
+        notes: `Failed to load project: ${p.name}`,
+        analysis: undefined,
+        requirements: [],
+        enhancedPrompt: undefined,
+        createdAt: p.createdAt,
+        previewUrl: p.previewUrl,
+        model: undefined,
+        enhancementUsedAI: false
+      });
+      setCurrentStep('preview');
+    }
   };
 
   if (currentStep === 'preview' && result) {

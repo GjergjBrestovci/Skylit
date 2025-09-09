@@ -175,7 +175,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
     }
   };
 
+  // Load projects on mount
   useEffect(() => { loadProjects(); }, []);
+
+  // Listen for project refresh events (e.g., when a new project is saved)
+  useEffect(() => {
+    const handleProjectRefresh = () => loadProjects();
+    window.addEventListener('projects:refresh', handleProjectRefresh);
+    return () => window.removeEventListener('projects:refresh', handleProjectRefresh);
+  }, []);
 
   const deleteProject = async (project: ProjectItem) => {
     if (!confirm('Delete this project? This action cannot be undone.')) return;

@@ -1,18 +1,40 @@
 import Stripe from 'stripe';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is required');
+// For development, allow the app to run without Stripe configured
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+
+if (!STRIPE_SECRET_KEY || STRIPE_SECRET_KEY.includes('your_stripe')) {
+  console.warn('⚠️  Stripe not configured properly. Payment features will be disabled.');
+  console.warn('   Please update STRIPE_SECRET_KEY in .env with a real test key');
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-08-27.basil',
-  typescript: true
-});
+// Create a mock stripe instance for development if no valid key is provided
+const createStripeInstance = () => {
+  if (!STRIPE_SECRET_KEY || STRIPE_SECRET_KEY.includes('your_stripe')) {
+    // Return a mock stripe instance
+    return null;
+  }
+  
+  return new Stripe(STRIPE_SECRET_KEY, {
+    apiVersion: '2025-08-27.basil',
+    typescript: true
+  });
+};
+
+export const stripe = createStripeInstance();
+
+// Helper to ensure Stripe is configured (narrows type from Stripe | null -> Stripe)
+function getStripe(): Stripe {
+  if (!stripe) {
+    throw new Error('Stripe not configured. Please add valid STRIPE_SECRET_KEY to .env');
+  }
+  return stripe;
+}
 
 // Pricing configuration
 export const PRICING_PLANS = {
   basic: {
-    id: 'basic',
+    id: 'basic',  
     name: 'Basic Plan',
     price: 9.99,
     credits: 10,
@@ -62,12 +84,14 @@ export type PricingPlan = keyof typeof PRICING_PLANS;
 
 // Create a payment intent for one-time purchases
 export async function createPaymentIntent(planId: PricingPlan, userId: string) {
+  const s = getStripe();
+
   const plan = PRICING_PLANS[planId];
   if (!plan) {
     throw new Error('Invalid plan selected');
   }
 
-  const paymentIntent = await stripe.paymentIntents.create({
+  const paymentIntent = await s.paymentIntents.create({
     amount: Math.round(plan.price * 100), // Convert to cents
     currency: 'usd',
     metadata: {
@@ -83,6 +107,8 @@ export async function createPaymentIntent(planId: PricingPlan, userId: string) {
 
 // Create a subscription for recurring payments
 export async function createSubscription(planId: PricingPlan, userId: string, customerId?: string) {
+  const s = getStripe();
+
   const plan = PRICING_PLANS[planId];
   if (!plan) {
     throw new Error('Invalid plan selected');
@@ -91,13 +117,13 @@ export async function createSubscription(planId: PricingPlan, userId: string, cu
   // Create customer if not exists
   let customer = customerId;
   if (!customer) {
-    const newCustomer = await stripe.customers.create({
+    const newCustomer = await s.customers.create({
       metadata: { userId }
     });
     customer = newCustomer.id;
   }
 
-  const subscription = await stripe.subscriptions.create({
+  const subscription = await s.subscriptions.create({
     customer,
     items: [
       {
@@ -116,10 +142,12 @@ export async function createSubscription(planId: PricingPlan, userId: string, cu
 
 // Handle successful payment
 export async function handleSuccessfulPayment(paymentIntentId: string) {
-  const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+  const s = getStripe();
+
+  const paymentIntent = await s.paymentIntents.retrieve(paymentIntentId);
   
   if (paymentIntent.status === 'succeeded') {
-    const { userId, planId, credits } = paymentIntent.metadata;
+    const { userId, planId, credits } = paymentIntent.metadata as { userId: string; planId: PricingPlan; credits: string };
     
     // Here you would update the user's credits in your database
     console.log(`Payment successful for user ${userId}, adding ${credits} credits`);
@@ -127,8 +155,8 @@ export async function handleSuccessfulPayment(paymentIntentId: string) {
     return {
       userId,
       planId,
-      credits: parseInt(credits),
-      amount: paymentIntent.amount / 100
+      credits: parseInt(credits, 10),
+      amount: (paymentIntent.amount || 0) / 100
     };
   }
   
@@ -140,8 +168,9 @@ export function verifyWebhookSignature(payload: string, signature: string) {
   if (!process.env.STRIPE_WEBHOOK_SECRET) {
     throw new Error('STRIPE_WEBHOOK_SECRET is required');
   }
+  const s = getStripe();
   
-  return stripe.webhooks.constructEvent(
+  return s.webhooks.constructEvent(
     payload,
     signature,
     process.env.STRIPE_WEBHOOK_SECRET

@@ -10,7 +10,12 @@ CREATE TABLE IF NOT EXISTS projects (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   title VARCHAR(255) NOT NULL,
   prompt TEXT,
-  generated_code TEXT,
+  generated_code TEXT, -- JSON string containing all project data
+  html TEXT, -- Separate column for easier access
+  css TEXT, -- Separate column for easier access  
+  javascript TEXT, -- Separate column for easier access
+  preview_url TEXT, -- URL for live preview
+  model VARCHAR(100), -- AI model used for generation
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

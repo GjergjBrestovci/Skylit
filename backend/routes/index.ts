@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { generateSite } from '../controllers/generateSite';
 import { saveProject } from '../controllers/saveProject';
 import { getProjects } from '../controllers/getProjects';
+import { getProject } from '../controllers/getProject';
 import { register, login, refreshToken } from '../controllers/auth';
 import { authenticateToken } from '../middleware/auth';
 import { getPreview, deletePreview } from '../controllers/previewSite';
@@ -31,6 +32,7 @@ router.get('/user-credits', authenticateToken, getUserCredits);
 router.post('/generate-site', authenticateToken, generateSite);
 router.post('/save-project', authenticateToken, saveProject);
 router.get('/get-projects', authenticateToken, getProjects);
+router.get('/get-project/:projectId', authenticateToken, getProject);
 router.delete('/preview/:previewId', authenticateToken, deletePreview);
 
 export default router;
