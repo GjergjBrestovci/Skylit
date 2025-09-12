@@ -6,7 +6,7 @@ interface ApiOptions {
 }
 
 class ApiClient {
-  private baseUrl = 'http://localhost:5000';
+  private baseUrl = '';
   private getToken = () => localStorage.getItem('authToken');
   private getRefreshToken = () => localStorage.getItem('refreshToken');
   private decodeToken = (token: string): any | null => {

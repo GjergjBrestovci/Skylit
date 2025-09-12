@@ -7,6 +7,7 @@ export interface AuthRequest extends Request {
 }
 
 const supabaseConfigured = !!process.env.SUPABASE_URL && !!process.env.SUPABASE_ANON_KEY;
+const devBypass = process.env.AUTH_BYPASS === 'true' || process.env.NODE_ENV !== 'production';
 
 export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
@@ -14,6 +15,13 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
   const parts = authHeader ? authHeader.split(' ') : [];
   const scheme = parts[0];
   const token = parts[1];
+
+  // In development, bypass auth and attach a mock user
+  if (devBypass) {
+    req.userId = (req.headers['x-dev-user-id'] as string) || 'dev-user';
+    req.user = { id: req.userId, email: 'dev@example.com' };
+    return next();
+  }
 
   if (!token) {
     return res.status(401).json({ error: 'Access token required', code: 'NO_TOKEN' });

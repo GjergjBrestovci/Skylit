@@ -1,13 +1,22 @@
 import Stripe from 'stripe';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is required');
-}
+const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+const isProd = process.env.NODE_ENV === 'production';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-08-27.basil',
-  typescript: true
-});
+export const stripe = STRIPE_KEY
+  ? new Stripe(STRIPE_KEY, {
+      apiVersion: '2025-08-27.basil',
+      typescript: true,
+    })
+  : null;
+
+if (!STRIPE_KEY && isProd) {
+  // In production we require Stripe to be configured
+  throw new Error('STRIPE_SECRET_KEY is required in production');
+} else if (!STRIPE_KEY) {
+  console.warn('[dev] Stripe not configured. Payment endpoints will be disabled.');
+}
 
 // Pricing configuration
 export const PRICING_PLANS = {
@@ -62,6 +71,9 @@ export type PricingPlan = keyof typeof PRICING_PLANS;
 
 // Create a payment intent for one-time purchases
 export async function createPaymentIntent(planId: PricingPlan, userId: string) {
+  if (!stripe) {
+    throw new Error('Stripe is not configured');
+  }
   const plan = PRICING_PLANS[planId];
   if (!plan) {
     throw new Error('Invalid plan selected');
@@ -83,6 +95,9 @@ export async function createPaymentIntent(planId: PricingPlan, userId: string) {
 
 // Create a subscription for recurring payments
 export async function createSubscription(planId: PricingPlan, userId: string, customerId?: string) {
+  if (!stripe) {
+    throw new Error('Stripe is not configured');
+  }
   const plan = PRICING_PLANS[planId];
   if (!plan) {
     throw new Error('Invalid plan selected');
@@ -116,10 +131,13 @@ export async function createSubscription(planId: PricingPlan, userId: string, cu
 
 // Handle successful payment
 export async function handleSuccessfulPayment(paymentIntentId: string) {
+  if (!stripe) {
+    throw new Error('Stripe is not configured');
+  }
   const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
   
   if (paymentIntent.status === 'succeeded') {
-    const { userId, planId, credits } = paymentIntent.metadata;
+    const { userId, planId, credits } = paymentIntent.metadata as any;
     
     // Here you would update the user's credits in your database
     console.log(`Payment successful for user ${userId}, adding ${credits} credits`);
@@ -127,7 +145,7 @@ export async function handleSuccessfulPayment(paymentIntentId: string) {
     return {
       userId,
       planId,
-      credits: parseInt(credits),
+      credits: parseInt(credits as string),
       amount: paymentIntent.amount / 100
     };
   }
@@ -136,14 +154,14 @@ export async function handleSuccessfulPayment(paymentIntentId: string) {
 }
 
 // Verify webhook signature
-export function verifyWebhookSignature(payload: string, signature: string) {
-  if (!process.env.STRIPE_WEBHOOK_SECRET) {
-    throw new Error('STRIPE_WEBHOOK_SECRET is required');
+export function verifyWebhookSignature(payload: any, signature: string) {
+  if (!stripe || !WEBHOOK_SECRET) {
+    throw new Error('Stripe webhook not configured');
   }
   
   return stripe.webhooks.constructEvent(
     payload,
     signature,
-    process.env.STRIPE_WEBHOOK_SECRET
+    WEBHOOK_SECRET
   );
 }
