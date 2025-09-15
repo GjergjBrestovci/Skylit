@@ -8,6 +8,13 @@ import { authenticateToken } from '../middleware/auth';
 import { getPreview, deletePreview } from '../controllers/previewSite';
 import { getPricingPlans, createPayment, createSubscriptionPayment, getUserCredits } from '../controllers/payment';
 import { handleStripeWebhook } from '../controllers/webhook';
+import { 
+  validateRequest, 
+  generateSiteSchema, 
+  saveProjectSchema, 
+  getUserProjectsSchema, 
+  getProjectSchema 
+} from '../middleware/validation';
 
 const router = Router();
 
@@ -29,10 +36,26 @@ router.post('/create-subscription', authenticateToken, createSubscriptionPayment
 router.get('/user-credits', authenticateToken, getUserCredits);
 
 // Protected routes
-router.post('/generate-site', authenticateToken, generateSite);
-router.post('/save-project', authenticateToken, saveProject);
-router.get('/get-projects', authenticateToken, getProjects);
-router.get('/get-project/:projectId', authenticateToken, getProject);
+router.post('/generate-site', 
+  authenticateToken, 
+  validateRequest({ body: generateSiteSchema }), 
+  generateSite
+);
+router.post('/save-project', 
+  authenticateToken, 
+  validateRequest({ body: saveProjectSchema }), 
+  saveProject
+);
+router.get('/get-projects', 
+  authenticateToken, 
+  validateRequest({ query: getUserProjectsSchema }), 
+  getProjects
+);
+router.get('/get-project/:projectId', 
+  authenticateToken, 
+  validateRequest({ params: getProjectSchema }), 
+  getProject
+);
 router.delete('/preview/:previewId', authenticateToken, deletePreview);
 
 export default router;

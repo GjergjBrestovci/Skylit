@@ -22,7 +22,7 @@ class ApiClient {
     localStorage.setItem('authToken', token);
     if (refreshToken) {
       localStorage.setItem('refreshToken', refreshToken);
-    }
+    } 
   };
   private clearTokens = () => {
     localStorage.removeItem('authToken');

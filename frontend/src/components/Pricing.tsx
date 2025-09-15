@@ -52,21 +52,25 @@ export function Pricing({ onClose }: PricingProps) {
         throw new Error('Stripe failed to load');
       }
 
-      const endpoint = billingMode === 'monthly' ? '/api/create-subscription' : '/api/create-payment';
+      const endpoint = billingMode === 'monthly' ? '/api/create-subscription-payment' : '/api/create-payment';
       const response = await apiClient.post(endpoint, { planId });
+      
+      // Backend returns clientSecret for PaymentIntents
       const { clientSecret } = response;
+      if (!clientSecret) {
+        throw new Error('Payment initialization failed');
+      }
 
-      const result = await stripe.confirmPayment({
-        clientSecret,
-        confirmParams: {
-          return_url: `${window.location.origin}/payment-success`
-        }
-      });
+      // Use confirmCardPayment for PaymentIntents (not confirmPayment)
+      const result = await stripe.confirmCardPayment(clientSecret);
 
       if (result.error) {
         setError(result.error.message || 'Payment failed');
-      } else {
+      } else if (result.paymentIntent?.status === 'succeeded') {
+        // Payment successful
         onClose();
+        // Refresh credits after successful payment
+        window.dispatchEvent(new Event('credits:refresh'));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Payment failed');

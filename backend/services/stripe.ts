@@ -6,7 +6,6 @@ const isProd = process.env.NODE_ENV === 'production';
 
 export const stripe = STRIPE_KEY
   ? new Stripe(STRIPE_KEY, {
-      apiVersion: '2025-08-27.basil',
       typescript: true,
     })
   : null;
