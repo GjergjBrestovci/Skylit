@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Logo } from './ui/Logo';
+import { apiClient } from '../utils/apiClient';
 
 interface AuthProps {
   onAuthSuccess: (token: string) => void;
@@ -21,18 +22,8 @@ export function Auth({ onAuthSuccess }: AuthProps) {
 
     try {
       const endpoint = isLogin ? '/api/login' : '/api/register';
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
+      const data = await apiClient.post(endpoint, { email, password });
       
-      if (!response.ok) {
-        throw new Error(data.error || 'Authentication failed');
-      }
-
       if (isLogin) {
         // Login success - store tokens and notify parent
         localStorage.setItem('authToken', data.token);

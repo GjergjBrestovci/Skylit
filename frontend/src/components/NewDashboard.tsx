@@ -228,6 +228,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     }));
   };
 
+  const [billingOpen, setBillingOpen] = useState(false);
+
   const generateWebsite = async () => {
     setCurrentStep('generating');
     setError(null);
@@ -288,7 +290,12 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   if (data.enhancedPrompt) setEnhancedPrompt(data.enhancedPrompt);
         setIsApiDone(true);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to generate website');
+        const message = err instanceof Error ? err.message : 'Failed to generate website';
+        setError(message);
+        // If insufficient credits, surface billing
+        if (/credit/i.test(message)) {
+          setBillingOpen(true);
+        }
         setCurrentStep('details');
       }
     })();
@@ -812,11 +819,17 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-              <button className="px-4 sm:px-6 py-3 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-lg transition-all duration-300 text-sm sm:text-base">
-                💾 Save Project
+              <button
+                onClick={() => { if (result) saveProjectToDatabase(result, rawPrompt); }}
+                className="px-4 sm:px-6 py-3 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-lg transition-all duration-300 text-sm sm:text-base"
+              >
+                 💾 Save Project
               </button>
-              <button className="px-4 sm:px-6 py-3 border border-accent-cyan text-accent-cyan hover:bg-accent-cyan/10 rounded-lg transition-all duration-300 text-sm sm:text-base">
-                📥 Download Code
+              <button
+                onClick={() => { if (result) downloadCombinedHtml(result); }}
+                className="px-4 sm:px-6 py-3 border border-accent-cyan text-accent-cyan hover:bg-accent-cyan/10 rounded-lg transition-all duration-300 text-sm sm:text-base"
+              >
+                 0📥 Download Code
               </button>
             </div>
           </div>
@@ -824,6 +837,35 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       </div>
     </div>
   );
+
+  function downloadCombinedHtml(r: GenerationResult) {
+    const doc = buildCombinedHtml(r);
+    const blob = new Blob([doc], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const title = (config.websiteType ? `${config.websiteType}-site` : 'website').replace(/\s+/g, '-');
+    a.download = `${title}.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function buildCombinedHtml(r: GenerationResult) {
+    const cssTag = r.css ? `<style>\n${r.css}\n</style>` : '';
+    const jsTag = r.javascript ? `<script>\n${r.javascript}\n</script>` : '';
+    const hasHead = /<head[>\s]/i.test(r.html);
+    const hasBodyClose = /<\/body>/i.test(r.html);
+    let out = r.html || r.generated || '';
+    if (cssTag) {
+      out = hasHead ? out.replace(/<\/head>/i, `${cssTag}\n</head>`) : out.replace(/<html[^>]*>/i, '$&\n<head>\n' + cssTag + '\n</head>');
+    }
+    if (jsTag) {
+      out = hasBodyClose ? out.replace(/<\/body>/i, `${jsTag}\n</body>`) : out + jsTag;
+    }
+    return out;
+  }
 
   // Main render
   const openProjectFromSidebar = async (p: { id: string; name: string; createdAt: string; previewUrl?: string }) => {
@@ -909,6 +951,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       </main>
       {/* Floating Tokens Button */}
       <TokensFab />
+      <BillingPage open={billingOpen} onClose={() => setBillingOpen(false)} />
     </div>
   );
 }

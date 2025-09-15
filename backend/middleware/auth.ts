@@ -7,7 +7,8 @@ export interface AuthRequest extends Request {
 }
 
 const supabaseConfigured = !!process.env.SUPABASE_URL && !!process.env.SUPABASE_ANON_KEY;
-const devBypass = process.env.AUTH_BYPASS === 'true' || process.env.NODE_ENV !== 'production';
+// Only bypass when explicitly enabled
+const devBypass = process.env.AUTH_BYPASS === 'true';
 
 export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
@@ -16,7 +17,7 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
   const scheme = parts[0];
   const token = parts[1];
 
-  // In development, bypass auth and attach a mock user
+  // Optional dev bypass (explicit opt-in)
   if (devBypass) {
     req.userId = (req.headers['x-dev-user-id'] as string) || 'dev-user';
     req.user = { id: req.userId, email: 'dev@example.com' };
@@ -58,7 +59,7 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
       console.error('Auth verification error:', error);
       
       // Check if it's specifically a token expiration error
-      if (error?.message?.includes('expired') || error?.code === 'bad_jwt') {
+      if ((error as any)?.message?.includes('expired') || (error as any)?.code === 'bad_jwt') {
         return res.status(401).json({ 
           error: 'Token has expired', 
           code: 'TOKEN_EXPIRED',

@@ -6,7 +6,7 @@ interface PricingPageProps {
   onBack: () => void;
 }
 
-const stripePromise = loadStripe(process.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 export function PricingPage({ onBack }: PricingPageProps) {
   const [billingMode, setBillingMode] = useState<'credits' | 'monthly'>('monthly');
@@ -115,12 +115,16 @@ export function PricingPage({ onBack }: PricingPageProps) {
       const stripe = await stripePromise;
       if (!stripe) throw new Error('Stripe failed to load');
 
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: response.sessionId
-      });
+      // NOTE: Backend returns PaymentIntent client_secret, not a Checkout Session ID
+      const { clientSecret } = response;
+      if (!clientSecret) {
+        console.error('Missing clientSecret in response. Ensure backend flow matches frontend.');
+        return;
+      }
 
-      if (error) {
-        console.error('Stripe error:', error);
+      const result = await stripe.confirmCardPayment(clientSecret);
+      if (result.error) {
+        console.error('Stripe error:', result.error);
       }
     } catch (error) {
       console.error('Payment error:', error);

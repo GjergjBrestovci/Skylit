@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getApiBase } from '../utils/apiClient';
 
 interface WebsitePreviewProps {
   previewUrl: string;
@@ -27,8 +28,8 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
     setIsFullscreen(!isFullscreen);
   };
 
-  const baseUrl = 'http://localhost:5000';
-  const fullUrl = previewUrl.startsWith('http') ? previewUrl : `${baseUrl}${previewUrl}`;
+  const apiBase = getApiBase() || 'http://localhost:5000';
+  const fullUrl = previewUrl.startsWith('http') ? previewUrl : `${apiBase}${previewUrl}`;
 
   // console.debug('WebsitePreview - Preview URL:', fullUrl);
 
@@ -87,7 +88,7 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
             onError={handleError}
             className="w-full h-full border-0"
             title={title}
-            sandbox="allow-scripts allow-same-origin allow-forms"
+            sandbox="allow-scripts allow-forms"
           />
         </div>
       </div>
@@ -153,7 +154,7 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
           onError={handleError}
           className="w-full h-full border-0"
           title={title}
-          sandbox="allow-scripts allow-same-origin allow-forms"
+          sandbox="allow-scripts allow-forms"
         />
       </div>
       

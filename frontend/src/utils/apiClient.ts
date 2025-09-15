@@ -6,7 +6,7 @@ interface ApiOptions {
 }
 
 class ApiClient {
-  private baseUrl = '';
+  private baseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || '';
   private getToken = () => localStorage.getItem('authToken');
   private getRefreshToken = () => localStorage.getItem('refreshToken');
   private decodeToken = (token: string): any | null => {
@@ -68,7 +68,9 @@ class ApiClient {
         requestHeaders.Authorization = `Bearer ${token}`;
       }
 
-      return fetch(`${this.baseUrl}${endpoint}`, {
+      const url = `${this.baseUrl}${endpoint}`;
+
+      return fetch(url, {
         method,
         headers: requestHeaders,
         body: body ? JSON.stringify(body) : undefined
@@ -136,3 +138,4 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
+export const getApiBase = () => (import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || '');
