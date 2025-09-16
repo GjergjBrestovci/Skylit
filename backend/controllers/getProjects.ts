@@ -18,6 +18,10 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
       .order('created_at', { ascending: false });
 
     if (error) {
+      if ((error as any)?.code === 'PGRST205') {
+        // Table missing in dev: return empty list gracefully
+        return res.json({ projects: [] });
+      }
       console.error('Database error:', error);
       return res.status(500).json({ error: 'Failed to fetch projects' });
     }

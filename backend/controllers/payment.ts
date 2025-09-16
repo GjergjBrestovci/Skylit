@@ -68,7 +68,7 @@ export const createSubscriptionPayment = async (req: AuthRequest, res: Response)
 // Get user's current credits and plan
 export const getUserCredits = async (req: AuthRequest, res: Response) => {
   try {
-  const info = getCredits(req.userId!);
+  const info = await getCredits(req.userId!);
   res.json(info);
   } catch (error) {
     console.error('Get user credits error:', error);

@@ -8,6 +8,22 @@ interface UserCredits {
   stripeSubscriptionId?: string;
 }
 
+// In-memory fallback store for dev when Supabase tables are missing
+const memoryCredits = new Map<string, UserCredits>();
+
+function getMem(userId: string): UserCredits {
+  let u = memoryCredits.get(userId);
+  if (!u) {
+    u = { credits: 3, plan: 'free', subscriptionStatus: 'none' };
+    memoryCredits.set(userId, u);
+  }
+  return u;
+}
+
+function isMissingTable(err: any): boolean {
+  return !!err && (err.code === 'PGRST205' || /table .* not found|schema cache/i.test(err.message || ''));
+}
+
 // Initialize user credits in database if they don't exist
 export async function ensureUserCredits(userId: string): Promise<void> {
   try {
@@ -16,6 +32,12 @@ export async function ensureUserCredits(userId: string): Promise<void> {
       .select('*')
       .eq('user_id', userId)
       .single();
+
+    if (error && isMissingTable(error)) {
+      // Fallback to memory when table is missing
+      getMem(userId);
+      return;
+    }
 
     if (error && error.code === 'PGRST116') {
       // User doesn't exist, create with default credits
@@ -50,6 +72,9 @@ export async function getCredits(userId: string): Promise<UserCredits> {
       .single();
 
     if (error) {
+      if (isMissingTable(error)) {
+        return getMem(userId);
+      }
       console.error('Failed to fetch user credits:', error);
       // Return default values on error
       return {
@@ -68,11 +93,7 @@ export async function getCredits(userId: string): Promise<UserCredits> {
     };
   } catch (error) {
     console.error('Error getting user credits:', error);
-    return {
-      credits: 0,
-      plan: 'free',
-      subscriptionStatus: 'none'
-    };
+    return getMem(userId);
   }
 }
 
@@ -86,6 +107,12 @@ export async function setCredits(userId: string, credits: number): Promise<boole
       .eq('user_id', userId);
 
     if (error) {
+      if (isMissingTable(error)) {
+        const mem = getMem(userId);
+        mem.credits = Math.max(0, Math.floor(credits));
+        memoryCredits.set(userId, mem);
+        return true;
+      }
       console.error('Failed to set user credits:', error);
       return false;
     }
@@ -109,6 +136,12 @@ export async function addCredits(userId: string, amount: number): Promise<boolea
       .eq('user_id', userId);
 
     if (error) {
+      if (isMissingTable(error)) {
+        const mem = getMem(userId);
+        mem.credits = newCredits;
+        memoryCredits.set(userId, mem);
+        return true;
+      }
       console.error('Failed to add user credits:', error);
       return false;
     }
@@ -129,7 +162,14 @@ export async function consumeCredit(userId: string): Promise<boolean> {
       .eq('user_id', userId)
       .single();
 
-    if (error || !data || data.credits <= 0) {
+    if (error) {
+      if (isMissingTable(error)) {
+        const mem = getMem(userId);
+        if (mem.credits <= 0) return false;
+        mem.credits -= 1;
+        memoryCredits.set(userId, mem);
+        return true;
+      }
       return false;
     }
 
@@ -177,6 +217,15 @@ export async function updateSubscription(
       .eq('user_id', userId);
 
     if (error) {
+      if (isMissingTable(error)) {
+        const mem = getMem(userId);
+        mem.plan = plan;
+        mem.subscriptionStatus = subscriptionStatus;
+        if (stripeCustomerId) mem.stripeCustomerId = stripeCustomerId;
+        if (stripeSubscriptionId) mem.stripeSubscriptionId = stripeSubscriptionId;
+        memoryCredits.set(userId, mem);
+        return true;
+      }
       console.error('Failed to update subscription:', error);
       return false;
     }
