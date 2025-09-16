@@ -48,25 +48,21 @@ export const validateRequest = (schema: {
 export const generateSiteSchema = z.object({
   prompt: z.string()
     .min(10, 'Prompt must be at least 10 characters long')
-    .max(1000, 'Prompt cannot exceed 1000 characters')
+    .max(2000, 'Prompt cannot exceed 2000 characters')
     .refine((prompt: string) => prompt.trim().length > 0, 'Prompt cannot be empty'),
-  
-  techStack: z.object({
-    framework: z.enum(['React', 'Vue', 'Angular', 'Vanilla JS'], {
-      errorMap: () => ({ message: 'Framework must be React, Vue, Angular, or Vanilla JS' })
-    }),
-    styling: z.enum(['Tailwind CSS', 'Bootstrap', 'CSS Modules', 'Styled Components'], {
-      errorMap: () => ({ message: 'Styling must be Tailwind CSS, Bootstrap, CSS Modules, or Styled Components' })
-    }),
-    features: z.array(z.string()).optional().default([])
-  }),
-  
-  options: z.object({
-    includeAnimations: z.boolean().optional().default(false),
-    includeInteractivity: z.boolean().optional().default(false),
-    darkMode: z.boolean().optional().default(false),
-    responsive: z.boolean().optional().default(true)
-  }).optional().default({})
+
+  // Accept either a simple string (e.g., 'vanilla', 'react') or a detailed object
+  techStack: z.union([
+    z.string().min(1),
+    z.object({
+      framework: z.string().min(1),
+      styling: z.string().optional(),
+      features: z.array(z.string()).optional()
+    })
+  ]).optional(),
+
+  // Options are optional and flexible
+  options: z.record(z.any()).optional()
 });
 
 export const saveProjectSchema = z.object({
