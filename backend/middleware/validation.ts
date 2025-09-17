@@ -125,3 +125,42 @@ export const enhancePromptSchema = z.object({
     additionalFeatures: z.array(z.string()).optional()
   }).optional()
 });
+
+export const updateProjectSchema = z.object({
+  name: z.string()
+    .min(1, 'Project name is required')
+    .max(100, 'Project name cannot exceed 100 characters')
+    .optional(),
+  
+  description: z.string()
+    .max(500, 'Description cannot exceed 500 characters')
+    .optional(),
+    
+  starred: z.boolean().optional(),
+  archived: z.boolean().optional()
+});
+
+export const duplicateProjectSchema = z.object({
+  name: z.string()
+    .min(1, 'Project name is required')
+    .max(100, 'Project name cannot exceed 100 characters')
+    .optional()
+});
+
+export const templateCustomizationSchema = z.object({
+  companyName: z.string().max(100).optional(),
+  industry: z.string().max(50).optional(),
+  colorScheme: z.string().max(30).optional(),
+  additionalFeatures: z.array(z.string().max(50)).max(10).optional()
+});
+
+export const getTemplatesQuerySchema = z.object({
+  category: z.string().optional(),
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced', 'all']).optional(),
+  search: z.string().max(100).optional()
+});
+
+export const getSamplePromptsQuerySchema = z.object({
+  category: z.string().optional(),
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced', 'all']).optional()
+});

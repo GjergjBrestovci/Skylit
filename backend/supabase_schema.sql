@@ -29,6 +29,11 @@ CREATE TABLE IF NOT EXISTS projects (
   javascript TEXT, -- Separate column for easier access
   preview_url TEXT, -- URL for live preview
   model VARCHAR(100), -- AI model used for generation
+  description TEXT,
+  starred BOOLEAN DEFAULT FALSE,
+  archived BOOLEAN DEFAULT FALSE,
+  tech_stack JSONB,
+  metadata JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -90,3 +95,69 @@ CREATE POLICY "Users can delete own projects" ON projects
 CREATE INDEX IF NOT EXISTS idx_user_credits_user_id ON user_credits(user_id);
 CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id);
 CREATE INDEX IF NOT EXISTS idx_projects_created_at ON projects(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_projects_starred ON projects(user_id, starred) WHERE starred = true;
+CREATE INDEX IF NOT EXISTS idx_projects_archived ON projects(user_id, archived);
+CREATE INDEX IF NOT EXISTS idx_projects_updated_at ON projects(updated_at);
+
+-- Create project_versions table for version history (future feature)
+CREATE TABLE IF NOT EXISTS project_versions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  version_number INTEGER NOT NULL DEFAULT 1,
+  title TEXT NOT NULL,
+  description TEXT,
+  html TEXT,
+  css TEXT,
+  javascript TEXT,
+  metadata JSONB,
+  tech_stack JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(project_id, version_number)
+);
+
+-- Enable RLS for project_versions
+ALTER TABLE project_versions ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policy for project_versions
+CREATE POLICY "Users can manage their own project versions" ON project_versions
+  FOR ALL USING (auth.uid() = user_id);
+
+-- Create index for project versions
+CREATE INDEX IF NOT EXISTS idx_project_versions_project_id ON project_versions(project_id, version_number);
+CREATE INDEX IF NOT EXISTS idx_project_versions_user_id ON project_versions(user_id, created_at);
+
+-- Create templates table for storing custom user templates (future feature)
+CREATE TABLE IF NOT EXISTS user_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  category TEXT DEFAULT 'custom',
+  prompt TEXT NOT NULL,
+  html TEXT,
+  css TEXT,
+  javascript TEXT,
+  tech_stack JSONB,
+  thumbnail_url TEXT,
+  is_public BOOLEAN DEFAULT FALSE,
+  tags TEXT[] DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS for user_templates
+ALTER TABLE user_templates ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies for user_templates
+CREATE POLICY "Users can manage their own templates" ON user_templates
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view public templates" ON user_templates
+  FOR SELECT USING (is_public = true OR auth.uid() = user_id);
+
+-- Create indexes for user_templates
+CREATE INDEX IF NOT EXISTS idx_user_templates_user_id ON user_templates(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_templates_category ON user_templates(category);
+CREATE INDEX IF NOT EXISTS idx_user_templates_public ON user_templates(is_public) WHERE is_public = true;
+CREATE INDEX IF NOT EXISTS idx_user_templates_tags ON user_templates USING gin(tags);
