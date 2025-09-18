@@ -181,7 +181,7 @@ Test these URLs:
 ## Support
 
 - 📚 [Full Documentation](./docs/)
-- 🐛 [Report Issues](https://github.com/yourusername/skylit/issues)
+- 🐛 [Report Issues](https://github.com/GjergjBrestovci/Skylit/issues)
 - 💬 [Discord Community](#)
 - 📧 [Email Support](mailto:support@skylit.ai)
 
