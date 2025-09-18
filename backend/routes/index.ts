@@ -10,6 +10,7 @@ import { getPricingPlans, createPayment, createSubscriptionPayment, getUserCredi
 import { handleStripeWebhook } from '../controllers/webhook';
 import { updateProject, deleteProject, duplicateProject, getProjectHistory } from '../controllers/projectManagement';
 import { getTemplateCategories, getTemplates, getTemplate, getSamplePrompts, generateFromTemplate } from '../controllers/templates';
+import seoRoutes from './seo';
 import { 
   validateRequest, 
   generateSiteSchema, 
@@ -40,6 +41,9 @@ router.get('/health', async (_req, res) => {
   }
   res.json({ ok: true, supabase: { url: supaUrl || null, anonKey: supaAnon, configured: authOk }, stripeEnabled: process.env.STRIPE_ENABLED !== 'false' });
 });
+
+// SEO routes (public)
+router.use('/', seoRoutes);
 
 // Auth routes (public)
 router.post('/register', register);

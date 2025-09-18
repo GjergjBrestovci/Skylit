@@ -18,16 +18,36 @@ export const generateSite = async (req: AuthRequest, res: Response) => {
         credits: creditResult?.credits || 0
       });
     }
-    
-    console.log('🔄 Enhancing user prompt...');
-    const promptResult = await enhancePrompt(prompt);
-    
-    console.log('🤖 Generating website with enhanced prompt...');
-    const aiResult = await generateWebsiteFromPrompt(promptResult.enhanced, techStack?.framework || 'vanilla');
+
+    const useMock = process.env.MOCK_AI === 'true';
+    let promptResult: any;
+    let aiResult: any;
     const timestamp = new Date().toISOString();
 
+    if (useMock) {
+      console.log('⚙️ MOCK_AI enabled: generating stub website fast');
+      promptResult = {
+        enhanced: `${prompt} (enhanced)`,
+        analysis: 'Mock analysis of the prompt',
+        requirements: ['Responsive', 'CTA', 'Dark theme'],
+        usedKey: false
+      };
+      aiResult = {
+        html: `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Mock Site</title></head><body><main><h1>Mock ${techStack?.framework || techStack || 'vanilla'} Site</h1><p>${prompt}</p><a href="#" class="btn">Call to Action</a></main></body></html>`,
+        css: 'body{font-family:system-ui;background:#0b0b0f;color:#e5e7eb}main{max-width:800px;margin:4rem auto;padding:1rem}a.btn{display:inline-block;margin-top:1rem;padding:.6rem 1rem;background:#06b6d4;color:#000;border-radius:.5rem}',
+        javascript: 'console.log("Mock site ready")',
+        notes: 'This is mock content for local testing',
+        model: 'mock-local'
+      };
+    } else {
+      console.log('🔄 Enhancing user prompt...');
+      promptResult = await enhancePrompt(prompt);
+      console.log('🤖 Generating website with enhanced prompt...');
+      aiResult = await generateWebsiteFromPrompt(promptResult.enhanced, techStack?.framework || techStack || 'vanilla');
+    }
+
     // Store preview for live viewing
-    const previewId = storePreview(req.userId!, aiResult.html, aiResult.css, aiResult.javascript);
+  const previewId = storePreview(req.userId!, aiResult.html, aiResult.css, aiResult.javascript);
 
     console.log('✅ Website generated successfully');
 

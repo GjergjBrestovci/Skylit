@@ -82,7 +82,7 @@ export function Pricing({ onClose }: PricingProps) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[80]">
         <div className="bg-background border border-accent-purple/20 rounded-3xl p-8 max-w-md w-full mx-4">
           <div className="text-center space-y-4">
             <div className="w-12 h-12 border-2 border-accent-cyan border-t-transparent rounded-full animate-spin mx-auto"></div>
@@ -115,7 +115,7 @@ export function Pricing({ onClose }: PricingProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[80] p-4">
       <div className="bg-background border border-accent-purple/20 rounded-3xl max-w-7xl w-full max-h-[95vh] overflow-hidden">
         {/* Header */}
         <div className="relative px-8 py-6 border-b border-accent-purple/10">

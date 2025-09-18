@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { apiClient } from './utils/apiClient';
 import { NewDashboard } from './components/NewDashboard';
 import { EnhancedDashboard } from './components/EnhancedDashboard';
 import { OnboardingTour, useOnboarding } from './components/OnboardingTour';
 import { Auth } from './components/Auth';
+import { SEOHead } from './components/SEO/SEOHead';
 
 function App() {
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -48,37 +50,45 @@ function App() {
   }
 
   if (!authToken) {
-    return <Auth onAuthSuccess={handleAuthSuccess} />;
+    return (
+      <HelmetProvider>
+        <SEOHead 
+          title="Login to SkyLit AI - AI Website Generator"
+          description="Sign in to SkyLit AI to create professional websites instantly with AI. Generate responsive websites using React, Vue, Next.js, and more."
+          url="/login"
+        />
+        <Auth onAuthSuccess={handleAuthSuccess} />
+      </HelmetProvider>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-background text-text">
-      {/* Onboarding Tour */}
-      {authToken && showOnboarding && (
-        <OnboardingTour onComplete={completeOnboarding} />
-      )}
-      
-      {/* Dashboard Toggle - positioned to avoid conflicts with TokensFab */}
-      {authToken && (
-        <div className="fixed top-4 left-4 z-40">
-          <button
-            onClick={() => setUseEnhancedDashboard(!useEnhancedDashboard)}
-            className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
-          >
-            {useEnhancedDashboard ? 'Classic View' : 'Enhanced View'}
-          </button>
-        </div>
-      )}
-      
-      {/* Add tour data attributes to navigation elements */}
-      <div data-tour="navigation">
-        {useEnhancedDashboard ? (
-          <EnhancedDashboard />
-        ) : (
-          <NewDashboard onLogout={handleLogout} />
+    <HelmetProvider>
+      <SEOHead 
+        title="SkyLit AI - AI-Powered Website Generator"
+        description="Create professional websites instantly with AI. Generate responsive websites using React, Vue, Next.js, and more. No coding required."
+        keywords={['AI website generator', 'website builder', 'AI web development', 'responsive design', 'React websites', 'Vue websites', 'Next.js generator', 'no-code website builder']}
+      />
+      <div className="min-h-screen bg-background text-text">
+        {/* Onboarding Tour */}
+        {authToken && showOnboarding && (
+          <OnboardingTour onComplete={completeOnboarding} />
         )}
+        
+        {/* Add tour data attributes to navigation elements */}
+        <div data-tour="navigation">
+          {useEnhancedDashboard ? (
+            <EnhancedDashboard />
+          ) : (
+            <NewDashboard 
+              onLogout={handleLogout} 
+              onToggleDashboard={() => setUseEnhancedDashboard(!useEnhancedDashboard)}
+              useEnhancedDashboard={useEnhancedDashboard}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </HelmetProvider>
   );
 }
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { WebsitePreview } from './WebsitePreview';
 import { Sidebar } from '../components/Sidebar';
 import { BillingPage } from '../components/BillingPage';
+import { InsufficientCredits } from '../components/InsufficientCredits';
 import { TechStackSelector } from './TechStackSelector';
 import { apiClient } from '../utils/apiClient';
 import { StepContainer } from './ui/StepContainer';
@@ -22,9 +23,11 @@ import type { WebsiteConfig, GenerationResult, Step } from '../types';
 
 interface NewDashboardProps {
   onLogout: () => void;
+  onToggleDashboard?: () => void;
+  useEnhancedDashboard?: boolean;
 }
 
-export function NewDashboard({ onLogout }: NewDashboardProps) {
+export function NewDashboard({ onLogout, onToggleDashboard, useEnhancedDashboard }: NewDashboardProps) {
   const [currentStep, setCurrentStep] = useState<Step>('homepage');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [config, setConfig] = useState<WebsiteConfig>({
@@ -229,6 +232,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   };
 
   const [billingOpen, setBillingOpen] = useState(false);
+  const [showInsufficient, setShowInsufficient] = useState<null | { needed: number }>(null);
 
   const generateWebsite = async () => {
     setCurrentStep('generating');
@@ -266,7 +270,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   // Enhancement starts automatically
 
     // Fire API call without blocking animation progression
-    (async () => {
+  (async () => {
       try {
         const data = await apiClient.post('/api/generate-site', { 
           prompt,
@@ -287,13 +291,19 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           enhancementUsedAI: data.enhancementUsedAI
         };
         setPendingResult(pending);
-  if (data.enhancedPrompt) setEnhancedPrompt(data.enhancedPrompt);
+        if (data.enhancedPrompt) setEnhancedPrompt(data.enhancedPrompt);
         setIsApiDone(true);
+  // Notify UI to refresh credits badge
+  window.dispatchEvent(new Event('credits:refresh'));
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to generate website';
         setError(message);
         // If insufficient credits, surface billing
-        if (/credit/i.test(message)) {
+        if (/NO_CREDITS|402|insufficient\s*credits/i.test(message)) {
+          // Show friendly modal and open billing
+          setShowInsufficient({ needed: 1 });
+          setBillingOpen(true);
+        } else if (/credit/i.test(message)) {
           setBillingOpen(true);
         }
         setCurrentStep('details');
@@ -931,7 +941,13 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   if (currentStep === 'preview' && result) {
     return (
       <div className="flex w-full min-h-screen">
-        <Sidebar onLogout={onLogout} onCreateNew={startOver} onOpenProject={openProjectFromSidebar} />
+        <Sidebar 
+          onLogout={onLogout} 
+          onCreateNew={startOver} 
+          onOpenProject={openProjectFromSidebar}
+          onToggleDashboard={onToggleDashboard}
+          useEnhancedDashboard={useEnhancedDashboard}
+        />
         <main className="flex-1 overflow-x-hidden">
           {renderPreview()}
         </main>
@@ -943,7 +959,13 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
   return (
     <div className="flex w-full min-h-screen bg-background">
-      <Sidebar onLogout={onLogout} onCreateNew={startOver} onOpenProject={openProjectFromSidebar} />
+      <Sidebar 
+        onLogout={onLogout} 
+        onCreateNew={startOver} 
+        onOpenProject={openProjectFromSidebar}
+        onToggleDashboard={onToggleDashboard}
+        useEnhancedDashboard={useEnhancedDashboard}
+      />
       <main className="flex-1 bg-background page-transition-container overflow-x-hidden">
         <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
           {renderStepContent()}
@@ -952,6 +974,17 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       {/* Floating Tokens Button */}
       <TokensFab />
       <BillingPage open={billingOpen} onClose={() => setBillingOpen(false)} />
+      {showInsufficient && (
+        <InsufficientCredits 
+          creditsNeeded={showInsufficient.needed}
+          onClose={() => setShowInsufficient(null)}
+          onSuccess={() => {
+            // refresh credits via event; TokensFab listens on fetch
+            window.dispatchEvent(new Event('credits:refresh'));
+            setShowInsufficient(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -962,13 +995,17 @@ function TokensFab() {
   const [credits, setCredits] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchCredits = async () => {
+  const fetchCredits = async () => {
       try {
         const data = await apiClient.get('/api/user-credits');
         if (data && typeof data.credits === 'number') setCredits(data.credits);
       } catch {}
     };
-    fetchCredits();
+  fetchCredits();
+
+  const onRefresh = () => fetchCredits();
+  window.addEventListener('credits:refresh', onRefresh);
+  return () => window.removeEventListener('credits:refresh', onRefresh);
   }, []);
 
   const handleClose = () => {
@@ -992,7 +1029,7 @@ function TokensFab() {
         title="Open Billing / Credits"
         aria-label="Open Billing / Credits"
       >
-        <span className="text-base">�</span>
+  <span className="text-base" aria-hidden>💎</span>
         <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Billing</span>
         {typeof credits === 'number' && (
           <span className="ml-1 text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/10">

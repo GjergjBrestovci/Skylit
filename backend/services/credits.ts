@@ -14,7 +14,7 @@ const memoryCredits = new Map<string, UserCredits>();
 function getMem(userId: string): UserCredits {
   let u = memoryCredits.get(userId);
   if (!u) {
-    u = { credits: 3, plan: 'free', subscriptionStatus: 'none' };
+  u = { credits: 10, plan: 'free', subscriptionStatus: 'none' };
     memoryCredits.set(userId, u);
   }
   return u;
@@ -45,7 +45,7 @@ export async function ensureUserCredits(userId: string): Promise<void> {
         .from('user_credits')
         .insert({
           user_id: userId,
-          credits: 3, // Free tier starts with 3 credits
+          credits: 10, // Free tier starts with 10 credits
           plan: 'free',
           subscription_status: 'none'
         });

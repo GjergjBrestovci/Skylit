@@ -23,9 +23,11 @@ interface SidebarProps {
   onLogout: () => void;
   onCreateNew: () => void;
   onOpenProject: (project: ProjectItem) => void;
+  onToggleDashboard?: () => void;
+  useEnhancedDashboard?: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenProject }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenProject, onToggleDashboard, useEnhancedDashboard }) => {
   const [open, setOpen] = useState(false); // mobile slide-in (<= lg)
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try {
@@ -344,10 +346,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
         )}
         {/* Nav Links (placeholder for future sections) */}
         {!collapsed && (
-          <div className="p-4 flex flex-wrap gap-2 animate-fade-in" style={{animationDelay:'180ms'}}>
-            <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">🏠 Dashboard</button>
-            <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">👤 Profile</button>
-            <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">⚙ Settings</button>
+          <div className="p-4 space-y-2 animate-fade-in" style={{animationDelay:'180ms'}}>
+            {/* Dashboard Toggle */}
+            {onToggleDashboard && (
+              <button 
+                onClick={onToggleDashboard}
+                className="w-full px-3 py-2 rounded-md bg-blue-600 text-white text-xs hover:bg-blue-700 transition-colors focus:outline-none flex items-center gap-2"
+              >
+                <span className="text-sm">🔄</span>
+                {useEnhancedDashboard ? 'Classic View' : 'Enhanced View'}
+              </button>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">👤 Profile</button>
+              <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">⚙ Settings</button>
+            </div>
           </div>
         )}
   {/* Billing widget moved out of sidebar to a floating button for minimal intrusion */}
