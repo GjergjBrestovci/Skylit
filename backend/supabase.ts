@@ -1,11 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import path from 'path';
+// Ensure env is loaded regardless of run mode
+import './config/loadEnv';
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.SUPABASE_URL as string | undefined;
+const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY) as string | undefined;
 
 // Check if we have valid Supabase configuration
 const isValidUrl = (url: string) => {
@@ -39,9 +41,9 @@ if (!supabaseUrl || !supabaseAnonKey ||
   };
 } else {
   console.log('✅ Supabase configured with URL:', supabaseUrl);
-  console.log('✅ Anon key configured');
+  console.log('✅ Using key from', process.env.SUPABASE_ANON_KEY ? 'ANON' : 'SERVICE_ROLE');
   
-  // Client with anon key for database operations with RLS
+  // Client with anon or service role key; avoid exposing service role to frontend
   supabase = createClient(supabaseUrl, supabaseAnonKey);
 }
 

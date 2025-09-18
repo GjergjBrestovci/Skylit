@@ -1,4 +1,4 @@
-  import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { supabase as supabaseAuth } from '../supabase';
 
 export interface AuthRequest extends Request {

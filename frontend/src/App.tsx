@@ -53,19 +53,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background text-text">
-        return (
-    <div className="min-h-screen bg-background text-text">
       {/* Onboarding Tour */}
       {authToken && showOnboarding && (
         <OnboardingTour onComplete={completeOnboarding} />
       )}
       
-      {/* Dashboard Toggle */}
+      {/* Dashboard Toggle - positioned to avoid conflicts with TokensFab */}
       {authToken && (
-        <div className="fixed top-4 right-4 z-50">
+        <div className="fixed top-4 left-4 z-40">
           <button
             onClick={() => setUseEnhancedDashboard(!useEnhancedDashboard)}
-            className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
           >
             {useEnhancedDashboard ? 'Classic View' : 'Enhanced View'}
           </button>
@@ -80,8 +78,6 @@ function App() {
           <NewDashboard onLogout={handleLogout} />
         )}
       </div>
-    </div>
-  );
     </div>
   );
 }

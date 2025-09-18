@@ -22,8 +22,24 @@ import {
   getTemplatesQuerySchema,
   getSamplePromptsQuerySchema
 } from '../middleware/validation';
+import { supabase as supabaseClient } from '../supabase';
 
 const router = Router();
+
+// Health route
+router.get('/health', async (_req, res) => {
+  const supaUrl = process.env.SUPABASE_URL;
+  const supaAnon = process.env.SUPABASE_ANON_KEY ? 'present' : 'missing';
+  // Lightweight call that doesn't hit DB hard
+  let authOk = false;
+  try {
+    // This will not validate a token, but ensures client is constructed
+    authOk = !!supaUrl && supaAnon === 'present';
+  } catch {
+    authOk = false;
+  }
+  res.json({ ok: true, supabase: { url: supaUrl || null, anonKey: supaAnon, configured: authOk }, stripeEnabled: process.env.STRIPE_ENABLED !== 'false' });
+});
 
 // Auth routes (public)
 router.post('/register', register);
@@ -33,8 +49,10 @@ router.post('/refresh-token', refreshToken);
 // Preview routes (public - but with preview ID as security)
 router.get('/preview/:previewId', getPreview);
 
-// Webhook routes (public - but verified with signature)
-router.post('/webhook/stripe', handleStripeWebhook);
+// Webhook routes (public - but verified with signature) — only if Stripe enabled
+if (process.env.STRIPE_ENABLED !== 'false') {
+  router.post('/webhook/stripe', handleStripeWebhook);
+}
 
 // Template routes (public)
 router.get('/templates/categories', getTemplateCategories);
@@ -47,10 +65,12 @@ router.post('/templates/:templateId/generate',
   generateFromTemplate
 );
 
-// Payment routes (public for pricing, protected for creating payments)
+// Payment routes (public for pricing, protected for creating payments) — only if Stripe enabled
 router.get('/pricing', getPricingPlans);
-router.post('/create-payment', authenticateToken, createPayment);
-router.post('/create-subscription', authenticateToken, createSubscriptionPayment);
+if (process.env.STRIPE_ENABLED !== 'false') {
+  router.post('/create-payment', authenticateToken, createPayment);
+  router.post('/create-subscription', authenticateToken, createSubscriptionPayment);
+}
 router.get('/user-credits', authenticateToken, getUserCredits);
 
 // Protected routes

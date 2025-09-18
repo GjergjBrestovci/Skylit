@@ -3,7 +3,8 @@ import { apiClient } from '../utils/apiClient';
 import { loadStripe } from '@stripe/stripe-js';
 
 // Initialize Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_publishable_key_here');
+const STRIPE_ENABLED = import.meta.env.VITE_STRIPE_ENABLED !== 'false';
+const stripePromise = STRIPE_ENABLED ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_publishable_key_here') : Promise.resolve(null as any);
 
 interface PricingPlan {
   id: string;
@@ -48,8 +49,8 @@ export function Pricing({ onClose }: PricingProps) {
 
     try {
       const stripe = await stripePromise;
-      if (!stripe) {
-        throw new Error('Stripe failed to load');
+      if (!STRIPE_ENABLED || !stripe) {
+        throw new Error('Stripe disabled or failed to load');
       }
 
       const endpoint = billingMode === 'monthly' ? '/api/create-subscription-payment' : '/api/create-payment';

@@ -14,7 +14,7 @@ export const getPricingPlans = async (req: AuthRequest, res: Response) => {
       features: plan.features
     }));
     
-    res.json({ plans });
+    res.json({ plans, stripeEnabled: process.env.STRIPE_ENABLED !== 'false' });
   } catch (error) {
     console.error('Get pricing plans error:', error);
     res.status(500).json({ error: 'Failed to fetch pricing plans' });
@@ -24,6 +24,9 @@ export const getPricingPlans = async (req: AuthRequest, res: Response) => {
 // Create payment intent for one-time purchase
 export const createPayment = async (req: AuthRequest, res: Response) => {
   try {
+    if (process.env.STRIPE_ENABLED === 'false') {
+      return res.status(503).json({ error: 'Payments disabled in development' });
+    }
     const { planId } = req.body as { planId: PricingPlan };
     
     if (!planId || !PRICING_PLANS[planId]) {
@@ -45,6 +48,9 @@ export const createPayment = async (req: AuthRequest, res: Response) => {
 // Create subscription
 export const createSubscriptionPayment = async (req: AuthRequest, res: Response) => {
   try {
+    if (process.env.STRIPE_ENABLED === 'false') {
+      return res.status(503).json({ error: 'Payments disabled in development' });
+    }
     const { planId, customerId } = req.body as { planId: PricingPlan; customerId?: string };
     
     if (!planId || !PRICING_PLANS[planId]) {

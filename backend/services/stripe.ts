@@ -1,16 +1,19 @@
 import Stripe from 'stripe';
 
+const STRIPE_ENABLED = process.env.STRIPE_ENABLED !== 'false';
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 const isProd = process.env.NODE_ENV === 'production';
 
-export const stripe = STRIPE_KEY
+export const stripe = STRIPE_ENABLED && STRIPE_KEY
   ? new Stripe(STRIPE_KEY, {
       typescript: true,
     })
   : null;
 
-if (!STRIPE_KEY && isProd) {
+if (!STRIPE_ENABLED) {
+  console.warn('[dev] Stripe globally disabled via STRIPE_ENABLED=false');
+} else if (!STRIPE_KEY && isProd) {
   // In production we require Stripe to be configured
   throw new Error('STRIPE_SECRET_KEY is required in production');
 } else if (!STRIPE_KEY) {

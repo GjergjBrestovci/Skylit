@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
+// import { loadStripe } from '@stripe/stripe-js';
 import { apiClient } from '../utils/apiClient';
 
 interface PricingPageProps {
   onBack: () => void;
 }
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+const STRIPE_ENABLED = import.meta.env.VITE_STRIPE_ENABLED !== 'false';
+// const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 export function PricingPage({ onBack }: PricingPageProps) {
   const [billingMode, setBillingMode] = useState<'credits' | 'monthly'>('monthly');
@@ -107,25 +108,28 @@ export function PricingPage({ onBack }: PricingPageProps) {
   ];
 
   const handlePurchase = async (planId: string, isSubscription: boolean = true) => {
+    if (!STRIPE_ENABLED) {
+      console.warn('Stripe disabled in development. Skipping payment.');
+      return;
+    }
     setLoading(planId);
     try {
-      const endpoint = isSubscription ? '/api/create-subscription-payment' : '/api/create-payment';
+      const endpoint = isSubscription ? '/api/create-subscription' : '/api/create-payment';
       const response = await apiClient.post(endpoint, { planId });
       
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error('Stripe failed to load');
+      // const stripe = await stripePromise;
+      // if (!stripe) throw new Error('Stripe failed to load');
 
-      // NOTE: Backend returns PaymentIntent client_secret, not a Checkout Session ID
       const { clientSecret } = response;
       if (!clientSecret) {
         console.error('Missing clientSecret in response. Ensure backend flow matches frontend.');
         return;
       }
 
-      const result = await stripe.confirmCardPayment(clientSecret);
-      if (result.error) {
-        console.error('Stripe error:', result.error);
-      }
+      // const result = await stripe.confirmCardPayment(clientSecret);
+      // if (result.error) {
+      //   console.error('Stripe error:', result.error);
+      // }
     } catch (error) {
       console.error('Payment error:', error);
     } finally {

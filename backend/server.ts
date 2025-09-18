@@ -1,12 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import apiRouter from './routes';
-import dotenv from 'dotenv';
 import path from 'path';
 import { errorHandler, notFoundHandler, requestLogger } from './middleware/errorHandling';
 import { apiLimiter } from './middleware/rateLimiting';
-
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
+// Ensure env is loaded in all run modes
+import './config/loadEnv';
 
 const app = express();
 
@@ -23,8 +22,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Special handling for Stripe webhooks (they need raw body)
-app.use('/api/webhook/stripe', express.raw({ type: 'application/json' }));
+// Special handling for Stripe webhooks (they need raw body) — only enable if STRIPE_ENABLED !== 'false'
+if (process.env.STRIPE_ENABLED !== 'false') {
+  app.use('/api/webhook/stripe', express.raw({ type: 'application/json' }));
+}
 
 // Regular JSON parsing for other routes
 app.use(express.json());
