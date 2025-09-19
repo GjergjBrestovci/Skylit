@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type JSXElementConstructor, type Key, type ReactElement, type ReactNode, type ReactPortal } from 'react';
 import { WebsitePreview } from './WebsitePreview';
 import { Sidebar } from '../components/Sidebar';
 import { BillingPage } from '../components/BillingPage';
-import { InsufficientCredits } from '../components/InsufficientCredits';
 import { TechStackSelector } from './TechStackSelector';
 import { apiClient } from '../utils/apiClient';
 import { StepContainer } from './ui/StepContainer';
@@ -23,11 +22,9 @@ import type { WebsiteConfig, GenerationResult, Step } from '../types';
 
 interface NewDashboardProps {
   onLogout: () => void;
-  onToggleDashboard?: () => void;
-  useEnhancedDashboard?: boolean;
 }
 
-export function NewDashboard({ onLogout, onToggleDashboard, useEnhancedDashboard }: NewDashboardProps) {
+export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [currentStep, setCurrentStep] = useState<Step>('homepage');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [config, setConfig] = useState<WebsiteConfig>({
@@ -232,7 +229,6 @@ export function NewDashboard({ onLogout, onToggleDashboard, useEnhancedDashboard
   };
 
   const [billingOpen, setBillingOpen] = useState(false);
-  const [showInsufficient, setShowInsufficient] = useState<null | { needed: number }>(null);
 
   const generateWebsite = async () => {
     setCurrentStep('generating');
@@ -270,7 +266,7 @@ export function NewDashboard({ onLogout, onToggleDashboard, useEnhancedDashboard
   // Enhancement starts automatically
 
     // Fire API call without blocking animation progression
-  (async () => {
+    (async () => {
       try {
         const data = await apiClient.post('/api/generate-site', { 
           prompt,
@@ -291,19 +287,13 @@ export function NewDashboard({ onLogout, onToggleDashboard, useEnhancedDashboard
           enhancementUsedAI: data.enhancementUsedAI
         };
         setPendingResult(pending);
-        if (data.enhancedPrompt) setEnhancedPrompt(data.enhancedPrompt);
+  if (data.enhancedPrompt) setEnhancedPrompt(data.enhancedPrompt);
         setIsApiDone(true);
-  // Notify UI to refresh credits badge
-  window.dispatchEvent(new Event('credits:refresh'));
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to generate website';
         setError(message);
         // If insufficient credits, surface billing
-        if (/NO_CREDITS|402|insufficient\s*credits/i.test(message)) {
-          // Show friendly modal and open billing
-          setShowInsufficient({ needed: 1 });
-          setBillingOpen(true);
-        } else if (/credit/i.test(message)) {
+        if (/credit/i.test(message)) {
           setBillingOpen(true);
         }
         setCurrentStep('details');
@@ -802,7 +792,7 @@ export function NewDashboard({ onLogout, onToggleDashboard, useEnhancedDashboard
                         <div>
                           <h4 className="text-md font-semibold text-accent-cyan mb-2">Requirements Identified:</h4>
                           <ul className="list-disc pl-6 space-y-1">
-                            {result.requirements.map((req, i) => (
+                            {result.requirements.map((req: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined, i: Key | null | undefined) => (
                               <li key={i} className="text-text/80">{req}</li>
                             ))}
                           </ul>
@@ -833,13 +823,13 @@ export function NewDashboard({ onLogout, onToggleDashboard, useEnhancedDashboard
                 onClick={() => { if (result) saveProjectToDatabase(result, rawPrompt); }}
                 className="px-4 sm:px-6 py-3 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-lg transition-all duration-300 text-sm sm:text-base"
               >
-                 💾 Save Project
+                💾 Save Project
               </button>
               <button
                 onClick={() => { if (result) downloadCombinedHtml(result); }}
                 className="px-4 sm:px-6 py-3 border border-accent-cyan text-accent-cyan hover:bg-accent-cyan/10 rounded-lg transition-all duration-300 text-sm sm:text-base"
               >
-                 0📥 Download Code
+                📥 Download Code
               </button>
             </div>
           </div>
@@ -941,13 +931,7 @@ export function NewDashboard({ onLogout, onToggleDashboard, useEnhancedDashboard
   if (currentStep === 'preview' && result) {
     return (
       <div className="flex w-full min-h-screen">
-        <Sidebar 
-          onLogout={onLogout} 
-          onCreateNew={startOver} 
-          onOpenProject={openProjectFromSidebar}
-          onToggleDashboard={onToggleDashboard}
-          useEnhancedDashboard={useEnhancedDashboard}
-        />
+        <Sidebar onLogout={onLogout} onCreateNew={startOver} onOpenProject={openProjectFromSidebar} />
         <main className="flex-1 overflow-x-hidden">
           {renderPreview()}
         </main>
@@ -959,13 +943,7 @@ export function NewDashboard({ onLogout, onToggleDashboard, useEnhancedDashboard
 
   return (
     <div className="flex w-full min-h-screen bg-background">
-      <Sidebar 
-        onLogout={onLogout} 
-        onCreateNew={startOver} 
-        onOpenProject={openProjectFromSidebar}
-        onToggleDashboard={onToggleDashboard}
-        useEnhancedDashboard={useEnhancedDashboard}
-      />
+      <Sidebar onLogout={onLogout} onCreateNew={startOver} onOpenProject={openProjectFromSidebar} />
       <main className="flex-1 bg-background page-transition-container overflow-x-hidden">
         <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
           {renderStepContent()}
@@ -974,17 +952,6 @@ export function NewDashboard({ onLogout, onToggleDashboard, useEnhancedDashboard
       {/* Floating Tokens Button */}
       <TokensFab />
       <BillingPage open={billingOpen} onClose={() => setBillingOpen(false)} />
-      {showInsufficient && (
-        <InsufficientCredits 
-          creditsNeeded={showInsufficient.needed}
-          onClose={() => setShowInsufficient(null)}
-          onSuccess={() => {
-            // refresh credits via event; TokensFab listens on fetch
-            window.dispatchEvent(new Event('credits:refresh'));
-            setShowInsufficient(null);
-          }}
-        />
-      )}
     </div>
   );
 }
@@ -995,17 +962,13 @@ function TokensFab() {
   const [credits, setCredits] = useState<number | null>(null);
 
   useEffect(() => {
-  const fetchCredits = async () => {
+    const fetchCredits = async () => {
       try {
         const data = await apiClient.get('/api/user-credits');
         if (data && typeof data.credits === 'number') setCredits(data.credits);
       } catch {}
     };
-  fetchCredits();
-
-  const onRefresh = () => fetchCredits();
-  window.addEventListener('credits:refresh', onRefresh);
-  return () => window.removeEventListener('credits:refresh', onRefresh);
+    fetchCredits();
   }, []);
 
   const handleClose = () => {
@@ -1023,13 +986,13 @@ function TokensFab() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className={`fixed top-4 right-4 z-[55] px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-accent-purple text-white shadow-lg hover:brightness-110 transition flex items-center gap-2 border border-white/10 ${
+        className={`fixed bottom-6 md:bottom-10 right-4 sm:right-6 z-20 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-accent-purple text-white shadow-lg hover:brightness-110 transition-all flex items-center gap-2 border border-white/10 text-sm ${
           typeof credits === 'number' && credits < 3 ? 'ring-2 ring-red-400/60' : 'ring-1 ring-accent-cyan/30'
         }`}
         title="Open Billing / Credits"
         aria-label="Open Billing / Credits"
       >
-  <span className="text-base" aria-hidden>💎</span>
+        <span className="text-base">💳</span>
         <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Billing</span>
         {typeof credits === 'number' && (
           <span className="ml-1 text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/10">
