@@ -15,8 +15,13 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Configure CORS to allow requests from frontend
+const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
+const envOrigin = process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [];
+const extraOrigins = process.env.DEV_ORIGINS ? process.env.DEV_ORIGINS.split(',').map(s => s.trim()).filter(Boolean) : [];
+const allowedOrigins = (envOrigin.length || extraOrigins.length) ? [...envOrigin, ...extraOrigins] : defaultOrigins;
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

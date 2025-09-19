@@ -28,8 +28,8 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
     setIsFullscreen(!isFullscreen);
   };
 
-  const apiBase = getApiBase() || 'http://localhost:5000';
-  const fullUrl = previewUrl.startsWith('http') ? previewUrl : `${apiBase}${previewUrl}`;
+  const apiBase = getApiBase();
+  const fullUrl = previewUrl.startsWith('http') ? previewUrl : `${apiBase || ''}${previewUrl}`;
 
   // console.debug('WebsitePreview - Preview URL:', fullUrl);
 

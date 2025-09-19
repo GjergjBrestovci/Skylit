@@ -18,13 +18,15 @@ export async function callModel(messages: ChatMessage[], opts?: { model?: string
   }
   const model = opts?.model || process.env.AI_MODEL || 'gpt-4o-mini';
   const temperature = opts?.temperature ?? 0.7;
+  const referer = process.env.SITE_URL || process.env.FRONTEND_URL; // no hardcoded localhost fallback
   try {
     const resp = await fetch(provider.base + '/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${provider.key}`,
-        ...(provider.provider === 'openrouter' ? { 'HTTP-Referer': process.env.SITE_URL || 'http://localhost:5000', 'X-Title': 'Skylit.ai'} : {})
+        // Only include OpenRouter-specific headers when available
+        ...(provider.provider === 'openrouter' && referer ? { 'HTTP-Referer': referer, 'X-Title': 'Skylit.ai'} : {})
       },
       body: JSON.stringify({
         model,

@@ -10,7 +10,7 @@ import { SEOHead } from './components/SEO/SEOHead';
 function App() {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [useEnhancedDashboard, setUseEnhancedDashboard] = useState(false);
+  const [useEnhancedDashboard] = useState(false);
   const { showOnboarding, completeOnboarding } = useOnboarding();
 
   useEffect(() => {
@@ -79,12 +79,10 @@ function App() {
         <div data-tour="navigation">
           {useEnhancedDashboard ? (
             <EnhancedDashboard />
-          ) : (
+          ) : (           
             <NewDashboard 
-              onLogout={handleLogout} 
-              onToggleDashboard={() => setUseEnhancedDashboard(!useEnhancedDashboard)}
-              useEnhancedDashboard={useEnhancedDashboard}
-            />
+              onLogout={handleLogout}
+            /> 
           )}
         </div>
       </div>

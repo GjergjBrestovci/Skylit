@@ -66,9 +66,12 @@ export const getPreview = (req: Request, res: Response) => {
   // Set appropriate headers for HTML content
   res.setHeader('Content-Type', 'text/html');
   
-  // Remove X-Frame-Options to allow iframe embedding
-  // Use Content-Security-Policy for more modern and flexible control
-  res.setHeader('Content-Security-Policy', "frame-ancestors 'self' http://localhost:* https://localhost:*");
+  // Build CSP frame-ancestors from environment
+  const origins: string[] = [];
+  if (process.env.FRONTEND_URL) origins.push(process.env.FRONTEND_URL);
+  if (process.env.DEV_ORIGINS) origins.push(...process.env.DEV_ORIGINS.split(',').map(s=>s.trim()).filter(Boolean));
+  const csp = ["frame-ancestors 'self'", ...origins].join(' ');
+  res.setHeader('Content-Security-Policy', csp);
   
   // Allow cross-origin requests for preview (needed for different ports)
   res.setHeader('Access-Control-Allow-Origin', '*');
