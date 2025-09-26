@@ -20,20 +20,51 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
   className = '',
   animationIndex = 0
 }) => {
-  const baseClasses = `group p-4 sm:p-6 lg:p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-xl text-left animate-stagger-in stagger-${Math.min(animationIndex + 1, 6)}`;
+  const baseClasses = `
+    group p-4 sm:p-6 lg:p-8 rounded-3xl border transition-all duration-300 
+    text-left animate-stagger-in stagger-${Math.min(animationIndex + 1, 6)}
+    backdrop-blur-xl transform-gpu hover:scale-[1.02] active:scale-[0.98]
+    shadow-glass hover:shadow-glass-lg
+    ease-bounce-light
+  `;
   
   const selectedClasses = isSelected 
-    ? 'border-accent-cyan bg-accent-cyan/20 shadow-lg shadow-accent-cyan/25'
-    : 'bg-[#1a1a1a] border-accent-purple/30 hover:border-accent-cyan/50 hover:shadow-accent-cyan/10';
+    ? `
+        border-cyan-400/40 bg-gradient-to-br from-cyan-500/15 to-purple-600/15
+        shadow-cyan-500/20 shadow-glass-lg
+        before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br 
+        before:from-cyan-400/10 before:to-purple-500/10 before:opacity-100
+        relative before:pointer-events-none
+      `
+    : `
+        border-white/10 bg-gradient-to-br from-white/5 to-white/2
+        hover:border-white/20 hover:from-white/10 hover:to-white/5
+        hover:shadow-white/10
+        relative before:absolute before:inset-0 before:rounded-3xl 
+        before:bg-gradient-to-br before:from-white/5 before:to-transparent 
+        before:opacity-0 hover:before:opacity-100 before:transition-opacity 
+        before:duration-300 before:pointer-events-none
+      `;
 
   return (
     <button
       onClick={onClick}
       className={`${baseClasses} ${selectedClasses} ${className}`}
     >
-      <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{emoji}</div>
-      <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{label}</h3>
-      <p className="text-sm sm:text-base text-text/60">{description}</p>
+      {/* Glass highlight */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-t-3xl" />
+      
+      <div className="relative z-10">
+        <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 transition-transform group-hover:scale-110 duration-300">
+          {emoji}
+        </div>
+        <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-cyan-200 transition-colors">
+          {label}
+        </h3>
+        <p className="text-sm sm:text-base text-white/60 group-hover:text-white/80 transition-colors">
+          {description}
+        </p>
+      </div>
     </button>
   );
 };
@@ -56,13 +87,36 @@ export const ColorPaletteButton: React.FC<ColorPaletteButtonProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`group p-4 sm:p-6 lg:p-8 rounded-2xl bg-[#1a1a1a] border-2 border-accent-purple/30 hover:border-accent-cyan/50 transition-all duration-300 hover:scale-105 animate-stagger-in stagger-${Math.min(animationIndex + 1, 6)}`}
+      className={`
+        group p-4 sm:p-6 lg:p-8 rounded-3xl transition-all duration-300 
+        animate-stagger-in stagger-${Math.min(animationIndex + 1, 6)}
+        backdrop-blur-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/2
+        hover:border-white/20 hover:from-white/10 hover:to-white/5
+        transform-gpu hover:scale-[1.02] active:scale-[0.98] shadow-glass hover:shadow-glass-lg
+        ease-bounce-light relative
+        before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br 
+        before:from-white/5 before:to-transparent before:opacity-0 
+        hover:before:opacity-100 before:transition-opacity before:duration-300 before:pointer-events-none
+      `}
     >
-      <div className="flex space-x-2 sm:space-x-3 mb-3 sm:mb-4 justify-center">
-        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full" style={{ backgroundColor: primary }}></div>
-        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full" style={{ backgroundColor: accent }}></div>
+      {/* Glass highlight */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-t-3xl" />
+      
+      <div className="relative z-10">
+        <div className="flex space-x-2 sm:space-x-3 mb-3 sm:mb-4 justify-center">
+          <div 
+            className="w-6 h-6 sm:w-8 sm:h-8 rounded-full shadow-lg border border-white/20 transition-transform group-hover:scale-110" 
+            style={{ backgroundColor: primary }}
+          ></div>
+          <div 
+            className="w-6 h-6 sm:w-8 sm:h-8 rounded-full shadow-lg border border-white/20 transition-transform group-hover:scale-110" 
+            style={{ backgroundColor: accent }}
+          ></div>
+        </div>
+        <h3 className="text-sm sm:text-lg lg:text-xl font-bold text-white text-center group-hover:text-white/90 transition-colors">
+          {name}
+        </h3>
       </div>
-      <h3 className="text-sm sm:text-lg lg:text-xl font-bold text-white text-center">{name}</h3>
     </button>
   );
 };
@@ -84,16 +138,41 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   animationIndex = 0
 }) => {
   const selectedClasses = isSelected
-    ? 'border-accent-cyan bg-accent-cyan/20'
-    : 'border-accent-purple/30 bg-[#1a1a1a] hover:border-accent-cyan/50';
+    ? `
+        border-cyan-400/40 bg-gradient-to-br from-cyan-500/15 to-purple-600/15
+        shadow-cyan-500/20 shadow-glass-lg
+        before:opacity-100 before:from-cyan-400/10 before:to-purple-500/10
+      `
+    : `
+        border-white/10 bg-gradient-to-br from-white/5 to-white/2
+        hover:border-white/20 hover:from-white/10 hover:to-white/5
+        before:opacity-0 hover:before:opacity-100 before:from-white/5 before:to-transparent
+      `;
 
   return (
     <button
       onClick={onClick}
-      className={`p-4 sm:p-6 rounded-xl border-2 transition-all duration-300 hover:scale-105 animate-stagger-in stagger-${Math.min(animationIndex + 1, 6)} ${selectedClasses}`}
+      className={`
+        group p-4 sm:p-6 rounded-2xl transition-all duration-300 
+        animate-stagger-in stagger-${Math.min(animationIndex + 1, 6)}
+        backdrop-blur-xl border transform-gpu hover:scale-[1.02] active:scale-[0.98] 
+        shadow-glass hover:shadow-glass-lg ease-bounce-light relative
+        before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br 
+        before:transition-all before:duration-300 before:pointer-events-none
+        ${selectedClasses}
+      `}
     >
-      <div className="text-2xl sm:text-3xl mb-2">{emoji}</div>
-      <h3 className="text-white font-bold text-sm sm:text-base">{label}</h3>
+      {/* Glass highlight */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-t-2xl" />
+      
+      <div className="relative z-10">
+        <div className="text-2xl sm:text-3xl mb-2 transition-transform group-hover:scale-110 duration-300">
+          {emoji}
+        </div>
+        <h3 className="text-white font-bold text-sm sm:text-base group-hover:text-cyan-200 transition-colors">
+          {label}
+        </h3>
+      </div>
     </button>
   );
 };

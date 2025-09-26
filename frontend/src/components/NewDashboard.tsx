@@ -9,6 +9,7 @@ import { OptionButton, ColorPaletteButton, ToggleButton } from './ui/OptionButto
 import { PromptEnhancer } from './ui/PromptEnhancer';
 import { CodeGenerator } from './ui/CodeGenerator';
 import PixelCard from './ui/PixelCard';
+import { GlassButton } from './ui/GlassButton';
 import {
   WEBSITE_TYPES,
   THEME_OPTIONS,
@@ -334,20 +335,15 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         </div>
         <div className="space-y-4 sm:space-y-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
           <div className="flex justify-center">
-            <PixelCard 
-              variant="blue" 
-              gap={8} 
-              speed={40} 
-              colors="#3A29FF,#FF94B4,#FF3232"
-              className="w-full sm:w-auto h-auto aspect-auto border-0 rounded-2xl"
+            <GlassButton
+              variant="accent"
+              size="xl"
+              glow={true}
+              onClick={() => nextStep('websiteType')}
+              className="font-bold shadow-glass-lg hover:shadow-glass-lg transform-gpu"
             >
-              <button 
-                onClick={() => nextStep('websiteType')} 
-                className="group relative px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl font-bold text-white rounded-2xl overflow-hidden transition-all duration-500 hover:scale-105 w-full sm:w-auto bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500"
-              >
-                <span className="relative z-10 flex items-center justify-center gap-3">Build My Dream Website</span>
-              </button>
-            </PixelCard>
+              Build My Dream Website
+            </GlassButton>
           </div>
           <p className="text-xs sm:text-sm text-text/50 px-4">No coding required • Takes 2-3 minutes • Get live preview instantly</p>
         </div>
