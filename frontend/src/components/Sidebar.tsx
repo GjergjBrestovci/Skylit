@@ -122,11 +122,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
     applyTheme(choice);
   };
 
-  // Get dynamic sidebar background color based on theme
+  // Get dynamic sidebar background color based on theme - now transparent
   const getSidebarBg = () => {
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    let isDark = theme === 'dark' || (theme === 'system' && systemPrefersDark);
-    return isDark ? '#121212' : '#f7f7f7';
+    return 'transparent';
   };
 
   // Quick toggle cycles dark -> light -> system -> dark
@@ -223,7 +221,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
       {/* Mobile toggle button */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="lg:hidden fixed top-3 left-3 z-50 px-3 py-2 rounded-md bg-[#1f1f1f] border border-accent-purple/30 text-text hover:bg-[#242424] shadow-md"
+        className="lg:hidden fixed top-3 left-3 z-50 px-3 py-2 rounded-md bg-black/20 backdrop-blur-sm border border-white/10 text-text hover:bg-black/30 shadow-md"
         aria-label="Toggle navigation"
       >
         {open ? '✖' : '☰'}
@@ -249,7 +247,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
               <button onClick={() => setShowNotifications(s => !s)} className="text-text/60 hover:text-white text-lg transition-transform duration-300 hover:scale-110 focus:outline-none" title="Notifications">🔔</button>
                   <button
                     onClick={() => setCollapsed(true)}
-                    className="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-md bg-background text-text/60 hover:text-text hover:bg-background/80 transition-colors focus:outline-none"
+                    className="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-md bg-black/20 backdrop-blur-sm text-text/60 hover:text-text hover:bg-black/30 transition-colors focus:outline-none"
                     title="Collapse sidebar"
                     aria-label="Collapse sidebar"
                   >‹</button>

@@ -14,7 +14,7 @@ export const StepContainer: React.FC<StepContainerProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`min-h-screen bg-background text-text flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 ${className}`}>
+    <div className={`min-h-screen text-text flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 ${className}`}>
       <div className="w-full max-w-6xl mx-auto space-y-6 sm:space-y-8 lg:space-y-12">
         <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text">{title}</h2>

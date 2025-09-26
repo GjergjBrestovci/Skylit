@@ -1,4 +1,5 @@
 import Redis from 'ioredis';
+import { Request, Response, NextFunction } from 'express';
 
 // Cache configuration
 const CACHE_TTL = {
@@ -10,31 +11,84 @@ const CACHE_TTL = {
   ANALYTICS: 60 * 5, // 5 minutes
 } as const;
 
+// Type definitions
+interface CacheEntry<T = any> {
+  value: T;
+  expires: number;
+}
+
+interface HealthCheck {
+  redis: boolean;
+  memory: boolean;
+}
+
+interface Template {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  features: string[];
+  previewUrl?: string;
+}
+
+interface Project {
+  id: string;
+  name: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface GenerationResult {
+  id: string;
+  html: string;
+  css?: string;
+  javascript?: string;
+  previewUrl?: string;
+  analysis?: string;
+  requirements?: string[];
+}
+
 class CacheService {
   private redis: Redis | null = null;
-  private memoryCache = new Map<string, { value: any; expires: number }>();
+  private memoryCache = new Map<string, CacheEntry>();
+  private cleanupInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     this.initializeRedis();
+    this.startMemoryCleanupInterval();
   }
 
-  private initializeRedis() {
+  private startMemoryCleanupInterval(): void {
+    // Clean up expired memory cache entries every 5 minutes
+    this.cleanupInterval = setInterval(() => {
+      this.cleanupMemoryCache();
+    }, 5 * 60 * 1000);
+  }
+
+  private initializeRedis(): void {
     try {
       if (process.env.REDIS_URL) {
         this.redis = new Redis(process.env.REDIS_URL, {
-          retryDelayOnFailover: 100,
           enableReadyCheck: false,
           maxRetriesPerRequest: 3,
           lazyConnect: true,
+          connectTimeout: 10000,
+          commandTimeout: 5000,
+          retryDelayOnFailover: 100,
         });
 
-        this.redis.on('error', (error) => {
-          console.error('Redis connection error:', error);
+        this.redis.on('error', (error: Error) => {
+          console.error('Redis connection error:', error.message);
           this.redis = null; // Fallback to memory cache
         });
 
         this.redis.on('connect', () => {
           console.log('✅ Redis connected successfully');
+        });
+
+        this.redis.on('close', () => {
+          console.warn('⚠️ Redis connection closed, falling back to memory cache');
         });
       } else {
         console.warn('⚠️ Redis not configured, using memory cache fallback');
@@ -46,19 +100,29 @@ class CacheService {
   }
 
   async get<T = any>(key: string): Promise<T | null> {
+    if (!key) {
+      throw new Error('Cache key is required');
+    }
+
     try {
       // Try Redis first
       if (this.redis) {
         const value = await this.redis.get(key);
-        if (value) {
-          return JSON.parse(value);
+        if (value !== null) {
+          try {
+            return JSON.parse(value) as T;
+          } catch (parseError) {
+            console.error('Failed to parse cached value:', parseError);
+            await this.del(key); // Remove corrupted entry
+            return null;
+          }
         }
       }
 
       // Fallback to memory cache
       const cached = this.memoryCache.get(key);
       if (cached && cached.expires > Date.now()) {
-        return cached.value;
+        return cached.value as T;
       }
 
       // Remove expired entry
@@ -73,7 +137,15 @@ class CacheService {
     }
   }
 
-  async set(key: string, value: any, ttl: number = 300): Promise<void> {
+  async set<T = any>(key: string, value: T, ttl: number = 300): Promise<void> {
+    if (!key) {
+      throw new Error('Cache key is required');
+    }
+
+    if (ttl <= 0) {
+      throw new Error('TTL must be greater than 0');
+    }
+
     try {
       const serialized = JSON.stringify(value);
 
@@ -88,14 +160,17 @@ class CacheService {
         expires: Date.now() + (ttl * 1000)
       });
 
-      // Clean up expired memory cache entries periodically
-      this.cleanupMemoryCache();
     } catch (error) {
       console.error('Cache set error:', error);
+      throw new Error(`Failed to cache value for key: ${key}`);
     }
   }
 
   async del(key: string): Promise<void> {
+    if (!key) {
+      throw new Error('Cache key is required');
+    }
+
     try {
       if (this.redis) {
         await this.redis.del(key);
@@ -107,6 +182,10 @@ class CacheService {
   }
 
   async delPattern(pattern: string): Promise<void> {
+    if (!pattern) {
+      throw new Error('Cache pattern is required');
+    }
+
     try {
       if (this.redis) {
         const keys = await this.redis.keys(pattern);
@@ -116,8 +195,9 @@ class CacheService {
       }
 
       // Clear matching patterns from memory cache
+      const patternRegex = new RegExp(pattern.replace('*', '.*'));
       for (const key of this.memoryCache.keys()) {
-        if (key.includes(pattern.replace('*', ''))) {
+        if (patternRegex.test(key)) {
           this.memoryCache.delete(key);
         }
       }
@@ -128,48 +208,76 @@ class CacheService {
 
   private cleanupMemoryCache(): void {
     const now = Date.now();
+    let cleaned = 0;
+    
     for (const [key, { expires }] of this.memoryCache.entries()) {
       if (expires <= now) {
         this.memoryCache.delete(key);
+        cleaned++;
       }
+    }
+
+    if (cleaned > 0) {
+      console.debug(`Cleaned up ${cleaned} expired cache entries`);
     }
   }
 
   // Helper methods for specific cache operations
-  async cacheTemplates(templates: any[]): Promise<void> {
+  async cacheTemplates(templates: Template[]): Promise<void> {
     await this.set('templates:all', templates, CACHE_TTL.TEMPLATES);
   }
 
-  async getCachedTemplates(): Promise<any[] | null> {
-    return this.get('templates:all');
+  async getCachedTemplates(): Promise<Template[] | null> {
+    return this.get<Template[]>('templates:all');
   }
 
-  async cacheTemplate(templateId: string, template: any): Promise<void> {
+  async cacheTemplate(templateId: string, template: Template): Promise<void> {
+    if (!templateId) {
+      throw new Error('Template ID is required');
+    }
     await this.set(`template:${templateId}`, template, CACHE_TTL.TEMPLATES);
   }
 
-  async getCachedTemplate(templateId: string): Promise<any | null> {
-    return this.get(`template:${templateId}`);
+  async getCachedTemplate(templateId: string): Promise<Template | null> {
+    if (!templateId) {
+      throw new Error('Template ID is required');
+    }
+    return this.get<Template>(`template:${templateId}`);
   }
 
-  async cacheUserProjects(userId: string, projects: any[]): Promise<void> {
+  async cacheUserProjects(userId: string, projects: Project[]): Promise<void> {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     await this.set(`user:${userId}:projects`, projects, CACHE_TTL.USER_PROJECTS);
   }
 
-  async getCachedUserProjects(userId: string): Promise<any[] | null> {
-    return this.get(`user:${userId}:projects`);
+  async getCachedUserProjects(userId: string): Promise<Project[] | null> {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+    return this.get<Project[]>(`user:${userId}:projects`);
   }
 
   async invalidateUserCache(userId: string): Promise<void> {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     await this.delPattern(`user:${userId}:*`);
   }
 
-  async cacheGenerationResult(resultId: string, result: any): Promise<void> {
+  async cacheGenerationResult(resultId: string, result: GenerationResult): Promise<void> {
+    if (!resultId) {
+      throw new Error('Result ID is required');
+    }
     await this.set(`generation:${resultId}`, result, CACHE_TTL.GENERATION_RESULT);
   }
 
-  async getCachedGenerationResult(resultId: string): Promise<any | null> {
-    return this.get(`generation:${resultId}`);
+  async getCachedGenerationResult(resultId: string): Promise<GenerationResult | null> {
+    if (!resultId) {
+      throw new Error('Result ID is required');
+    }
+    return this.get<GenerationResult>(`generation:${resultId}`);
   }
 
   async cachePricingPlans(plans: any[]): Promise<void> {
@@ -177,43 +285,75 @@ class CacheService {
   }
 
   async getCachedPricingPlans(): Promise<any[] | null> {
-    return this.get('pricing:plans');
+    return this.get<any[]>('pricing:plans');
   }
 
   // Analytics caching
-  async cacheAnalytics(key: string, data: any): Promise<void> {
+  async cacheAnalytics(key: string, data: Record<string, any>): Promise<void> {
+    if (!key) {
+      throw new Error('Analytics key is required');
+    }
     await this.set(`analytics:${key}`, data, CACHE_TTL.ANALYTICS);
   }
 
-  async getCachedAnalytics(key: string): Promise<any | null> {
-    return this.get(`analytics:${key}`);
+  async getCachedAnalytics(key: string): Promise<Record<string, any> | null> {
+    if (!key) {
+      throw new Error('Analytics key is required');
+    }
+    return this.get<Record<string, any>>(`analytics:${key}`);
   }
 
   // Health check
-  async healthCheck(): Promise<{ redis: boolean; memory: boolean }> {
-    const health = {
+  async healthCheck(): Promise<HealthCheck> {
+    const health: HealthCheck = {
       redis: false,
       memory: true
     };
 
     try {
       if (this.redis) {
-        await this.redis.ping();
-        health.redis = true;
+        const result = await Promise.race([
+          this.redis.ping(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Redis ping timeout')), 5000)
+          )
+        ]);
+        health.redis = result === 'PONG';
       }
     } catch (error) {
       console.error('Redis health check failed:', error);
+      health.redis = false;
     }
 
     return health;
   }
 
+  // Get cache statistics
+  getCacheStats(): { memoryEntries: number; memorySize: number } {
+    return {
+      memoryEntries: this.memoryCache.size,
+      memorySize: JSON.stringify([...this.memoryCache.entries()]).length
+    };
+  }
+
   // Cleanup and close connections
   async close(): Promise<void> {
-    if (this.redis) {
-      await this.redis.quit();
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
     }
+
+    if (this.redis) {
+      try {
+        await this.redis.quit();
+      } catch (error) {
+        console.error('Error closing Redis connection:', error);
+      }
+      this.redis = null;
+    }
+
     this.memoryCache.clear();
+    console.log('Cache service closed successfully');
   }
 }
 
@@ -222,23 +362,30 @@ export const cacheService = new CacheService();
 
 // Cache middleware for Express
 export const cacheMiddleware = (ttl: number = 300) => {
-  return async (req: any, res: any, next: any) => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (req.method !== 'GET') {
+      return next();
+    }
+
     const key = `request:${req.method}:${req.originalUrl}`;
     
     try {
       const cached = await cacheService.get(key);
       if (cached) {
-        return res.json(cached);
+        res.json(cached);
+        return;
       }
 
       // Store original res.json
-      const originalJson = res.json;
+      const originalJson = res.json.bind(res);
       res.json = function(data: any) {
         // Cache successful responses
-        if (res.statusCode === 200) {
-          cacheService.set(key, data, ttl).catch(console.error);
+        if (res.statusCode === 200 && data) {
+          cacheService.set(key, data, ttl).catch(error => {
+            console.error('Failed to cache response:', error);
+          });
         }
-        return originalJson.call(this, data);
+        return originalJson(data);
       };
 
       next();
@@ -249,4 +396,15 @@ export const cacheMiddleware = (ttl: number = 300) => {
   };
 };
 
+// Graceful shutdown handler
+process.on('SIGTERM', () => {
+  cacheService.close().catch(console.error);
+});
+
+process.on('SIGINT', () => {
+  cacheService.close().catch(console.error);
+});
+
 export default cacheService;
+export { CacheService, CACHE_TTL };
+export type { Template, Project, GenerationResult, HealthCheck };

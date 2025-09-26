@@ -53,7 +53,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-[#1e1e1e] border border-accent-purple/20 rounded-lg p-8 w-full max-w-md">
         <div className="text-center mb-6 space-y-3">
           <Logo size={56} withText className="mx-auto justify-center" textSizeClass="text-3xl" />

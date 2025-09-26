@@ -142,7 +142,7 @@ export function PricingPage({ onBack }: PricingPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4 relative overflow-hidden">
+    <div className="min-h-screen py-12 px-4 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-br from-accent-cyan/5 via-background to-accent-purple/5"></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-accent-cyan/10 to-transparent rounded-full blur-3xl"></div>

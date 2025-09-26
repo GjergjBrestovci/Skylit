@@ -6,6 +6,7 @@ import { EnhancedDashboard } from './components/EnhancedDashboard';
 import { OnboardingTour, useOnboarding } from './components/OnboardingTour';
 import { Auth } from './components/Auth';
 import { SEOHead } from './components/SEO/SEOHead';
+import BackgroundWrapper from './components/BackgroundWrapper';
 
 function App() {
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -43,9 +44,11 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-text flex items-center justify-center">
-        <div className="text-accent-cyan">Loading...</div>
-      </div>
+      <BackgroundWrapper>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-white">Loading...</div>
+        </div>
+      </BackgroundWrapper>
     );
   }
 
@@ -57,7 +60,9 @@ function App() {
           description="Sign in to SkyLit AI to create professional websites instantly with AI. Generate responsive websites using React, Vue, Next.js, and more."
           url="/login"
         />
-        <Auth onAuthSuccess={handleAuthSuccess} />
+        <BackgroundWrapper>
+          <Auth onAuthSuccess={handleAuthSuccess} />
+        </BackgroundWrapper>
       </HelmetProvider>
     );
   }
@@ -69,7 +74,7 @@ function App() {
         description="Create professional websites instantly with AI. Generate responsive websites using React, Vue, Next.js, and more. No coding required."
         keywords={['AI website generator', 'website builder', 'AI web development', 'responsive design', 'React websites', 'Vue websites', 'Next.js generator', 'no-code website builder']}
       />
-      <div className="min-h-screen bg-background text-text">
+      <BackgroundWrapper>
         {/* Onboarding Tour */}
         {authToken && showOnboarding && (
           <OnboardingTour onComplete={completeOnboarding} />
@@ -85,7 +90,7 @@ function App() {
             /> 
           )}
         </div>
-      </div>
+      </BackgroundWrapper>
     </HelmetProvider>
   );
 }

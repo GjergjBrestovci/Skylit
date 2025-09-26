@@ -322,7 +322,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
   // Step renderers
   const renderHomepage = () => (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="text-center max-w-4xl px-4 sm:px-6 space-y-8 sm:space-y-12 animate-page-fade-in">
         <div className="space-y-4 sm:space-y-6">
           <div className="space-y-3 sm:space-y-4">
@@ -643,9 +643,9 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   };
 
   const renderPreview = () => (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Header with toggle */}
-      <div className="bg-background sticky top-0 z-50">
+      <div className="sticky top-0 z-50 backdrop-blur-sm bg-black/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-4">
             <div className="space-y-1 w-full sm:flex-1 sm:min-w-0">
@@ -942,9 +942,9 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   }
 
   return (
-    <div className="flex w-full min-h-screen bg-background">
+    <div className="flex w-full min-h-screen">
       <Sidebar onLogout={onLogout} onCreateNew={startOver} onOpenProject={openProjectFromSidebar} />
-      <main className="flex-1 bg-background page-transition-container overflow-x-hidden">
+      <main className="flex-1 page-transition-container overflow-x-hidden">
         <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
           {renderStepContent()}
         </div>

@@ -3,23 +3,45 @@
 @tailwind utilities;
 
 /* Dark theme base */
-body {
-  @apply bg-background text-text font-sans antialiased;
+html, body {
+  @apply text-text font-sans antialiased;
+  background: transparent !important;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* Sidebar specific dark color override */
-.dark .sidebar-bg { background-color: #121212 !important; }
+#root {
+  background: transparent !important;
+  min-height: 100vh;
+}
 
-/* Light mode uses bg-background token for sidebar */
-.light .sidebar-bg { background-color: #f7f7f7 !important; }
+/* Sidebar specific dark color override - transparent backgrounds */
+.dark .sidebar-bg { background-color: transparent !important; }
+
+/* Light mode uses transparent background for sidebar */
+.light .sidebar-bg { background-color: transparent !important; }
 
 /* Light mode overrides (root element gets class="light") */
-.light body { background-color: #f7f7f7; color: #111111; }
+.light body { background: transparent; color: #111111; }
 
 /* Core theme tokens to flip globally */
-.light .bg-background { background-color: #f7f7f7 !important; }
+.light .bg-background { background-color: rgba(247,247,247,0.8) !important; }
 .light .text-text { color: #111111 !important; }
 .light [class*="text-text/"] { color: rgba(17,17,17,0.7) !important; }
+
+/* Dark mode background transparency */
+.dark .bg-background { background-color: rgba(10,10,10,0.3) !important; }
+.bg-background { background-color: rgba(10,10,10,0.3) !important; }
+
+/* Make sidebar elements transparent */
+.sidebar, .sidebar-content, [class*="sidebar"] { 
+  background: transparent !important; 
+}
+
+/* Keep only essential elements with subtle backgrounds */
+.sidebar .logo-container { background: rgba(0,0,0,0.2) !important; border-radius: 12px; }
+.sidebar nav { background: transparent !important; }
+.sidebar aside { background: transparent !important; }
 
 /* Gradient tokens used throughout pages */
 .light .from-background { --tw-gradient-from: #f7f7f7 !important; --tw-gradient-to: rgba(247,247,247,0) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
