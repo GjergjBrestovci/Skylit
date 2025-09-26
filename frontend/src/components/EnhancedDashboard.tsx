@@ -74,9 +74,8 @@ export const EnhancedDashboard: React.FC = () => {
     loadProjects();
   };
 
-  const handleProjectView = (project: Project) => {
-    // Navigate to project view/edit
-    console.log('Open project:', project);
+  const handleProjectView = (_project: Project) => {
+    // Navigate to project view/edit - TODO: implement project editing
   };
 
   const handleTemplateSelect = (template: Template, enhancedPrompt: string) => {

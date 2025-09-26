@@ -111,11 +111,11 @@ This guide will help you deploy SkyLit AI to production in under 30 minutes.
 ## Step 6: Verify Deployment
 
 Test these URLs:
-- ✅ Frontend: `https://your-app.vercel.app`
-- ✅ Backend Health: `https://your-app.railway.app/health`
-- ✅ Database: Login/signup should work
-- ✅ AI Generation: Create a project
-- ✅ Payments: Try upgrading plan
+-  Frontend: `https://your-app.vercel.app`
+-  Backend Health: `https://your-app.railway.app/health`
+-  Database: Login/signup should work
+-  AI Generation: Create a project
+-  Payments: Try upgrading plan
 
 ## Monitoring & Analytics (Optional)
 
@@ -130,16 +130,16 @@ Test these URLs:
 ## Scaling Considerations
 
 ### Performance
-- ✅ CDN (Vercel provides automatically)
-- ✅ Redis caching (Upstash)
-- ✅ Database connection pooling (Supabase)
-- ✅ Rate limiting (implemented)
+-  CDN (Vercel provides automatically)
+-  Redis caching (Upstash)
+-  Database connection pooling (Supabase)
+-  Rate limiting (implemented)
 
 ### Security
-- ✅ CORS configuration
-- ✅ JWT authentication
-- ✅ Row Level Security (Supabase)
-- ✅ Input validation (Zod)
+-  CORS configuration
+-  JWT authentication
+-  Row Level Security (Supabase)
+-  Input validation (Zod)
 
 ## Common Issues & Solutions
 
@@ -180,14 +180,14 @@ Test these URLs:
 
 ## Support
 
-- 📚 [Full Documentation](./docs/)
+-  [Full Documentation](./docs/)
 - 🐛 [Report Issues](https://github.com/GjergjBrestovci/Skylit/issues)
 - 💬 [Discord Community](#)
 - 📧 [Email Support](mailto:support@skylit.ai)
 
 ---
 
-🎉 **Congratulations!** Your SkyLit AI application is now live in production!
+ **Congratulations!** Your SkyLit AI application is now live in production!
 
 Remember to:
 - Set up monitoring and alerts

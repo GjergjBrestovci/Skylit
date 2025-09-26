@@ -347,10 +347,10 @@ VITE_CDN_URL=https://cdn.skylit.ai
 2. **Configure DNS Records**:
    ```
    Type    Name    Content                 Proxy
-   A       @       your-vercel-ip         ✅ Proxied
-   CNAME   www     skylit.ai              ✅ Proxied
-   CNAME   api     your-backend-url       ✅ Proxied
-   CNAME   cdn     skylit.ai              ✅ Proxied
+   A       @       your-vercel-ip          Proxied
+   CNAME   www     skylit.ai               Proxied
+   CNAME   api     your-backend-url        Proxied
+   CNAME   cdn     skylit.ai               Proxied
    ```
 
 3. **Configure Page Rules**:

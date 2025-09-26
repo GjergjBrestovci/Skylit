@@ -8,6 +8,7 @@ import { StepContainer } from './ui/StepContainer';
 import { OptionButton, ColorPaletteButton, ToggleButton } from './ui/OptionButtons';
 import { PromptEnhancer } from './ui/PromptEnhancer';
 import { CodeGenerator } from './ui/CodeGenerator';
+import PixelCard from './ui/PixelCard';
 import {
   WEBSITE_TYPES,
   THEME_OPTIONS,
@@ -150,7 +151,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         })
       });
       
-      console.log('Project saved successfully');
+      // Project saved successfully
       // Refresh the projects list in the sidebar
       window.dispatchEvent(new Event('projects:refresh'));
     } catch (error) {
@@ -332,11 +333,22 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <p className="text-base sm:text-lg md:text-xl text-text/70 max-w-2xl mx-auto leading-relaxed px-2">Transform your ideas into stunning websites in minutes. Our AI understands your vision and crafts the perfect digital experience.</p>
         </div>
         <div className="space-y-4 sm:space-y-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
-          <button onClick={() => nextStep('websiteType')} className="group relative px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl font-bold text-white rounded-2xl overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-accent-cyan/25 w-full sm:w-auto">
-            <div className="absolute inset-0 bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500 opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-accent-purple to-accent-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative z-10 flex items-center justify-center gap-3">Build My Dream Website</span>
-          </button>
+          <div className="flex justify-center">
+            <PixelCard 
+              variant="blue" 
+              gap={8} 
+              speed={40} 
+              colors="#3A29FF,#FF94B4,#FF3232"
+              className="w-full sm:w-auto h-auto aspect-auto border-0 rounded-2xl"
+            >
+              <button 
+                onClick={() => nextStep('websiteType')} 
+                className="group relative px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl font-bold text-white rounded-2xl overflow-hidden transition-all duration-500 hover:scale-105 w-full sm:w-auto bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-3">Build My Dream Website</span>
+              </button>
+            </PixelCard>
+          </div>
           <p className="text-xs sm:text-sm text-text/50 px-4">No coding required • Takes 2-3 minutes • Get live preview instantly</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-3xl mx-auto">
