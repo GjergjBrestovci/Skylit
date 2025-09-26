@@ -335,15 +335,15 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <button onClick={() => nextStep('websiteType')} className="group relative px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl font-bold text-white rounded-2xl overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-accent-cyan/25 w-full sm:w-auto">
             <div className="absolute inset-0 bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500 opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-accent-purple to-accent-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative z-10 flex items-center justify-center gap-3">Build My Dream Website <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform duration-300">🚀</span></span>
+            <span className="relative z-10 flex items-center justify-center gap-3">Build My Dream Website</span>
           </button>
           <p className="text-xs sm:text-sm text-text/50 px-4">No coding required • Takes 2-3 minutes • Get live preview instantly</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-3xl mx-auto">
           {[
-            { icon: '⚡', title: 'Lightning Fast', desc: 'Generate in under 60 seconds' },
-            { icon: '🎨', title: 'Your Style', desc: 'Customized to your brand' },
-            { icon: '📱', title: 'Mobile Ready', desc: 'Looks perfect on any device' }
+            { icon: '', title: 'Lightning Fast', desc: 'Generate in under 60 seconds' },
+            { icon: '', title: 'Your Style', desc: 'Customized to your brand' },
+            { icon: '', title: 'Mobile Ready', desc: 'Looks perfect on any device' }
           ].map((feature, i) => (
             <div key={i} className="space-y-3 opacity-80 hover:opacity-100 transition-all duration-500 p-4 animate-slide-up" style={{ animationDelay: `${0.6 + (i * 0.2)}s`, animationFillMode: 'both', transform: 'translateY(20px)', opacity: '0' }}>
               <div className="text-2xl sm:text-3xl">{feature.icon}</div>
@@ -555,7 +555,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                   onClick={() => nextStep('techStack')}
                   className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
                 >
-                  Next: Advanced Options 🛠️
+                  Next: Advanced Options
                 </button>
                 <p className="text-sm text-text/50">
                   Choose your tech stack for development-ready code
@@ -588,7 +588,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                   onClick={generateWebsite}
                   className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
                 >
-                  Create My Website! 🚀
+                  Create My Website!
                 </button>
                 <p className="text-sm text-text/50">
                   Ready to generate with {TECH_STACKS.find(t => t.value === config.techStack)?.name || 'Vanilla Web'}
@@ -650,7 +650,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-4">
             <div className="space-y-1 w-full sm:flex-1 sm:min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-bold text-text">Your Website is Ready! 🎉</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-text">Your Website is Ready!</h1>
                 <span className="px-2 py-1 bg-accent-cyan/20 border border-accent-cyan/30 rounded-full text-xs text-accent-cyan font-semibold">BETA</span>
               </div>
               <p className="text-sm sm:text-base text-text/60 truncate">
@@ -681,7 +681,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                       : 'text-text/70 hover:text-white'
                   }`}
                 >
-                  💻 View Code
+                  View Code
                 </button>
               </div>
               
@@ -727,7 +727,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                     : 'text-text/70 hover:text-white'
                 }`}
               >
-                📄 HTML
+                HTML
               </button>
               {result?.css && (
                 <button
@@ -738,7 +738,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                       : 'text-text/70 hover:text-white'
                   }`}
                 >
-                  🎨 CSS
+                  CSS
                 </button>
               )}
               {result?.javascript && (
@@ -750,7 +750,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                       : 'text-text/70 hover:text-white'
                   }`}
                 >
-                  ⚡ JavaScript
+                   JavaScript
                 </button>
               )}
               {result?.notes && (
@@ -762,7 +762,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                       : 'text-text/70 hover:text-white'
                   }`}
                 >
-                  📝 Notes
+                  Notes
                 </button>
               )}
               {result?.analysis && (
@@ -801,7 +801,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                       
                       {result.enhancementUsedAI && (
                         <div className="mt-4 p-3 bg-accent-cyan/10 border border-accent-cyan/20 rounded-lg">
-                          <p className="text-accent-cyan text-sm">✨ Enhanced by AI prompt refinement</p>
+                          <p className="text-accent-cyan text-sm">Enhanced by AI prompt refinement</p>
                         </div>
                       )}
                     </div>
@@ -823,13 +823,13 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 onClick={() => { if (result) saveProjectToDatabase(result, rawPrompt); }}
                 className="px-4 sm:px-6 py-3 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-lg transition-all duration-300 text-sm sm:text-base"
               >
-                💾 Save Project
+                Save Project
               </button>
               <button
                 onClick={() => { if (result) downloadCombinedHtml(result); }}
                 className="px-4 sm:px-6 py-3 border border-accent-cyan text-accent-cyan hover:bg-accent-cyan/10 rounded-lg transition-all duration-300 text-sm sm:text-base"
               >
-                📥 Download Code
+                Download Code
               </button>
             </div>
           </div>

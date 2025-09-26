@@ -63,7 +63,7 @@ export const CodeGenerator: React.FC<CodeGeneratorProps> = ({
         </div>
         <div className="bg-[#1a1a1a] border border-yellow-400/30 rounded-xl overflow-hidden flex flex-col">
           <div className="px-4 py-2 text-xs font-semibold tracking-wide bg-[#232323] border-b border-yellow-400/30 text-yellow-300 flex items-center gap-2">
-            ⚡ JS Logic {stage === 'js' && <span className="animate-pulse">…</span>}
+             JS Logic {stage === 'js' && <span className="animate-pulse">…</span>}
           </div>
           <div className="p-3 font-mono text-[10px] sm:text-xs space-y-1 overflow-y-auto max-h-64">
             {jsLines.map((l, i) => <div key={i} className="text-text/70"><span className="text-yellow-300/40">J{String(i+1).padStart(2,'0')} </span>{l}</div>)}

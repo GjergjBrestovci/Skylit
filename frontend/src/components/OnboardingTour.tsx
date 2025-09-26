@@ -11,7 +11,7 @@ interface OnboardingStep {
 const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'welcome',
-    title: 'Welcome to SkyLit! 🎉',
+    title: 'Welcome to SkyLit!',
     description: 'Your AI-powered website generator. Let\'s take a quick tour to get you started.',
   },
   {
@@ -44,7 +44,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   },
   {
     id: 'start-creating',
-    title: 'Ready to Create! 🚀',
+    title: 'Ready to Create!',
     description: 'You\'re all set! Click the "Create" tab to build your first website.',
   }
 ];

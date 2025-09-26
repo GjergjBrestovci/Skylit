@@ -15,10 +15,10 @@ html, body {
   min-height: 100vh;
 }
 
-/* Sidebar specific dark color override - transparent backgrounds */
+/* Sidebar specific - now transparent */
 .dark .sidebar-bg { background-color: transparent !important; }
 
-/* Light mode uses transparent background for sidebar */
+/* Light mode uses transparent for sidebar */
 .light .sidebar-bg { background-color: transparent !important; }
 
 /* Light mode overrides (root element gets class="light") */
@@ -408,4 +408,28 @@ input[type="checkbox"]:checked {
 ::selection {
   background: rgba(0, 255, 255, 0.2);
   color: #FFFFFF;
+}
+
+/* Aurora background enhancements */
+.aurora-background {
+  background: transparent !important;
+}
+
+/* Ensure sidebar and navigation elements are transparent */
+nav, aside, .sidebar {
+  background: transparent !important;
+}
+
+/* Make sure any remaining solid backgrounds are transparent or very subtle */
+.bg-background { 
+  background-color: rgba(0, 0, 0, 0.1) !important; 
+}
+
+.light .bg-background { 
+  background-color: rgba(255, 255, 255, 0.05) !important; 
+}
+
+/* Override any solid backgrounds that might block Aurora */
+body, html, #root {
+  background: transparent !important;
 }

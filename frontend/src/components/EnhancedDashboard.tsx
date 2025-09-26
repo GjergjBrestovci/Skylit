@@ -119,7 +119,7 @@ export const EnhancedDashboard: React.FC = () => {
                       onClick={() => setSelectedTemplate(null)}
                       className="text-blue-600 hover:text-blue-800"
                     >
-                      ✕
+                      ×
                     </button>
                   </div>
                 </div>
@@ -206,7 +206,11 @@ export const EnhancedDashboard: React.FC = () => {
 
             {getFilteredProjects().length === 0 && !loading && (
               <div className="text-center py-12">
-                <div className="text-gray-400 text-6xl mb-4">📁</div>
+                <div className="text-gray-400 text-6xl mb-4">
+                  <svg className="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
+                  </svg>
+                </div>
                 <h3 className="text-xl font-medium text-gray-900 mb-2">
                   {projectFilter === 'starred' ? 'No starred projects' :
                    projectFilter === 'archived' ? 'No archived projects' :

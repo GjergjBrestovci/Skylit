@@ -101,12 +101,7 @@ void main() {
   float midPoint = 0.20;
   float auroraAlpha = smoothstep(midPoint - uBlend * 0.5, midPoint + uBlend * 0.5, intensity);
   
-  // Create darker gradient towards bottom
-  float verticalGradient = smoothstep(0.0, 0.7, 1.0 - uv.y);
-  vec3 darkColor = vec3(0.05, 0.02, 0.1); // Dark purple/blue instead of white
-  
-  // Mix aurora color with dark color based on vertical position
-  vec3 auroraColor = mix(darkColor, intensity * rampColor, verticalGradient);
+  vec3 auroraColor = intensity * rampColor;
   
   fragColor = vec4(auroraColor * auroraAlpha, auroraAlpha);
 }
@@ -210,5 +205,5 @@ export default function Aurora(props: AuroraProps) {
     };
   }, [amplitude]);
 
-  return <div ref={ctnDom} className="w-full h-full absolute inset-0" />;
+  return <div ref={ctnDom} className="w-full h-full" />;
 }
