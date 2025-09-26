@@ -19,7 +19,7 @@ interface PricingProps {
   onClose: () => void;
 }
 
-export function Pricing({ onClose: _ }: PricingProps) {
+export function Pricing({ onClose }: PricingProps) {
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingPayment, setProcessingPayment] = useState<string | null>(null);

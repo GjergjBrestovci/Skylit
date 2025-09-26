@@ -75,7 +75,6 @@ class CacheService {
           lazyConnect: true,
           connectTimeout: 10000,
           commandTimeout: 5000,
-          retryDelayOnFailover: 100,
         });
 
         this.redis.on('error', (error: Error) => {

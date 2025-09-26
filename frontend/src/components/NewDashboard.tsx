@@ -8,7 +8,6 @@ import { StepContainer } from './ui/StepContainer';
 import { OptionButton, ColorPaletteButton, ToggleButton } from './ui/OptionButtons';
 import { PromptEnhancer } from './ui/PromptEnhancer';
 import { CodeGenerator } from './ui/CodeGenerator';
-import PixelCard from './ui/PixelCard';
 import { GlassButton } from './ui/GlassButton';
 import {
   WEBSITE_TYPES,
@@ -152,7 +151,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         })
       });
       
-      // Project saved successfully
+      console.log('Project saved successfully');
       // Refresh the projects list in the sidebar
       window.dispatchEvent(new Event('projects:refresh'));
     } catch (error) {
@@ -340,9 +339,9 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
               size="xl"
               glow={true}
               onClick={() => nextStep('websiteType')}
-              className="font-bold shadow-glass-lg hover:shadow-glass-lg transform-gpu"
+              className="font-bold shadow-glass-lg hover:shadow-glass-xl transform-gpu px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl"
             >
-              Build My Dream Website
+              <span className="flex items-center justify-center gap-3">Build My Dream Website</span>
             </GlassButton>
           </div>
           <p className="text-xs sm:text-sm text-text/50 px-4">No coding required • Takes 2-3 minutes • Get live preview instantly</p>
