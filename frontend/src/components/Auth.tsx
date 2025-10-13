@@ -53,50 +53,50 @@ export function Auth({ onAuthSuccess }: AuthProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-[#1e1e1e] border border-accent-purple/20 rounded-lg p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-100 text-slate-900 dark:bg-[#0d0d0d] dark:text-white transition-colors duration-300">
+      <div className="w-full max-w-md rounded-2xl p-8 bg-white/85 backdrop-blur-xl border border-slate-200/80 shadow-[0_20px_45px_-15px_rgba(15,23,42,0.25)] dark:bg-[#1e1e1e] dark:border-accent-purple/20 dark:shadow-glass-xl transition-all duration-300">
         <div className="text-center mb-6 space-y-3">
           <Logo size={56} withText className="mx-auto justify-center" textSizeClass="text-3xl" />
-          <h2 className="text-xl font-semibold">{isLogin ? 'Sign In' : 'Create Account'}</h2>
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{isLogin ? 'Sign In' : 'Create Account'}</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-2">
+            <label htmlFor="email" className="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-200">
               Email
             </label>
             <input
               id="email"
               type="email"
               required
-              className="w-full p-3 bg-[#232323] border border-accent-purple/30 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent-cyan/40"
+              className="w-full p-3 rounded-md text-sm bg-white/70 border border-slate-200 text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-accent-purple/30 dark:bg-[#232323] dark:border-accent-purple/30 dark:text-white dark:placeholder:text-slate-400"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-2">
+            <label htmlFor="password" className="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-200">
               Password
             </label>
             <input
               id="password"
               type="password"
               required
-              className="w-full p-3 bg-[#232323] border border-accent-purple/30 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent-cyan/40"
+              className="w-full p-3 rounded-md text-sm bg-white/70 border border-slate-200 text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-accent-purple/30 dark:bg-[#232323] dark:border-accent-purple/30 dark:text-white dark:placeholder:text-slate-400"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-md text-red-400 text-sm">
+            <div className="p-3 bg-red-500/15 border border-red-500/30 rounded-md text-red-600 dark:text-red-400 text-sm">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-md text-green-400 text-sm">
+            <div className="p-3 bg-emerald-500/15 border border-emerald-500/25 rounded-md text-emerald-600 dark:text-emerald-400 text-sm">
               {success}
             </div>
           )}
@@ -104,7 +104,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-accent-cyan text-background font-semibold py-3 px-4 rounded-md hover:bg-accent-cyan/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-lg bg-gradient-to-r from-accent-cyan to-accent-purple text-slate-900 dark:text-background font-semibold py-3 px-4 shadow-[0_12px_30px_-15px_rgba(56,189,248,0.8)] hover:from-accent-cyan/90 hover:to-accent-purple/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-purple/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
           </button>
@@ -117,7 +117,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
               setError(null);
               setSuccess(null);
             }}
-            className="text-accent-purple hover:text-accent-purple/80 text-sm"
+            className="text-accent-purple hover:text-accent-purple/80 text-sm font-medium"
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
           </button>

@@ -1,5 +1,18 @@
 import { useState } from 'react';
-import { getApiBase } from '../utils/apiClient';
+
+const getPreviewBaseUrl = (): string => {
+  const envBase = import.meta.env?.VITE_PREVIEW_BASE_URL ?? import.meta.env?.VITE_API_BASE_URL ?? '';
+
+  if (envBase) {
+    return envBase.replace(/\/$/, '');
+  }
+
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+
+  return '';
+};
 
 interface WebsitePreviewProps {
   previewUrl: string;
@@ -28,8 +41,10 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
     setIsFullscreen(!isFullscreen);
   };
 
-  const apiBase = getApiBase();
-  const fullUrl = previewUrl.startsWith('http') ? previewUrl : `${apiBase || ''}${previewUrl}`;
+  const apiBase = getPreviewBaseUrl();
+  const fullUrl = previewUrl.startsWith('http')
+    ? previewUrl
+    : `${apiBase}${previewUrl.startsWith('/') ? previewUrl : `/${previewUrl}`}`;
 
   // console.debug('WebsitePreview - Preview URL:', fullUrl);
 

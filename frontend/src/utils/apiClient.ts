@@ -6,7 +6,7 @@ interface ApiOptions {
 }
 
 class ApiClient {
-  private baseUrl = (import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || '').trim() || '';
+  private baseUrl = '';
   private getToken = () => localStorage.getItem('authToken');
   private getRefreshToken = () => localStorage.getItem('refreshToken');
   private decodeToken = (token: string): any | null => {
@@ -22,7 +22,7 @@ class ApiClient {
     localStorage.setItem('authToken', token);
     if (refreshToken) {
       localStorage.setItem('refreshToken', refreshToken);
-    } 
+    }
   };
   private clearTokens = () => {
     localStorage.removeItem('authToken');
@@ -36,7 +36,7 @@ class ApiClient {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl || ''}/api/refresh-token`, {
+      const response = await fetch(`${this.baseUrl}/api/refresh-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken })
@@ -68,10 +68,7 @@ class ApiClient {
         requestHeaders.Authorization = `Bearer ${token}`;
       }
 
-      const isAbsolute = /^https?:\/\//i.test(endpoint);
-      const url = isAbsolute ? endpoint : `${this.baseUrl}${endpoint}`;
-
-      return fetch(url, {
+      return fetch(`${this.baseUrl}${endpoint}`, {
         method,
         headers: requestHeaders,
         body: body ? JSON.stringify(body) : undefined
@@ -139,4 +136,3 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
-export const getApiBase = () => ((import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || '').trim());
