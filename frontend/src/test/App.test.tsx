@@ -43,10 +43,6 @@ vi.mock('../components/NewDashboard', () => ({
   )
 }));
 
-vi.mock('../components/EnhancedDashboard', () => ({
-  EnhancedDashboard: () => <div data-testid="enhanced-dashboard">Enhanced Dashboard</div>
-}));
-
 const renderApp = () => {
   return render(
     <HelmetProvider>
