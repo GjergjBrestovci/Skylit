@@ -327,7 +327,12 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       <div className="text-center max-w-4xl px-4 sm:px-6 space-y-8 sm:space-y-12 animate-page-fade-in">
         <div className="space-y-4 sm:space-y-6">
           <div className="space-y-3 sm:space-y-4">
-            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500 bg-clip-text text-transparent animate-pulse">Skylit AI</h1>
+            <h1
+              className="text-4xl sm:text-6xl md:text-8xl font-black bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500 bg-clip-text text-transparent animate-pulse"
+              style={{ padding: '15px' }}
+            >
+              Skylit AI
+            </h1>
             <p className="text-lg sm:text-2xl md:text-3xl text-text/90 font-light">Dream it. Build it. Launch it.</p>
           </div>
           <p className="text-base sm:text-lg md:text-xl text-text/70 max-w-2xl mx-auto leading-relaxed px-2">Transform your ideas into stunning websites in minutes. Our AI understands your vision and crafts the perfect digital experience.</p>
