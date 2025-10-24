@@ -8,6 +8,17 @@ export interface GeneratedWebsite {
   model: string;
 }
 
+const LOVABLE_STYLE_GUIDELINES = `Design for a polished, Lovable.dev quality experience:
+- Fluid mobile-first layouts with intentional whitespace and vertical rhythm
+- Soft gradients, layered glassmorphism, and tasteful frosted panels
+- High-contrast typography pairings (display + sans-serif body) with clear hierarchy
+- Glowing accent buttons, pill-shaped CTAs, and glass cards with subtle drop shadows
+- Motion design: micro-interactions, hover lifts, fade/slide reveals, parallax hero details
+- Hero sections with sweeping gradients, blurred orbs, or organic blobs for depth
+- Component spacing that feels breathable, with 12/16px grids and 64/80px hero padding
+- Consistent iconography (Lucide/Feather style) and rounded avatars
+- Accessibility baked in: ARIA labels, keyboard focus rings, sufficient color contrast`;
+
 function getSystemPrompt(techStack: string): string {
   switch (techStack) {
     case 'react':

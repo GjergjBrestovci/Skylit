@@ -71,10 +71,10 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
             </button>
           </div>
         </div>
-        <div className="flex-1 relative">
+        <div className="flex-1 relative bg-white">
           {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a1a]">
-              <div className="text-white text-center">
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+              <div className="text-gray-700 text-center">
                 <div className="animate-spin text-4xl mb-4">
                   <svg className="w-10 h-10 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -86,8 +86,8 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
             </div>
           )}
           {error && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a1a]">
-              <div className="text-red-400 text-center">
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+              <div className="text-red-600 text-center">
                 <div className="text-4xl mb-4">❌</div>
                 <p>Failed to load preview</p>
                 <button
@@ -106,7 +106,7 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
             src={fullUrl}
             onLoad={handleLoad}
             onError={handleError}
-            className="w-full h-full border-0"
+            className="w-full h-full border-0 bg-white"
             title={title}
             sandbox="allow-scripts allow-forms"
           />
@@ -140,10 +140,10 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
         </div>
       </div>
       
-      <div className="relative" style={{ height: '500px' }}>
+      <div className="relative bg-white" style={{ height: '500px' }}>
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a1a]">
-            <div className="text-text/70 text-center">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+            <div className="text-gray-700 text-center">
               <div className="animate-spin text-3xl mb-3">
                 <svg className="w-8 h-8 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -156,8 +156,8 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
         )}
         
         {error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a1a]">
-            <div className="text-red-400 text-center">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+            <div className="text-red-600 text-center">
               <div className="text-3xl mb-3">❌</div>
               <p className="text-sm mb-3">Failed to load preview</p>
               <button
@@ -177,7 +177,7 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
           src={fullUrl}
           onLoad={handleLoad}
           onError={handleError}
-          className="w-full h-full border-0"
+          className="w-full h-full border-0 bg-white"
           title={title}
           sandbox="allow-scripts allow-forms"
         />

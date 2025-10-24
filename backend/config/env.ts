@@ -18,7 +18,7 @@ const baseSchema = z.object({
   
   // OpenAI configuration (optional in dev)
   OPENAI_API_KEY: z.string().optional(),
-  
+    
   // Stripe configuration (optional in dev)
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
