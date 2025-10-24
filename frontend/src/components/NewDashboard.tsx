@@ -44,6 +44,11 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [showCode, setShowCode] = useState(false);
   const [activeCodeTab, setActiveCodeTab] = useState<'html' | 'css' | 'javascript' | 'notes' | 'analysis'>('html');
+  
+  // Credit tracking state
+  const [userCredits, setUserCredits] = useState<number | null>(null);
+  const [userHasUnlimited, setUserHasUnlimited] = useState(false);
+  
   // New staged generation state
   const [rawPrompt, setRawPrompt] = useState('');
   const [enhancedPrompt, setEnhancedPrompt] = useState<string | undefined>();
@@ -60,6 +65,22 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const typingTimerRef = useRef<number | null>(null);
   const codeTimerRef = useRef<number | null>(null);
   const placeholderEnhancedRef = useRef('');
+
+  // Fetch user credits on mount
+  useEffect(() => {
+    const fetchUserCredits = async () => {
+      try {
+        const data = await apiClient.get('/api/user-credits');
+        if (data) {
+          setUserCredits(data.credits);
+          setUserHasUnlimited(data.hasUnlimitedCredits || false);
+        }
+      } catch (err) {
+        console.error('Failed to fetch credits:', err);
+      }
+    };
+    fetchUserCredits();
+  }, []);
 
   // Enhancement typing
   useEffect(() => {
@@ -232,6 +253,11 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [billingOpen, setBillingOpen] = useState(false);
 
   const generateWebsite = async () => {
+    // Immediately update credits display if user doesn't have unlimited
+    if (!userHasUnlimited && userCredits !== null && userCredits > 0) {
+      setUserCredits(prev => (prev !== null ? prev - 1 : prev));
+    }
+
     setCurrentStep('generating');
     setError(null);
     setGenerationStage('enhancing');
@@ -273,6 +299,16 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           prompt,
           techStack: config.techStack 
         });
+        
+        // Refresh credits after successful generation
+        try {
+          const creditsData = await apiClient.get('/api/user-credits');
+          if (creditsData) {
+            setUserCredits(creditsData.credits);
+            setUserHasUnlimited(creditsData.hasUnlimitedCredits || false);
+          }
+        } catch {}
+        
         const pending: GenerationResult = {
           generated: data.generated,
           html: data.html || data.generated,
@@ -293,6 +329,18 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to generate website';
         setError(message);
+        
+        // Restore credit on error if it was deducted
+        if (!userHasUnlimited && userCredits !== null) {
+          try {
+            const creditsData = await apiClient.get('/api/user-credits');
+            if (creditsData) {
+              setUserCredits(creditsData.credits);
+              setUserHasUnlimited(creditsData.hasUnlimitedCredits || false);
+            }
+          } catch {}
+        }
+        
         // If insufficient credits, surface billing
         if (/credit/i.test(message)) {
           setBillingOpen(true);
@@ -972,12 +1020,16 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 function TokensFab() {
   const [open, setOpen] = useState(false);
   const [credits, setCredits] = useState<number | null>(null);
+  const [hasUnlimitedCredits, setHasUnlimitedCredits] = useState(false);
 
   useEffect(() => {
     const fetchCredits = async () => {
       try {
         const data = await apiClient.get('/api/user-credits');
-        if (data && typeof data.credits === 'number') setCredits(data.credits);
+        if (data && typeof data.credits === 'number') {
+          setCredits(data.credits);
+          setHasUnlimitedCredits(data.hasUnlimitedCredits || false);
+        }
       } catch {}
     };
     fetchCredits();
@@ -989,7 +1041,10 @@ function TokensFab() {
     (async () => {
       try {
         const data = await apiClient.get('/api/user-credits');
-        if (data && typeof data.credits === 'number') setCredits(data.credits);
+        if (data && typeof data.credits === 'number') {
+          setCredits(data.credits);
+          setHasUnlimitedCredits(data.hasUnlimitedCredits || false);
+        }
       } catch {}
     })();
   };
@@ -999,7 +1054,7 @@ function TokensFab() {
       <button
         onClick={() => setOpen(true)}
         className={`fixed bottom-6 md:bottom-10 right-4 sm:right-6 z-20 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-accent-purple text-white shadow-lg hover:brightness-110 transition-all flex items-center gap-2 border border-white/10 text-sm ${
-          typeof credits === 'number' && credits < 3 ? 'ring-2 ring-red-400/60' : 'ring-1 ring-accent-cyan/30'
+          typeof credits === 'number' && credits < 3 && !hasUnlimitedCredits ? 'ring-2 ring-red-400/60' : 'ring-1 ring-accent-cyan/30'
         }`}
         title="Open Billing / Credits"
         aria-label="Open Billing / Credits"
@@ -1008,7 +1063,7 @@ function TokensFab() {
         <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Billing</span>
         {typeof credits === 'number' && (
           <span className="ml-1 text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/10">
-            Credits: {credits}
+            Credits: {hasUnlimitedCredits ? '∞' : credits}
           </span>
         )}
       </button>

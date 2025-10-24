@@ -18,7 +18,7 @@ const LOVABLE_STYLE_GUIDELINES = `Design for a polished, Lovable.dev quality exp
 - Component spacing that feels breathable, with 12/16px grids and 64/80px hero padding
 - Consistent iconography (Lucide/Feather style) and rounded avatars
 - Accessibility baked in: ARIA labels, keyboard focus rings, sufficient color contrast`;
-
+      
 function getSystemPrompt(techStack: string): string {
   switch (techStack) {
     case 'react':

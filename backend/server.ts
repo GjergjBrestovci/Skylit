@@ -47,8 +47,18 @@ app.use('/api/*', notFoundHandler);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Backend server running on port ${PORT}`);
+  
+  // Check database health on startup
+  const { checkDatabaseHealth } = await import('./services/databaseHealth');
+  const health = await checkDatabaseHealth();
+  
+  if (!health.isHealthy) {
+    console.warn('\n⚠️  WARNING: Database not ready!');
+    console.warn('   Credits and unlimited status will NOT persist across sessions.');
+    console.warn('   Please apply database migrations. See: APPLY_MIGRATIONS.md\n');
+  }
 });
 
 export default app;

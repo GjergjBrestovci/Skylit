@@ -6,6 +6,7 @@ import { OnboardingTour, useOnboarding } from './components/OnboardingTour';
 import { Auth } from './components/Auth';
 import { SEOHead } from './components/SEO/SEOHead';
 import BackgroundWrapper from './components/BackgroundWrapper';
+import { DatabaseWarning } from './components/DatabaseWarning';
 
 function App() {
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -73,6 +74,9 @@ function App() {
         keywords={['AI website generator', 'website builder', 'AI web development', 'responsive design', 'React websites', 'Vue websites', 'Next.js generator', 'no-code website builder']}
       />
       <BackgroundWrapper>
+        {/* Database connection warning */}
+        <DatabaseWarning />
+        
         {/* Onboarding Tour */}
         {authToken && showOnboarding && (
           <OnboardingTour onComplete={completeOnboarding} />

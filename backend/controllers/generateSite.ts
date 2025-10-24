@@ -11,13 +11,18 @@ export const generateSite = async (req: AuthRequest, res: Response) => {
   try {
     // Check user credits before proceeding
     const creditResult = await getCredits(req.userId!);
-    if (!creditResult || creditResult.credits < 1) {
+    
+    // Allow generation if user has unlimited credits or has credits remaining
+    if (!creditResult || (!creditResult.hasUnlimitedCredits && creditResult.credits < 1)) {
+      console.log(`[generateSite] User ${req.userId} has insufficient credits:`, creditResult);
       return res.status(402).json({ 
         error: 'Insufficient credits to generate website', 
         code: 'NO_CREDITS',
         credits: creditResult?.credits || 0
       });
     }
+
+    console.log(`[generateSite] User ${req.userId} has ${creditResult.hasUnlimitedCredits ? 'unlimited' : creditResult.credits} credits`);
 
     const useMock = process.env.MOCK_AI === 'true';
     let promptResult: any;

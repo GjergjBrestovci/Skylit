@@ -10,6 +10,7 @@ import { getPricingPlans, createPayment, createSubscriptionPayment, getUserCredi
 import { handleStripeWebhook } from '../controllers/webhook';
 import { updateProject, deleteProject, duplicateProject, getProjectHistory } from '../controllers/projectManagement';
 import { getTemplateCategories, getTemplates, getTemplate, getSamplePrompts, generateFromTemplate } from '../controllers/templates';
+import { setUserSecretKey } from '../controllers/secretKey';
 import seoRoutes from './seo';
 import { 
   validateRequest, 
@@ -21,7 +22,8 @@ import {
   duplicateProjectSchema,
   templateCustomizationSchema,
   getTemplatesQuerySchema,
-  getSamplePromptsQuerySchema
+  getSamplePromptsQuerySchema,
+  setSecretKeySchema
 } from '../middleware/validation';
 import { supabase as supabaseClient } from '../supabase';
 
@@ -39,7 +41,21 @@ router.get('/health', async (_req, res) => {
   } catch {
     authOk = false;
   }
-  res.json({ ok: true, supabase: { url: supaUrl || null, anonKey: supaAnon, configured: authOk }, stripeEnabled: process.env.STRIPE_ENABLED !== 'false' });
+  
+  // Check database health
+  const { getDatabaseStatus } = await import('../services/databaseHealth');
+  const dbStatus = await getDatabaseStatus();
+  
+  res.json({ 
+    ok: true, 
+    supabase: { 
+      url: supaUrl || null, 
+      anonKey: supaAnon, 
+      configured: authOk 
+    }, 
+    database: dbStatus,
+    stripeEnabled: process.env.STRIPE_ENABLED !== 'false' 
+  });
 });
 
 // SEO routes (public)
@@ -76,6 +92,13 @@ if (process.env.STRIPE_ENABLED !== 'false') {
   router.post('/create-subscription', authenticateToken, createSubscriptionPayment);
 }
 router.get('/user-credits', authenticateToken, getUserCredits);
+
+// Secret key route for unlimited credits
+router.post('/set-secret-key', 
+  authenticateToken, 
+  validateRequest({ body: setSecretKeySchema }), 
+  setUserSecretKey
+);
 
 // Protected routes
 router.post('/generate-site', 

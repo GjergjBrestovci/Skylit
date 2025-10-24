@@ -164,3 +164,9 @@ export const getSamplePromptsQuerySchema = z.object({
   category: z.string().optional(),
   difficulty: z.enum(['beginner', 'intermediate', 'advanced', 'all']).optional()
 });
+
+export const setSecretKeySchema = z.object({
+  secretKey: z.string()
+    .min(1, 'Secret key is required')
+    .max(255, 'Secret key is too long')
+});

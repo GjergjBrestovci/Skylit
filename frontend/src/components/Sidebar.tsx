@@ -49,6 +49,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
   const [showNotifications, setShowNotifications] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
   const [username, setUsername] = useState<string>('User');
+  const [secretKey, setSecretKey] = useState('');
+  const [secretKeyError, setSecretKeyError] = useState('');
+  const [secretKeyLoading, setSecretKeyLoading] = useState(false);
+  const [secretKeySuccess, setSecretKeySuccess] = useState(false);
+  const [showSecretKeyInput, setShowSecretKeyInput] = useState(false);
 
   // Collapse on outside click (desktop) or overlay click (mobile)
   useEffect(() => {
@@ -118,6 +123,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
     setTheme(choice);
     localStorage.setItem('themeChoice', choice);
     applyTheme(choice);
+  };
+
+  // Handle secret key submission
+  const handleSecretKeySubmit = async () => {
+    if (!secretKey.trim()) {
+      setSecretKeyError('Please enter a secret key');
+      return;
+    }
+
+    setSecretKeyLoading(true);
+    setSecretKeyError('');
+
+    try {
+      const response = await apiClient.post('/api/set-secret-key', { secretKey: secretKey.trim() });
+      
+      if (response.success) {
+        setSecretKeySuccess(true);
+        setSecretKey('');
+        setShowSecretKeyInput(false);
+        // Show success notification
+        setNotifications(prev => [{ 
+          id: Date.now().toString(), 
+          message: 'Unlimited credits activated! 🎉', 
+          type: 'success', 
+          ts: Date.now() 
+        }, ...prev]);
+        // Refresh projects or other data if needed
+        loadProjects();
+      }
+    } catch (err: any) {
+      setSecretKeyError(err?.message || 'Invalid secret key');
+    } finally {
+      setSecretKeyLoading(false);
+    }
   };
 
   // Get dynamic sidebar background color based on theme - now transparent
@@ -350,6 +389,69 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
           </div>
         )}
   {/* Billing widget moved out of sidebar to a floating button for minimal intrusion */}
+        
+        {/* Secret Key Input Section */}
+        {!collapsed && (
+          <div className="p-4 space-y-3">
+            {!showSecretKeyInput && !secretKeySuccess && (
+              <button
+                onClick={() => setShowSecretKeyInput(true)}
+                className="w-full py-2 px-3 rounded-lg bg-accent-purple/10 hover:bg-accent-purple/20 text-accent-purple text-xs font-medium transition-colors border border-accent-purple/20"
+              >
+                🔑 Unlock Unlimited Access
+              </button>
+            )}
+
+            {showSecretKeyInput && (
+              <div className="space-y-2 p-3 rounded-lg bg-background/50 border border-accent-purple/20 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-text/70 font-medium">Secret Key</span>
+                  <button
+                    onClick={() => {
+                      setShowSecretKeyInput(false);
+                      setSecretKey('');
+                      setSecretKeyError('');
+                    }}
+                    className="text-text/40 hover:text-text/70 text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={secretKey}
+                  onChange={(e) => setSecretKey(e.target.value)}
+                  placeholder="Enter your key..."
+                  className="w-full px-3 py-2 bg-background border border-accent-purple/20 rounded-lg text-xs text-text focus:outline-none focus:border-accent-cyan transition-colors"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSecretKeySubmit()}
+                  disabled={secretKeyLoading}
+                />
+                {secretKeyError && (
+                  <p className="text-xs text-red-400">{secretKeyError}</p>
+                )}
+                <button
+                  onClick={handleSecretKeySubmit}
+                  disabled={secretKeyLoading || !secretKey.trim()}
+                  className="w-full py-2 px-3 bg-gradient-to-r from-accent-cyan to-accent-purple text-black rounded-lg text-xs font-semibold hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  {secretKeyLoading ? 'Verifying...' : 'Activate'}
+                </button>
+              </div>
+            )}
+
+            {secretKeySuccess && (
+              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30 animate-fade-in">
+                <div className="flex items-center gap-2 text-green-400 text-xs">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="font-medium">Unlimited Access Active</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {!collapsed && (
           <div className="p-4 flex items-center justify-between text-xs text-text/60 transition-colors">          
             <button onClick={onLogout} className="px-3 py-2 rounded-md bg-red-500/20 text-red-300 hover:bg-red-500/30 font-semibold text-[11px] transition-colors focus:outline-none">Logout</button>
