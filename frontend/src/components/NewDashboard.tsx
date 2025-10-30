@@ -67,18 +67,19 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const placeholderEnhancedRef = useRef('');
 
   // Fetch user credits on mount
-  useEffect(() => {
-    const fetchUserCredits = async () => {
-      try {
-        const data = await apiClient.get('/api/user-credits');
-        if (data) {
-          setUserCredits(data.credits);
-          setUserHasUnlimited(data.hasUnlimitedCredits || false);
-        }
-      } catch (err) {
-        console.error('Failed to fetch credits:', err);
+  const fetchUserCredits = async () => {
+    try {
+      const data = await apiClient.get('/api/user-credits');
+      if (data) {
+        setUserCredits(data.credits);
+        setUserHasUnlimited(data.hasUnlimitedCredits || false);
       }
-    };
+    } catch (err) {
+      console.error('Failed to fetch credits:', err);
+    }
+  };
+
+  useEffect(() => {
     fetchUserCredits();
   }, []);
 
@@ -991,7 +992,12 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   if (currentStep === 'preview' && result) {
     return (
       <div className="flex w-full min-h-screen">
-        <Sidebar onLogout={onLogout} onCreateNew={startOver} onOpenProject={openProjectFromSidebar} />
+        <Sidebar 
+          onLogout={onLogout} 
+          onCreateNew={startOver} 
+          onOpenProject={openProjectFromSidebar}
+          onCreditsUpdate={fetchUserCredits}
+        />
         <main className="flex-1 overflow-x-hidden">
           {renderPreview()}
         </main>
@@ -1003,7 +1009,12 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
   return (
     <div className="flex w-full min-h-screen">
-      <Sidebar onLogout={onLogout} onCreateNew={startOver} onOpenProject={openProjectFromSidebar} />
+      <Sidebar 
+        onLogout={onLogout} 
+        onCreateNew={startOver} 
+        onOpenProject={openProjectFromSidebar}
+        onCreditsUpdate={fetchUserCredits}
+      />
       <main className="flex-1 page-transition-container overflow-x-hidden">
         <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
           {renderStepContent()}

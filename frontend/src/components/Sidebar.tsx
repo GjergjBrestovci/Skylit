@@ -23,9 +23,10 @@ interface SidebarProps {
   onLogout: () => void;
   onCreateNew: () => void;
   onOpenProject: (project: ProjectItem) => void;
+  onCreditsUpdate?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenProject }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenProject, onCreditsUpdate }) => {
   const [open, setOpen] = useState(false); // mobile slide-in (<= lg)
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try {
@@ -149,6 +150,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
           type: 'success', 
           ts: Date.now() 
         }, ...prev]);
+        // Refresh credits in parent component
+        if (onCreditsUpdate) {
+          onCreditsUpdate();
+        }
         // Refresh projects or other data if needed
         loadProjects();
       }

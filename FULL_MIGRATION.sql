@@ -28,7 +28,8 @@ CREATE INDEX IF NOT EXISTS idx_user_credits_stripe_customer ON public.user_credi
 ALTER TABLE public.user_credits ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy: Users can only access their own credits
-CREATE POLICY IF NOT EXISTS "Users can view own credits" ON public.user_credits
+DROP POLICY IF EXISTS "Users can view own credits" ON public.user_credits;
+CREATE POLICY "Users can view own credits" ON public.user_credits
   FOR ALL USING (auth.uid() = user_id);
 
 -- Add helpful comments
@@ -76,7 +77,8 @@ CREATE INDEX IF NOT EXISTS idx_projects_user_id ON public.projects(user_id);
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy: Users can only access their own projects
-CREATE POLICY IF NOT EXISTS "Users can view own projects" ON public.projects
+DROP POLICY IF EXISTS "Users can view own projects" ON public.projects;
+CREATE POLICY "Users can view own projects" ON public.projects
   FOR ALL USING (auth.uid() = user_id);
 
 -- Trigger for projects updated_at
@@ -105,9 +107,11 @@ CREATE INDEX IF NOT EXISTS idx_previews_expires_at ON public.previews(expires_at
 ALTER TABLE public.previews ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy: Anyone can read previews (for public sharing)
-CREATE POLICY IF NOT EXISTS "Previews are publicly readable" ON public.previews
+DROP POLICY IF EXISTS "Previews are publicly readable" ON public.previews;
+CREATE POLICY "Previews are publicly readable" ON public.previews
   FOR SELECT USING (true);
 
 -- RLS Policy: Only authenticated users can create previews
-CREATE POLICY IF NOT EXISTS "Authenticated users can create previews" ON public.previews
+DROP POLICY IF EXISTS "Authenticated users can create previews" ON public.previews;
+CREATE POLICY "Authenticated users can create previews" ON public.previews
   FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
