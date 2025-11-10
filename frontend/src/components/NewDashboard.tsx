@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type JSXElementConstructor, type Key, type ReactElement, type ReactNode, type ReactPortal } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { WebsitePreview } from './WebsitePreview';
 import { Sidebar } from '../components/Sidebar';
 import { BillingPage } from '../components/BillingPage';
@@ -853,7 +853,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                         <div>
                           <h4 className="text-md font-semibold text-accent-cyan mb-2">Requirements Identified:</h4>
                           <ul className="list-disc pl-6 space-y-1">
-                            {result.requirements.map((req: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined, i: Key | null | undefined) => (
+                            {result.requirements.map((req, i) => (
                               <li key={i} className="text-text/80">{req}</li>
                             ))}
                           </ul>
