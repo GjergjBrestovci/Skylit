@@ -23,6 +23,10 @@ Focus on:
 3. Technical implementation details
 4. Content structure and sections
 5. Interactive elements and behaviors
+6. Clean code
+7. Modern styling
+8. Functional javascript
+
 
 Output format:
 <ANALYSIS>
@@ -48,6 +52,11 @@ Include specific details about:
 - Forms and user interactions
 - Responsive design requirements
 - Content to include
+
+- also very important is that you write clean and functional code, make sure you pay extra attention to the functionality and styling, 
+  make sure you use, appropriate animations and clean and modern
+- extra to styling, use a bubble effect to individual corners, never use straight blocks except it is mentioned in the prompt.
+
 
 IMPORTANT: This prompt should result in ACTUAL CODE being generated, not explanations or documentation.
 </ENHANCED_PROMPT>`;

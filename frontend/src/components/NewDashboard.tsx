@@ -1002,7 +1002,11 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           {renderPreview()}
         </main>
   {/* Floating Tokens Button */}
-  <TokensFab />
+  <TokensFab 
+    credits={userCredits} 
+    hasUnlimitedCredits={userHasUnlimited}
+    onRefreshCredits={fetchUserCredits}
+  />
       </div>
     );
   }
@@ -1021,43 +1025,30 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         </div>
       </main>
       {/* Floating Tokens Button */}
-      <TokensFab />
+      <TokensFab 
+        credits={userCredits} 
+        hasUnlimitedCredits={userHasUnlimited}
+        onRefreshCredits={fetchUserCredits}
+      />
       <BillingPage open={billingOpen} onClose={() => setBillingOpen(false)} />
     </div>
   );
 }
 
 // Local state and token FAB below the component for clarity
-function TokensFab() {
-  const [open, setOpen] = useState(false);
-  const [credits, setCredits] = useState<number | null>(null);
-  const [hasUnlimitedCredits, setHasUnlimitedCredits] = useState(false);
+interface TokensFabProps {
+  credits: number | null;
+  hasUnlimitedCredits: boolean;
+  onRefreshCredits: () => void;
+}
 
-  useEffect(() => {
-    const fetchCredits = async () => {
-      try {
-        const data = await apiClient.get('/api/user-credits');
-        if (data && typeof data.credits === 'number') {
-          setCredits(data.credits);
-          setHasUnlimitedCredits(data.hasUnlimitedCredits || false);
-        }
-      } catch {}
-    };
-    fetchCredits();
-  }, []);
+function TokensFab({ credits, hasUnlimitedCredits, onRefreshCredits }: TokensFabProps) {
+  const [open, setOpen] = useState(false);
 
   const handleClose = () => {
     setOpen(false);
     // Refresh credits after closing billing in case of purchase
-    (async () => {
-      try {
-        const data = await apiClient.get('/api/user-credits');
-        if (data && typeof data.credits === 'number') {
-          setCredits(data.credits);
-          setHasUnlimitedCredits(data.hasUnlimitedCredits || false);
-        }
-      } catch {}
-    })();
+    onRefreshCredits();
   };
 
   return (
