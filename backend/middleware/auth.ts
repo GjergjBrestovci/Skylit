@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { supabase as supabaseAuth } from '../supabase';
+import { supabaseAuth } from '../supabase';
 
 export interface AuthRequest extends Request {
   userId?: string;

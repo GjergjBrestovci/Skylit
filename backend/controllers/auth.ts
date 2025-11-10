@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { supabase as supabaseAuth } from '../supabase';
+import { supabaseAuth } from '../supabase';
 
 // Helper to check configuration state
 const supabaseConfigured = !!process.env.SUPABASE_URL && !!process.env.SUPABASE_ANON_KEY;

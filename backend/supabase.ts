@@ -7,7 +7,10 @@ import './config/loadEnv';
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const supabaseUrl = process.env.SUPABASE_URL as string | undefined;
-const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY) as string | undefined;
+// Use SERVICE_ROLE_KEY for backend operations (bypasses RLS)
+// Use ANON_KEY only for auth operations
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string | undefined;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY as string | undefined;
 
 // Check if we have valid Supabase configuration
 const isValidUrl = (url: string) => {
@@ -19,16 +22,19 @@ const isValidUrl = (url: string) => {
   }
 };
 
+// Backend client using service role (bypasses RLS for admin operations)
 let supabase: any;
+// Auth client using anon key (respects RLS for user operations)
+let supabaseAuth: any;
 
-if (!supabaseUrl || !supabaseAnonKey || 
+if (!supabaseUrl || (!supabaseServiceKey && !supabaseAnonKey) || 
     supabaseUrl.includes('your_supabase') || 
     !isValidUrl(supabaseUrl)) {
   console.warn('⚠️  Supabase not configured properly. Using mock client.');
-  console.warn('   Please update SUPABASE_URL and SUPABASE_ANON_KEY in .env');
+  console.warn('   Please update SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_ANON_KEY in .env');
   
   // Mock client that won't crash the server
-  supabase = {
+  const mockClient = {
     auth: {
       signUp: async () => ({ data: null, error: { message: 'Supabase not configured' } }),
       signInWithPassword: async () => ({ data: null, error: { message: 'Supabase not configured' } }),
@@ -39,15 +45,36 @@ if (!supabaseUrl || !supabaseAnonKey ||
       select: () => ({ eq: () => ({ order: async () => ({ data: [], error: null }) }) })
     })
   };
+  supabase = mockClient;
+  supabaseAuth = mockClient;
 } else {
   console.log('✅ Supabase configured with URL:', supabaseUrl);
-  console.log('✅ Using key from', process.env.SUPABASE_ANON_KEY ? 'ANON' : 'SERVICE_ROLE');
   
-  // Client with anon or service role key; avoid exposing service role to frontend
-  supabase = createClient(supabaseUrl, supabaseAnonKey);
+  // Backend client with service role key (bypasses RLS for server-side operations)
+  if (supabaseServiceKey) {
+    console.log('✅ Using SERVICE_ROLE key for backend database operations (RLS bypassed)');
+    supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+  } else {
+    console.warn('⚠️  No SERVICE_ROLE_KEY found, using ANON_KEY (RLS will apply)');
+    supabase = createClient(supabaseUrl, supabaseAnonKey!);
+  }
+  
+  // Auth client with anon key for user authentication
+  if (supabaseAnonKey) {
+    console.log('✅ Using ANON key for authentication operations');
+    supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+  } else {
+    console.warn('⚠️  No ANON_KEY found, using SERVICE_ROLE for auth (not recommended)');
+    supabaseAuth = supabase;
+  }
 }
 
-export { supabase };
+export { supabase, supabaseAuth };
 
 // Database types (you can generate these from Supabase CLI later)
 export interface User {
