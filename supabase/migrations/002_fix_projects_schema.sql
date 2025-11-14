@@ -17,14 +17,12 @@ WHERE title IS NULL AND name IS NOT NULL;
 ALTER TABLE public.projects 
   ALTER COLUMN title SET NOT NULL;
 
--- Keep 'name' column for backward compatibility but populate it from title
-UPDATE public.projects 
-SET name = title 
-WHERE name IS NULL;
+-- Drop legacy name column once data is migrated
+ALTER TABLE public.projects 
+  DROP COLUMN IF EXISTS name;
 
 -- Update comments
 COMMENT ON COLUMN public.projects.title IS 'Project title (primary field used by controllers)';
-COMMENT ON COLUMN public.projects.name IS 'Project name (kept for backward compatibility)';
 COMMENT ON COLUMN public.projects.prompt IS 'User prompt/description for website generation';
 COMMENT ON COLUMN public.projects.generated_code IS 'Full generated code JSON (includes html, css, js)';
 COMMENT ON COLUMN public.projects.model IS 'AI model used for generation (e.g., gpt-4, claude-3)';
