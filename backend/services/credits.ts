@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { isValidUUID } from '../utils/isValidUUID';
 
 interface UserCredits {
   credits: number;
@@ -26,8 +27,20 @@ function isMissingTable(err: any): boolean {
   return !!err && (err.code === 'PGRST205' || /table .* not found|schema cache/i.test(err.message || ''));
 }
 
+function shouldUseMemory(userId: string, context: string): boolean {
+  if (!isValidUUID(userId)) {
+    console.warn(`[#Credits] ${context}: non-UUID user id "${userId}" detected. Using in-memory credits. Set DEV_SUPABASE_USER_ID to test with real data.`);
+    return true;
+  }
+  return false;
+}
+
 // Initialize user credits in database if they don't exist
 export async function ensureUserCredits(userId: string): Promise<void> {
+  if (shouldUseMemory(userId, 'ensureUserCredits')) {
+    getMem(userId);
+    return;
+  }
   try {
     const { data, error } = await supabase
       .from('user_credits')
@@ -65,6 +78,9 @@ export async function ensureUserCredits(userId: string): Promise<void> {
 }
 
 export async function getCredits(userId: string): Promise<UserCredits> {
+  if (shouldUseMemory(userId, 'getCredits')) {
+    return getMem(userId);
+  }
   try {
     await ensureUserCredits(userId);
     
@@ -110,6 +126,12 @@ export async function getCredits(userId: string): Promise<UserCredits> {
 }
 
 export async function setCredits(userId: string, credits: number): Promise<boolean> {
+  if (shouldUseMemory(userId, 'setCredits')) {
+    const mem = getMem(userId);
+    mem.credits = Math.max(0, Math.floor(credits));
+    memoryCredits.set(userId, mem);
+    return true;
+  }
   try {
     await ensureUserCredits(userId);
     
@@ -136,6 +158,12 @@ export async function setCredits(userId: string, credits: number): Promise<boole
 }
 
 export async function addCredits(userId: string, amount: number): Promise<boolean> {
+  if (shouldUseMemory(userId, 'addCredits')) {
+    const mem = getMem(userId);
+    mem.credits = Math.max(0, mem.credits + Math.floor(amount));
+    memoryCredits.set(userId, mem);
+    return true;
+  }
   try {
     await ensureUserCredits(userId);
     
@@ -165,6 +193,14 @@ export async function addCredits(userId: string, amount: number): Promise<boolea
 }
 
 export async function consumeCredit(userId: string): Promise<boolean> {
+  if (shouldUseMemory(userId, 'consumeCredit')) {
+    const mem = getMem(userId);
+    if (mem.hasUnlimitedCredits) return true;
+    if (mem.credits <= 0) return false;
+    mem.credits -= 1;
+    memoryCredits.set(userId, mem);
+    return true;
+  }
   try {
     await ensureUserCredits(userId);
     
@@ -226,6 +262,15 @@ export async function updateSubscription(
   stripeCustomerId?: string,
   stripeSubscriptionId?: string
 ): Promise<boolean> {
+  if (shouldUseMemory(userId, 'updateSubscription')) {
+    const mem = getMem(userId);
+    mem.plan = plan;
+    mem.subscriptionStatus = subscriptionStatus;
+    if (stripeCustomerId) mem.stripeCustomerId = stripeCustomerId;
+    if (stripeSubscriptionId) mem.stripeSubscriptionId = stripeSubscriptionId;
+    memoryCredits.set(userId, mem);
+    return true;
+  }
   try {
     await ensureUserCredits(userId);
     
@@ -267,6 +312,14 @@ export async function updateSubscription(
 }
 
 export async function setSecretKey(userId: string, secretKey: string): Promise<boolean> {
+  if (shouldUseMemory(userId, 'setSecretKey')) {
+    const mem = getMem(userId);
+    const hasUnlimitedCredits = secretKey === 'gjergj';
+    mem.secretKey = secretKey;
+    mem.hasUnlimitedCredits = hasUnlimitedCredits;
+    memoryCredits.set(userId, mem);
+    return true;
+  }
   try {
     await ensureUserCredits(userId);
     

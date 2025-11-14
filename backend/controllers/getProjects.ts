@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { supabase } from '../supabase';
 import { AuthRequest } from '../middleware/auth';
+import { isValidUUID } from '../utils/isValidUUID';
 
 export const getProjects = async (req: AuthRequest, res: Response) => {
   try {
@@ -8,6 +9,11 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
 
     if (!userId) {
       return res.status(401).json({ error: 'User authentication required' });
+    }
+
+    if (!isValidUUID(userId)) {
+      console.warn(`[Projects] Non-UUID user id "${userId}" detected in dev bypass. Returning empty project list.`);
+      return res.json({ projects: [] });
     }
 
     // Fetch user's projects from Supabase

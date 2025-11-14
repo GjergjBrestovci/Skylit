@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { supabase } from '../supabase';
 import { AuthRequest } from '../middleware/auth';
+import { isValidUUID } from '../utils/isValidUUID';
 
 export const saveProject = async (req: AuthRequest, res: Response) => {
   try {
@@ -9,6 +10,24 @@ export const saveProject = async (req: AuthRequest, res: Response) => {
 
     if (!title || !userId) {
       return res.status(400).json({ error: 'Title and user authentication required' });
+    }
+
+    // In dev bypass we may not have a real Supabase user id. Avoid hitting the DB with invalid UUIDs.
+    if (!isValidUUID(userId)) {
+      const now = new Date().toISOString();
+      const mockProject = {
+        id: `dev-${Date.now()}`,
+        title,
+        prompt,
+        preview_url: null,
+        created_at: now,
+        updated_at: now
+      };
+
+      return res.status(201).json({
+        message: 'Project captured in dev mode (not persisted). Set DEV_SUPABASE_USER_ID to interact with Supabase.',
+        project: mockProject
+      });
     }
 
     // Parse generated_code to extract individual fields

@@ -116,8 +116,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       
       {/* Performance Hints */}
-      <link rel="dns-prefetch" href="//api.skylit.ai" />
-      <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-var.woff2" crossOrigin="anonymous" />
+  <link rel="dns-prefetch" href="//api.skylit.ai" />
     </Helmet>
   );
 };
