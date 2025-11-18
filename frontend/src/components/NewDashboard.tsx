@@ -997,16 +997,13 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           onCreateNew={startOver} 
           onOpenProject={openProjectFromSidebar}
           onCreditsUpdate={fetchUserCredits}
+          credits={userCredits}
+          hasUnlimitedCredits={userHasUnlimited}
+          onOpenBilling={() => setBillingOpen(true)}
         />
         <main className="flex-1 overflow-x-hidden">
           {renderPreview()}
         </main>
-  {/* Floating Tokens Button */}
-  <TokensFab 
-    credits={userCredits} 
-    hasUnlimitedCredits={userHasUnlimited}
-    onRefreshCredits={fetchUserCredits}
-  />
       </div>
     );
   }
@@ -1018,58 +1015,16 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         onCreateNew={startOver} 
         onOpenProject={openProjectFromSidebar}
         onCreditsUpdate={fetchUserCredits}
+        credits={userCredits}
+        hasUnlimitedCredits={userHasUnlimited}
+        onOpenBilling={() => setBillingOpen(true)}
       />
       <main className="flex-1 page-transition-container overflow-x-hidden">
         <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
           {renderStepContent()}
         </div>
       </main>
-      {/* Floating Tokens Button */}
-      <TokensFab 
-        credits={userCredits} 
-        hasUnlimitedCredits={userHasUnlimited}
-        onRefreshCredits={fetchUserCredits}
-      />
       <BillingPage open={billingOpen} onClose={() => setBillingOpen(false)} />
     </div>
-  );
-}
-
-// Local state and token FAB below the component for clarity
-interface TokensFabProps {
-  credits: number | null;
-  hasUnlimitedCredits: boolean;
-  onRefreshCredits: () => void;
-}
-
-function TokensFab({ credits, hasUnlimitedCredits, onRefreshCredits }: TokensFabProps) {
-  const [open, setOpen] = useState(false);
-
-  const handleClose = () => {
-    setOpen(false);
-    // Refresh credits after closing billing in case of purchase
-    onRefreshCredits();
-  };
-
-  return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className={`fixed bottom-6 md:bottom-10 right-4 sm:right-6 z-20 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-accent-purple text-white shadow-lg hover:brightness-110 transition-all flex items-center gap-2 border border-white/10 text-sm ${
-          typeof credits === 'number' && credits < 3 && !hasUnlimitedCredits ? 'ring-2 ring-red-400/60' : 'ring-1 ring-accent-cyan/30'
-        }`}
-        title="Open Billing / Credits"
-        aria-label="Open Billing / Credits"
-      >
-        <span className="text-base">💳</span>
-        <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Billing</span>
-        {typeof credits === 'number' && (
-          <span className="ml-1 text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/10">
-            Credits: {hasUnlimitedCredits ? '∞' : credits}
-          </span>
-        )}
-      </button>
-      <BillingPage open={open} onClose={handleClose} />
-    </>
   );
 }

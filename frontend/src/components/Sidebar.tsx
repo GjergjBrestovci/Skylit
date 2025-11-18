@@ -24,9 +24,20 @@ interface SidebarProps {
   onCreateNew: () => void;
   onOpenProject: (project: ProjectItem) => void;
   onCreditsUpdate?: () => void;
+  credits?: number | null;
+  hasUnlimitedCredits?: boolean;
+  onOpenBilling?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenProject, onCreditsUpdate }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  onLogout,
+  onCreateNew,
+  onOpenProject,
+  onCreditsUpdate,
+  credits,
+  hasUnlimitedCredits,
+  onOpenBilling
+}) => {
   const [open, setOpen] = useState(false); // mobile slide-in (<= lg)
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try {
@@ -55,6 +66,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
   const [secretKeyLoading, setSecretKeyLoading] = useState(false);
   const [secretKeySuccess, setSecretKeySuccess] = useState(false);
   const [showSecretKeyInput, setShowSecretKeyInput] = useState(false);
+  const creditDisplayValue = hasUnlimitedCredits ? '∞' : typeof credits === 'number' ? String(credits) : null;
+  const billingAttentionNeeded = typeof credits === 'number' && credits < 3 && !hasUnlimitedCredits;
+  const handleBillingOpen = () => {
+    if (!onOpenBilling) return;
+    onOpenBilling();
+    setOpen(false);
+  };
 
   // Collapse on outside click (desktop) or overlay click (mobile)
   useEffect(() => {
@@ -273,7 +291,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
         className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-16' : 'w-72'} transition-[width,transform] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
         style={{ backgroundColor: getSidebarBg() }}
       >
-            <div className={`${collapsed ? 'p-1 justify-center' : 'p-4 gap-2'} flex items-center`}>        
+            <div className={`${collapsed ? 'p-1 justify-center gap-2' : 'p-4 gap-2'} flex items-center`}>
           <button
             onClick={() => setCollapsed(false)}
             className={`relative flex items-center justify-center rounded-xl transition-all duration-300 focus:outline-none ${collapsed ? 'w-14 h-14' : 'w-14 h-14'} hover:scale-[1.02] active:scale-[0.98]`}
@@ -281,6 +299,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
           >
             <Logo size={48} withText={!collapsed} textSizeClass="text-2xl" />
           </button>
+          
           {!collapsed && (
             <div className="ml-auto flex items-center gap-2">
               <button onClick={cycleTheme} className="text-text/60 hover:text-white text-lg transition-transform duration-300 hover:scale-110 focus:outline-none" title={`Toggle theme (${theme})`} aria-label="Toggle theme">
@@ -303,7 +322,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
               {username.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold truncate">{username}</p>
+              <p className="text-sm font-semibold truncate flex items-center gap-2">
+                <span className="truncate">{username}</span>
+                {creditDisplayValue && (
+                  <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${billingAttentionNeeded ? 'border-red-400/40 text-red-200 bg-red-500/10' : 'border-white/10 text-accent-cyan bg-black/30'}`}>
+                    ⚡ {creditDisplayValue}
+                  </span>
+                )}
+              </p>
               <p className="text-xs text-text/50 truncate" title={userEmail}>{userEmail || '—'}</p>
             </div>
           </div>
@@ -329,6 +355,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
             <button onClick={onCreateNew} className="flex-1 px-3 py-2 rounded-md bg-accent-cyan text-black text-xs font-semibold hover:brightness-110 transition-all focus:outline-none">➕ New</button>
             <button onClick={loadProjects} className="flex-1 px-3 py-2 rounded-md bg-accent-purple/80 text-white text-xs font-semibold hover:brightness-110 transition-all focus:outline-none">⟳ Reload</button>
             <button onClick={() => pushNotification('Data refreshed')} className="flex-1 px-3 py-2 rounded-md bg-background text-text text-xs font-semibold hover:bg-background/80 transition-all focus:outline-none">🔄 Refresh</button>
+          </div>
+        )}
+        {!collapsed && onOpenBilling && (
+          <div className="px-4 animate-fade-in" style={{animationDelay:'110ms'}}>
+            <button
+              onClick={handleBillingOpen}
+              className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-xs font-semibold transition-all focus:outline-none border ${billingAttentionNeeded ? 'bg-red-500/20 text-red-100 border-red-400/40 hover:bg-red-500/30' : 'bg-background text-text border-white/10 hover:bg-background/80'}`}
+            >
+              <span className="text-base">💳</span>
+              <span>Manage Billing</span>
+            </button>
           </div>
         )}
         {/* Search */}
@@ -393,8 +430,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout, onCreateNew, onOpenP
             </div>
           </div>
         )}
-  {/* Billing widget moved out of sidebar to a floating button for minimal intrusion */}
-        
         {/* Secret Key Input Section */}
         {!collapsed && (
           <div className="p-4 space-y-3">
