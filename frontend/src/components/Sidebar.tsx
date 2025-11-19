@@ -47,6 +47,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   });
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const notificationsRef = useRef<HTMLDivElement | null>(null);
+  const desktopWidthClass = collapsed ? 'lg:w-16' : 'lg:w-72';
+  const mobileWidthClass = collapsed ? 'w-16' : 'w-72';
+  const sidebarWidthClass = open
+    ? `w-[78vw] max-w-sm sm:max-w-md ${desktopWidthClass}`
+    : `${mobileWidthClass} ${desktopWidthClass}`;
+  const isCollapsedView = collapsed && !open;
 
   // Persist collapse state
   useEffect(() => {
@@ -288,19 +294,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </button>
       <aside
         ref={sidebarRef}
-        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-16' : 'w-72'} transition-[width,transform] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
+        className={`group/sidebar fixed lg:static top-0 left-0 h-full lg:h-auto z-40 transform flex flex-col ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${sidebarWidthClass} transition-[width,transform] duration-500 ease-[cubic-bezier(.4,0,.2,1)]`}
         style={{ backgroundColor: getSidebarBg() }}
       >
-            <div className={`${collapsed ? 'p-1 justify-center gap-2' : 'p-4 gap-2'} flex items-center`}>
+            <div className={`${isCollapsedView ? 'p-1 justify-center gap-2' : 'p-4 gap-2'} flex items-center`}>
           <button
             onClick={() => setCollapsed(false)}
-            className={`relative flex items-center justify-center rounded-xl transition-all duration-300 focus:outline-none ${collapsed ? 'w-14 h-14' : 'w-14 h-14'} hover:scale-[1.02] active:scale-[0.98]`}
+            className={`relative flex items-center justify-center rounded-xl transition-all duration-300 focus:outline-none ${isCollapsedView ? 'w-14 h-14' : 'w-14 h-14'} hover:scale-[1.02] active:scale-[0.98]`}
             aria-label="Expand navigation"
           >
-            <Logo size={48} withText={!collapsed} textSizeClass="text-2xl" />
+            <Logo size={48} withText={!isCollapsedView} textSizeClass="text-2xl" />
           </button>
           
-          {!collapsed && (
+          {!isCollapsedView && (
             <div className="ml-auto flex items-center gap-2">
               <button onClick={cycleTheme} className="text-text/60 hover:text-white text-lg transition-transform duration-300 hover:scale-110 focus:outline-none" title={`Toggle theme (${theme})`} aria-label="Toggle theme">
                 {theme === 'dark' ? '🌙' : theme === 'light' ? '🔆' : '🖥'}
@@ -316,7 +322,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
         {/* User Info */}
-        {!collapsed && (
+        {!isCollapsedView && (
           <div className="p-4 flex items-center gap-3 animate-fade-in">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent-cyan to-accent-purple grid place-items-center text-sm font-bold shadow-lg/30" title={username}>
               {username.charAt(0).toUpperCase()}
@@ -335,7 +341,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
         {/* Theme Switcher */}
-  {!collapsed && (
+  {!isCollapsedView && (
       <div className="p-4 animate-fade-in" style={{animationDelay:'60ms'}}>
             <p className="text-xs uppercase tracking-wide text-text/50 mb-2">Theme</p>
             <div className="flex gap-2">
@@ -350,14 +356,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
         {/* Quick Actions */}
-        {!collapsed && (
+        {!isCollapsedView && (
           <div className="p-4 flex flex-wrap gap-2 animate-fade-in" style={{animationDelay:'90ms'}}>
             <button onClick={onCreateNew} className="flex-1 px-3 py-2 rounded-md bg-accent-cyan text-black text-xs font-semibold hover:brightness-110 transition-all focus:outline-none">➕ New</button>
             <button onClick={loadProjects} className="flex-1 px-3 py-2 rounded-md bg-accent-purple/80 text-white text-xs font-semibold hover:brightness-110 transition-all focus:outline-none">⟳ Reload</button>
             <button onClick={() => pushNotification('Data refreshed')} className="flex-1 px-3 py-2 rounded-md bg-background text-text text-xs font-semibold hover:bg-background/80 transition-all focus:outline-none">🔄 Refresh</button>
           </div>
         )}
-        {!collapsed && onOpenBilling && (
+        {!isCollapsedView && onOpenBilling && (
           <div className="px-4 animate-fade-in" style={{animationDelay:'110ms'}}>
             <button
               onClick={handleBillingOpen}
@@ -369,7 +375,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
         {/* Search */}
-        {!collapsed && (
+        {!isCollapsedView && (
       <div className="p-4 animate-fade-in" style={{animationDelay:'120ms'}}>
             <input
               type="text"
@@ -381,7 +387,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
         {/* Projects List */}
-        {!collapsed && (
+        {!isCollapsedView && (
       <div className="flex-1 overflow-y-auto custom-scrollbar animate-fade-in" style={{animationDelay:'150ms'}}>
           <p className="px-4 py-2 text-xs uppercase tracking-wide text-text/50">Projects</p>
           {loadingProjects && <p className="px-4 text-xs text-text/60">Loading...</p>}
@@ -391,13 +397,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
           <ul className="space-y-1 px-2 pb-4">
             {filteredProjects.map(p => (
-        <li key={p.id} className="group rounded-md border border-transparent hover:border-accent-purple/30 hover:bg-background transition-colors" title={collapsed ? p.name : undefined}>
-                <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-2'} px-3 py-2`}>
+        <li key={p.id} className="group rounded-md border border-transparent hover:border-accent-purple/30 hover:bg-background transition-colors" title={isCollapsedView ? p.name : undefined}>
+                <div className={`flex items-center ${isCollapsedView ? 'justify-center' : 'gap-2'} px-3 py-2`}>
                   <button
                     onClick={() => onOpenProject(p)}
-                    className={`text-left text-xs ${collapsed ? 'w-full flex items-center justify-center' : 'flex-1'}`}
+                    className={`text-left text-xs ${isCollapsedView ? 'w-full flex items-center justify-center' : 'flex-1'}`}
                   >
-                    {collapsed ? (
+                    {isCollapsedView ? (
                       <span className="w-7 h-7 rounded-md bg-gradient-to-br from-accent-cyan to-accent-purple grid place-items-center text-[11px] font-bold">
                         {p.name.charAt(0).toUpperCase()}
                       </span>
@@ -408,7 +414,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </>
                     )}
                   </button>
-          {!collapsed && (
+            {!isCollapsedView && (
                     <button
             onClick={() => deleteProject(p)}
                       className="text-text/40 hover:text-red-400 text-xs"
@@ -422,7 +428,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
         )}
         {/* Nav Links (placeholder for future sections) */}
-        {!collapsed && (
+        {!isCollapsedView && (
           <div className="p-4 space-y-2 animate-fade-in" style={{animationDelay:'180ms'}}>
             <div className="flex flex-wrap gap-2">
               <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">👤 Profile</button>
@@ -431,7 +437,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
         {/* Secret Key Input Section */}
-        {!collapsed && (
+        {!isCollapsedView && (
           <div className="p-4 space-y-3">
             {!showSecretKeyInput && !secretKeySuccess && (
               <button
@@ -492,7 +498,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {!collapsed && (
+        {!isCollapsedView && (
           <div className="p-4 flex items-center justify-between text-xs text-text/60 transition-colors">          
             <button onClick={onLogout} className="px-3 py-2 rounded-md bg-red-500/20 text-red-300 hover:bg-red-500/30 font-semibold text-[11px] transition-colors focus:outline-none">Logout</button>
             <span className="text-[10px]">v0.1.0</span>
@@ -500,7 +506,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </aside>
       {/* Notifications Panel */}
-      {showNotifications && !collapsed && (
+      {showNotifications && !isCollapsedView && (
         <div 
           ref={notificationsRef}
           className="fixed top-0 hidden lg:flex h-full z-30 flex-col transition-all" 
@@ -522,8 +528,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       )}
       {/* Mobile overlay */}
-      {(open || !collapsed) && (
-        <div className={`lg:hidden fixed inset-0 z-30 ${open ? 'bg-black/40 backdrop-blur-[2px]' : 'pointer-events-none'} transition-opacity`} onClick={() => { setOpen(false); setCollapsed(true); }} />
+      {open && (
+        <div className="lg:hidden fixed inset-0 z-30 bg-black/40 backdrop-blur-[2px] transition-opacity" onClick={() => setOpen(false)} />
       )}
     </>
   );

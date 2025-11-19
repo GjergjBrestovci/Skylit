@@ -12,7 +12,7 @@ html, body {
 
 #root {
   background: transparent !important;
-  min-height: 100vh;
+  min-height: 100vh; 
 }
 
 /* Sidebar specific - now transparent */
@@ -68,7 +68,7 @@ html, body {
 .light .bg-\[\#181818\] .text-white { color: #111111 !important; }
 
 /* Subtle borders/shadows in light mode */
-.light .shadow-\[0_0_0_1px_rgba\(255,255,255,0\.04\)\] { box-shadow: 0 0 0 1px rgba(0,0,0,0.06) !important; }
+.light .shadow-\[0_0_0_1px_rgba\(255\,255\,255\,0\.04\)\] { box-shadow: 0 0 0 1px rgba(0,0,0,0.06) !important; }
 .light .border-\[\#232323\],
 .light .border-\[\#1a1a1a\],
 .light .border-accent-purple\/20 { border-color: rgba(0,0,0,0.08) !important; }
