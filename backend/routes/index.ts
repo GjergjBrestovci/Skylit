@@ -11,6 +11,7 @@ import { handleStripeWebhook } from '../controllers/webhook';
 import { updateProject, deleteProject, duplicateProject, getProjectHistory } from '../controllers/projectManagement';
 import { getTemplateCategories, getTemplates, getTemplate, getSamplePrompts, generateFromTemplate } from '../controllers/templates';
 import { setUserSecretKey } from '../controllers/secretKey';
+import { fetchSettings, saveSettings } from '../controllers/userSettings';
 import seoRoutes from './seo';
 import { 
   validateRequest, 
@@ -23,7 +24,8 @@ import {
   templateCustomizationSchema,
   getTemplatesQuerySchema,
   getSamplePromptsQuerySchema,
-  setSecretKeySchema
+  setSecretKeySchema,
+  updateSettingsSchema
 } from '../middleware/validation';
 import { supabase as supabaseClient } from '../supabase';
 
@@ -98,6 +100,13 @@ router.post('/set-secret-key',
   authenticateToken, 
   validateRequest({ body: setSecretKeySchema }), 
   setUserSecretKey
+);
+
+router.get('/user-settings', authenticateToken, fetchSettings);
+router.put('/user-settings', 
+  authenticateToken,
+  validateRequest({ body: updateSettingsSchema }),
+  saveSettings
 );
 
 // Protected routes

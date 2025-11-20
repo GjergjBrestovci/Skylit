@@ -29,3 +29,31 @@ export interface GenerationResult {
 }
 
 export type Step = 'homepage' | 'websiteType' | 'theme' | 'colors' | 'style' | 'layout' | 'pages' | 'features' | 'details' | 'techStack' | 'generating' | 'preview';
+
+export type ThemePreference = 'system' | 'dark' | 'light';
+
+export interface NotificationPreferences {
+  productUpdates: boolean;
+  weeklySummary: boolean;
+  aiLaunches: boolean;
+}
+
+export interface WorkspacePreferences {
+  autosaveInterval: number;
+  showBetaFeatures: boolean;
+}
+
+export interface IntegrationPreferences {
+  apiMirroringEnabled: boolean;
+  webhookUrl?: string | null;
+}
+
+export interface UserSettings {
+  displayName: string | null;
+  themePreference: ThemePreference;
+  notifications: NotificationPreferences;
+  workspace: WorkspacePreferences;
+  integrations: IntegrationPreferences;
+  createdAt?: string;
+  updatedAt?: string;
+}

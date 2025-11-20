@@ -27,6 +27,7 @@ interface SidebarProps {
   credits?: number | null;
   hasUnlimitedCredits?: boolean;
   onOpenBilling?: () => void;
+  onOpenSettings?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -36,7 +37,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCreditsUpdate,
   credits,
   hasUnlimitedCredits,
-  onOpenBilling
+  onOpenBilling,
+  onOpenSettings
 }) => {
   const [open, setOpen] = useState(false); // mobile slide-in (<= lg)
   const [collapsed, setCollapsed] = useState<boolean>(() => {
@@ -77,6 +79,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleBillingOpen = () => {
     if (!onOpenBilling) return;
     onOpenBilling();
+    setOpen(false);
+  };
+
+  const handleSettingsOpen = () => {
+    if (!onOpenSettings) return;
+    onOpenSettings();
     setOpen(false);
   };
 
@@ -432,7 +440,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-4 space-y-2 animate-fade-in" style={{animationDelay:'180ms'}}>
             <div className="flex flex-wrap gap-2">
               <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">👤 Profile</button>
-              <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">⚙ Settings</button>
+              <button
+                onClick={handleSettingsOpen}
+                className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none"
+              >
+                ⚙ Settings
+              </button>
             </div>
           </div>
         )}

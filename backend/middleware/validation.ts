@@ -170,3 +170,21 @@ export const setSecretKeySchema = z.object({
     .min(1, 'Secret key is required')
     .max(255, 'Secret key is too long')
 });
+
+export const updateSettingsSchema = z.object({
+  displayName: z.string().max(80, 'Display name cannot exceed 80 characters').optional().nullable(),
+  themePreference: z.enum(['system', 'dark', 'light']).optional(),
+  notifications: z.object({
+    productUpdates: z.boolean().optional(),
+    weeklySummary: z.boolean().optional(),
+    aiLaunches: z.boolean().optional()
+  }).optional(),
+  workspace: z.object({
+    autosaveInterval: z.number().int().min(1, 'Autosave must be at least 1 minute').max(60, 'Autosave cannot exceed 60 minutes').optional(),
+    showBetaFeatures: z.boolean().optional()
+  }).optional(),
+  integrations: z.object({
+    apiMirroringEnabled: z.boolean().optional(),
+    webhookUrl: z.string().url('Webhook URL must be valid').max(255).optional().nullable()
+  }).optional()
+});

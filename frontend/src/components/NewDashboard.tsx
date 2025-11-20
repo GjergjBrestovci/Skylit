@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { WebsitePreview } from './WebsitePreview';
 import { Sidebar } from '../components/Sidebar';
 import { BillingPage } from '../components/BillingPage';
@@ -9,6 +9,7 @@ import { OptionButton, ColorPaletteButton, ToggleButton } from './ui/OptionButto
 import { PromptEnhancer } from './ui/PromptEnhancer';
 import { CodeGenerator } from './ui/CodeGenerator';
 import { GlassButton } from './ui/GlassButton';
+import { SettingsPage } from './SettingsPage';
 import {
   WEBSITE_TYPES,
   THEME_OPTIONS,
@@ -19,7 +20,7 @@ import {
   AVAILABLE_FEATURES,
   TECH_STACKS
 } from '../constants/websiteOptions';
-import type { WebsiteConfig, GenerationResult, Step } from '../types';
+import type { WebsiteConfig, GenerationResult, Step, UserSettings } from '../types';
 
 interface NewDashboardProps {
   onLogout: () => void;
@@ -66,6 +67,13 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [manualPromptModalOpen, setManualPromptModalOpen] = useState(false);
   const [manualPromptDraft, setManualPromptDraft] = useState('');
   const [manualPromptError, setManualPromptError] = useState('');
+  const [billingOpen, setBillingOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState('');
   const typingTimerRef = useRef<number | null>(null);
   const codeTimerRef = useRef<number | null>(null);
   const placeholderEnhancedRef = useRef('');
@@ -89,6 +97,71 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   useEffect(() => {
     fetchUserCredits();
   }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1] || ''));
+      if (payload?.email) {
+        setUserEmail(payload.email);
+      }
+    } catch {
+      // ignore decode errors
+    }
+  }, []);
+
+  const loadUserSettings = useCallback(async () => {
+    if (settingsLoading) return;
+    setSettingsError(null);
+    setSettingsLoading(true);
+    try {
+      const data = await apiClient.get('/api/user-settings');
+      setUserSettings(data);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to load settings';
+      setSettingsError(message);
+    } finally {
+      setSettingsLoading(false);
+    }
+  }, [settingsLoading]);
+
+  const persistUserSettings = useCallback(async (next: UserSettings) => {
+    setSettingsSaving(true);
+    setSettingsError(null);
+    try {
+      const payload = {
+        displayName: next.displayName,
+        themePreference: next.themePreference,
+        notifications: next.notifications,
+        workspace: next.workspace,
+        integrations: next.integrations
+      };
+      const data = await apiClient.put('/api/user-settings', payload);
+      setUserSettings(data);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update settings';
+      setSettingsError(message);
+      throw error;
+    } finally {
+      setSettingsSaving(false);
+    }
+  }, []);
+
+  const handleOpenSettings = useCallback(() => {
+    setSettingsOpen(true);
+    loadUserSettings();
+  }, [loadUserSettings]);
+
+  const handleCloseSettings = useCallback(() => {
+    setSettingsOpen(false);
+    setSettingsError(null);
+  }, []);
+
+  const handleSettingsSave = useCallback(async (next: UserSettings) => {
+    await persistUserSettings(next);
+    setSettingsOpen(false);
+  }, [persistUserSettings]);
 
   // Enhancement typing
   useEffect(() => {
@@ -258,7 +331,6 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     }));
   };
 
-  const [billingOpen, setBillingOpen] = useState(false);
   const openManualPromptModal = () => {
     setManualPromptDraft(manualPrompt || config.additionalDetails || '');
     setManualPromptError('');
@@ -1062,6 +1134,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         credits={userCredits}
         hasUnlimitedCredits={userHasUnlimited}
         onOpenBilling={() => setBillingOpen(true)}
+        onOpenSettings={handleOpenSettings}
       />
       <main className="flex-1 overflow-x-hidden">
         {renderPreview()}
@@ -1079,6 +1152,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         credits={userCredits}
         hasUnlimitedCredits={userHasUnlimited}
         onOpenBilling={() => setBillingOpen(true)}
+        onOpenSettings={handleOpenSettings}
       />
       <main className="flex-1 page-transition-container overflow-x-hidden">
         <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
@@ -1092,6 +1166,17 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   return (
     <>
       {(currentStep === 'preview' && result) ? previewLayout : builderLayout}
+      <SettingsPage
+        open={settingsOpen}
+        settings={userSettings}
+        loading={settingsLoading}
+        saving={settingsSaving}
+        error={settingsError}
+        userEmail={userEmail}
+        onClose={handleCloseSettings}
+        onSave={handleSettingsSave}
+        onRefresh={loadUserSettings}
+      />
       {manualPromptModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={closeManualPromptModal} />
