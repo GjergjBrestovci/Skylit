@@ -62,9 +62,16 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [codeLines, setCodeLines] = useState<string[]>([]);
   const [cssLines, setCssLines] = useState<string[]>([]);
   const [jsLines, setJsLines] = useState<string[]>([]);
+  const [manualPrompt, setManualPrompt] = useState('');
+  const [manualPromptModalOpen, setManualPromptModalOpen] = useState(false);
+  const [manualPromptDraft, setManualPromptDraft] = useState('');
+  const [manualPromptError, setManualPromptError] = useState('');
   const typingTimerRef = useRef<number | null>(null);
   const codeTimerRef = useRef<number | null>(null);
   const placeholderEnhancedRef = useRef('');
+  const trimmedManualPrompt = manualPrompt.trim();
+  const manualPromptActive = trimmedManualPrompt.length > 0;
+  const manualPromptSnippet = manualPromptActive ? trimmedManualPrompt.slice(0, 140) : '';
 
   // Fetch user credits on mount
   const fetchUserCredits = async () => {
@@ -252,8 +259,36 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   };
 
   const [billingOpen, setBillingOpen] = useState(false);
+  const openManualPromptModal = () => {
+    setManualPromptDraft(manualPrompt || config.additionalDetails || '');
+    setManualPromptError('');
+    setManualPromptModalOpen(true);
+  };
 
-  const generateWebsite = async () => {
+  const handleManualPromptSave = () => {
+    const trimmed = manualPromptDraft.trim();
+    if (!trimmed) {
+      setManualPromptError('Please describe the website you want to build.');
+      return;
+    }
+    setManualPrompt(trimmed);
+    setManualPromptModalOpen(false);
+    setManualPromptError('');
+    generateWebsite(trimmed);
+  };
+
+  const handleManualPromptReset = () => {
+    setManualPrompt('');
+    setManualPromptDraft('');
+    setManualPromptError('');
+  };
+
+  const closeManualPromptModal = () => {
+    setManualPromptModalOpen(false);
+    setManualPromptError('');
+  };
+
+  const generateWebsite = async (overridePrompt?: string) => {
     // Immediately update credits display if user doesn't have unlimited
     if (!userHasUnlimited && userCredits !== null && userCredits > 0) {
       setUserCredits(prev => (prev !== null ? prev - 1 : prev));
@@ -272,23 +307,31 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     setCodeLines([]); setCssLines([]); setJsLines([]);
     placeholderEnhancedRef.current = '';
 
-    const selectedType = WEBSITE_TYPES.find(t => t.value === config.websiteType)?.label;
-    const selectedTheme = THEME_OPTIONS.find(t => t.value === config.theme)?.label;
-    const selectedStyle = DESIGN_STYLES.find(s => s.value === config.designStyle)?.label;
-    const selectedLayout = LAYOUT_OPTIONS.find(l => l.value === config.layout)?.label;
-    const selectedPages = config.pages.map(p => AVAILABLE_PAGES.find(page => page.value === p)?.label).join(', ');
-    const selectedFeatures = config.features.map(f => AVAILABLE_FEATURES.find(feat => feat.value === f)?.label).join(', ');
-    const selectedTechStack = TECH_STACKS.find(t => t.value === config.techStack)?.name;
-
-    let prompt = `Create a ${selectedType} website with ${selectedTheme} theme and ${selectedStyle} design style using a ${selectedLayout} layout. `;
-    prompt += `Primary color: ${config.primaryColor}, Accent color: ${config.accentColor}. `;
-    prompt += `Include these pages: ${selectedPages}. `;
-    if (selectedFeatures) prompt += `Add these features: ${selectedFeatures}. `;
-    if (selectedTechStack && selectedTechStack !== 'Vanilla Web') {
+    const normalizedOverride = overridePrompt?.trim();
+    let prompt: string;
+    if (normalizedOverride) {
+      prompt = normalizedOverride;
+    } else if (manualPromptActive) {
+      prompt = trimmedManualPrompt;
+    } else {
+      const selectedType = WEBSITE_TYPES.find(t => t.value === config.websiteType)?.label || 'modern';
+      const selectedTheme = THEME_OPTIONS.find(t => t.value === config.theme)?.label || 'versatile';
+      const selectedStyle = DESIGN_STYLES.find(s => s.value === config.designStyle)?.label || 'clean';
+      const selectedLayout = LAYOUT_OPTIONS.find(l => l.value === config.layout)?.label || 'responsive';
+      const selectedPages = config.pages.map(p => AVAILABLE_PAGES.find(page => page.value === p)?.label).filter(Boolean).join(', ');
+      const selectedFeatures = config.features.map(f => AVAILABLE_FEATURES.find(feat => feat.value === f)?.label).filter(Boolean).join(', ');
       const techStackInfo = TECH_STACKS.find(t => t.value === config.techStack);
-      prompt += `Generate using ${selectedTechStack} tech stack (Frontend: ${techStackInfo?.frontend}${techStackInfo?.backend ? `, Backend: ${techStackInfo.backend}` : ''}${techStackInfo?.database ? `, Database: ${techStackInfo.database}` : ''}). `;
+
+      prompt = `Create a ${selectedType} website with ${selectedTheme} theme and ${selectedStyle} design style using a ${selectedLayout} layout. `;
+      prompt += `Primary color: ${config.primaryColor}, Accent color: ${config.accentColor}. `;
+      if (selectedPages) prompt += `Include these pages: ${selectedPages}. `;
+      if (selectedFeatures) prompt += `Add these features: ${selectedFeatures}. `;
+      if (techStackInfo && techStackInfo.name !== 'Vanilla Web') {
+        prompt += `Generate using ${techStackInfo.name} tech stack (Frontend: ${techStackInfo.frontend}${techStackInfo.backend ? `, Backend: ${techStackInfo.backend}` : ''}${techStackInfo.database ? `, Database: ${techStackInfo.database}` : ''}). `;
+      }
+      const details = config.additionalDetails.trim();
+      if (details) prompt += `Additional requirements: ${details}`;
     }
-    if (config.additionalDetails.trim()) prompt += `Additional requirements: ${config.additionalDetails}`;
     setRawPrompt(prompt);
 
   // Enhancement starts automatically
@@ -368,6 +411,17 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     setResult(null);
     setError(null);
     setShowCode(false);
+    setManualPrompt('');
+    setManualPromptDraft('');
+    setManualPromptError('');
+    setManualPromptModalOpen(false);
+  };
+
+  const manualPromptProps = {
+    onCustomPromptClick: openManualPromptModal,
+    customPromptActive: manualPromptActive,
+    onCustomPromptReset: manualPromptActive ? handleManualPromptReset : undefined,
+    customPromptSnippet: manualPromptActive ? manualPromptSnippet : undefined
   };
 
   // Step renderers
@@ -424,6 +478,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <StepContainer 
             title="What are you building?" 
             subtitle="Choose the type that best fits your vision"
+            {...manualPromptProps}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {WEBSITE_TYPES.map((type, index) => (
@@ -446,6 +501,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <StepContainer 
             title="Choose your theme" 
             subtitle="Pick the overall mood and brightness for your website"
+            {...manualPromptProps}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {THEME_OPTIONS.map((theme, index) => (
@@ -468,6 +524,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <StepContainer 
             title="Pick your colors" 
             subtitle="Choose a palette that represents your brand"
+            {...manualPromptProps}
           >
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
               {COLOR_PALETTES.map((palette, index) => (
@@ -489,6 +546,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <StepContainer 
             title="What's your style?" 
             subtitle="Choose the design direction that speaks to you"
+            {...manualPromptProps}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {DESIGN_STYLES.map((style, index) => (
@@ -511,6 +569,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <StepContainer 
             title="Choose your layout" 
             subtitle="How do you want to structure your content?"
+            {...manualPromptProps}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {LAYOUT_OPTIONS.map((layout, index) => (
@@ -534,6 +593,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <StepContainer 
             title="What pages do you need?" 
             subtitle="Select all the pages you want to include"
+            {...manualPromptProps}
           >
             <div className="space-y-6">
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
@@ -568,6 +628,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <StepContainer 
             title="Add some features" 
             subtitle="What functionality would you like?"
+            {...manualPromptProps}
           >
             <div className="space-y-6">
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
@@ -601,6 +662,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <StepContainer 
             title="Any special requests?" 
             subtitle="Tell us more about your vision (optional)"
+            {...manualPromptProps}
           >
             <div className="max-w-2xl mx-auto space-y-6">
               <textarea
@@ -637,6 +699,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           <StepContainer 
             title="Choose Your Tech Stack" 
             subtitle="Select the technologies you want for your website"
+            {...manualPromptProps}
           >
             <div className="max-w-6xl mx-auto space-y-8">
               <TechStackSelector 
@@ -646,7 +709,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
               
               <div className="text-center space-y-4">
                 <button
-                  onClick={generateWebsite}
+                  onClick={() => generateWebsite()}
                   className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
                 >
                   Create My Website!
@@ -989,26 +1052,24 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     }
   };
 
-  if (currentStep === 'preview' && result) {
-    return (
-      <div className="flex w-full min-h-screen">
-        <Sidebar 
-          onLogout={onLogout} 
-          onCreateNew={startOver} 
-          onOpenProject={openProjectFromSidebar}
-          onCreditsUpdate={fetchUserCredits}
-          credits={userCredits}
-          hasUnlimitedCredits={userHasUnlimited}
-          onOpenBilling={() => setBillingOpen(true)}
-        />
-        <main className="flex-1 overflow-x-hidden">
-          {renderPreview()}
-        </main>
-      </div>
-    );
-  }
+  const previewLayout = (
+    <div className="flex w-full min-h-screen">
+      <Sidebar 
+        onLogout={onLogout} 
+        onCreateNew={startOver} 
+        onOpenProject={openProjectFromSidebar}
+        onCreditsUpdate={fetchUserCredits}
+        credits={userCredits}
+        hasUnlimitedCredits={userHasUnlimited}
+        onOpenBilling={() => setBillingOpen(true)}
+      />
+      <main className="flex-1 overflow-x-hidden">
+        {renderPreview()}
+      </main>
+    </div>
+  );
 
-  return (
+  const builderLayout = (
     <div className="flex w-full min-h-screen">
       <Sidebar 
         onLogout={onLogout} 
@@ -1026,5 +1087,66 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       </main>
       <BillingPage open={billingOpen} onClose={() => setBillingOpen(false)} />
     </div>
+  );
+
+  return (
+    <>
+      {(currentStep === 'preview' && result) ? previewLayout : builderLayout}
+      {manualPromptModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={closeManualPromptModal} />
+          <div className="relative w-full max-w-2xl rounded-3xl bg-[#0f1117] border border-white/10 p-6 sm:p-8 shadow-2xl space-y-4">
+            <div className="space-y-2">
+              <p className="text-xs uppercase tracking-[0.3em] text-text/50">Advanced control</p>
+              <h3 className="text-2xl font-semibold text-white">Write your own prompt</h3>
+              <p className="text-sm text-text/70">
+                Paste or type the exact instructions you want the AI to follow. This will override the guided selections until you switch back.
+              </p>
+            </div>
+            <textarea
+              value={manualPromptDraft}
+              onChange={e => {
+                setManualPromptDraft(e.target.value);
+                if (manualPromptError) setManualPromptError('');
+              }}
+              rows={8}
+              className="w-full rounded-2xl bg-white/5 border border-white/10 text-sm sm:text-base text-white p-4 focus:outline-none focus:border-accent-cyan/60 resize-none"
+              placeholder="Describe the website you want..."
+            />
+            {manualPromptError && (
+              <p className="text-sm text-red-400">{manualPromptError}</p>
+            )}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              {manualPromptActive && (
+                <button
+                  type="button"
+                  onClick={() => { handleManualPromptReset(); closeManualPromptModal(); }}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl border border-white/15 text-sm text-white/80 hover:text-white transition-colors"
+                >
+                  Use guided selections instead
+                </button>
+              )}
+              <div className="flex-1" />
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  onClick={closeManualPromptModal}
+                  className="px-4 py-2 rounded-xl border border-white/10 text-white/70 hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleManualPromptSave}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-accent-cyan to-accent-purple text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                >
+                  Use this prompt
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
