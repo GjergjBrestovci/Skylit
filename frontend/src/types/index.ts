@@ -57,3 +57,5 @@ export interface UserSettings {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export type ThemeChoice = ThemePreference;

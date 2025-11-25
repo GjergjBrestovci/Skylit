@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Logo } from './ui/Logo';
 import { apiClient } from '../utils/apiClient';
-
-type ThemeChoice = 'system' | 'dark' | 'light';
+import type { ThemeChoice } from '../types';
+import { readThemeChoice, persistThemeChoice, initializeThemeFromStorage, applyThemeChoice } from '../utils/theme';
 
 interface ProjectItem {
   id: string;
@@ -60,7 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   useEffect(() => {
     try { localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0'); } catch {}
   }, [collapsed]);
-  const [theme, setTheme] = useState<ThemeChoice>('system');
+  const [theme, setTheme] = useState<ThemeChoice>(() => (typeof window === 'undefined' ? 'system' : readThemeChoice()));
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
   const [projectError, setProjectError] = useState<string | null>(null);
@@ -127,35 +127,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // Decode token for user info
   useEffect(() => {
     const token = localStorage.getItem('authToken');
+    let derivedName = 'User';
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1] || ''));
-        if (payload?.email) setUserEmail(payload.email);
-        if (payload?.email) setUsername(payload.email.split('@')[0]);
+        if (payload?.email) {
+          setUserEmail(payload.email);
+          derivedName = payload.email.split('@')[0];
+        }
       } catch {/* ignore */}
     }
-  }, []);
-
-  // Theme handling
-  const applyTheme = useCallback((choice: ThemeChoice) => {
-    const root = document.documentElement;
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    let finalTheme: 'dark' | 'light';
-    if (choice === 'system') finalTheme = systemPrefersDark ? 'dark' : 'light'; else finalTheme = choice;
-    root.classList.remove('light', 'dark');
-    root.classList.add(finalTheme);
+    const storedDisplayName = localStorage.getItem('profileDisplayName');
+    setUsername(storedDisplayName || derivedName);
   }, []);
 
   useEffect(() => {
-    const stored = (localStorage.getItem('themeChoice') as ThemeChoice) || 'system';
-    setTheme(stored);
-    applyTheme(stored);
-  }, [applyTheme]);
+    const handleDisplayNameUpdate = (event: Event) => {
+      const detail = (event as CustomEvent<string>).detail;
+      if (detail) setUsername(detail);
+    };
+    window.addEventListener('profile:displayName', handleDisplayNameUpdate as EventListener);
+    return () => window.removeEventListener('profile:displayName', handleDisplayNameUpdate as EventListener);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const current = initializeThemeFromStorage();
+    setTheme(current);
+    const handleThemeBroadcast = (event: Event) => {
+      const detail = (event as CustomEvent<ThemeChoice>).detail;
+      setTheme(detail);
+    };
+    window.addEventListener('theme:change', handleThemeBroadcast as EventListener);
+    return () => window.removeEventListener('theme:change', handleThemeBroadcast as EventListener);
+  }, []);
 
   const handleThemeChange = (choice: ThemeChoice) => {
     setTheme(choice);
-    localStorage.setItem('themeChoice', choice);
-    applyTheme(choice);
+    persistThemeChoice(choice);
   };
 
   // Handle secret key submission
@@ -214,10 +223,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   useEffect(() => {
     if (theme !== 'system') return;
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const listener = () => applyTheme('system');
+    const listener = () => applyThemeChoice('system');
     mq.addEventListener('change', listener);
     return () => mq.removeEventListener('change', listener);
-  }, [theme, applyTheme]);
+  }, [theme]);
 
   // Load projects
   const loadProjects = async () => {
@@ -298,7 +307,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className="lg:hidden fixed top-3 left-3 z-50 px-3 py-2 rounded-md bg-black/20 backdrop-blur-sm border border-white/10 text-text hover:bg-black/30 shadow-md"
         aria-label="Toggle navigation"
       >
-        {open ? '✖' : '☰'}
+        {!open && '☰'}
       </button>
       <aside
         ref={sidebarRef}
@@ -440,12 +449,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-4 space-y-2 animate-fade-in" style={{animationDelay:'180ms'}}>
             <div className="flex flex-wrap gap-2">
               <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">👤 Profile</button>
-              <button
-                onClick={handleSettingsOpen}
-                className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none"
-              >
-                ⚙ Settings
-              </button>
+              <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">⚙ Settings</button>
             </div>
           </div>
         )}

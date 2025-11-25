@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { UserSettings, ThemePreference } from '../types';
+import { persistThemeChoice } from '../utils/theme';
+import { TECH_STACKS } from '../constants/websiteOptions';
 
 interface SettingsPageProps {
   open: boolean;
@@ -37,6 +39,11 @@ const themeOptions: { label: string; value: ThemePreference; description: string
   { label: 'Light', value: 'light', description: 'Switch to lighter surfaces' }
 ];
 
+const readDefault = (key: string, fallback: string) => {
+  if (typeof window === 'undefined') return fallback;
+  return window.localStorage.getItem(key) || fallback;
+};
+
 export const SettingsPage: React.FC<SettingsPageProps> = ({
   open,
   settings,
@@ -50,7 +57,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 }) => {
   const [draft, setDraft] = useState<UserSettings>(DEFAULT_DRAFT);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const statusTimerRef = useRef<number | null>(null);
   const apiBaseUrl = useMemo(() => `${window.location.origin}/api`, []);
+  const [defaultTechStack, setDefaultTechStack] = useState(() => readDefault('defaultTechStack', 'vanilla'));
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => readDefault('prefNotifications', '1') !== '0');
+  const [autoSaveProjects, setAutoSaveProjects] = useState(() => readDefault('prefAutoSave', '1') !== '0');
 
   useEffect(() => {
     if (open && settings) {
@@ -63,6 +75,33 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   useEffect(() => {
     setLocalError(error ?? null);
   }, [error]);
+
+  useEffect(() => {
+    if (settings?.themePreference) {
+      persistThemeChoice(settings.themePreference);
+    }
+  }, [settings?.themePreference]);
+
+  useEffect(() => () => {
+    if (statusTimerRef.current) window.clearTimeout(statusTimerRef.current);
+  }, []);
+
+  const showStatus = (message: string) => {
+    setStatusMessage(message);
+    if (statusTimerRef.current) window.clearTimeout(statusTimerRef.current);
+    statusTimerRef.current = window.setTimeout(() => setStatusMessage(null), 2600);
+  };
+
+  const persistDisplayName = (name: string | null) => {
+    if (typeof window === 'undefined') return;
+    const trimmed = name?.trim() ?? '';
+    if (trimmed) {
+      window.localStorage.setItem('profileDisplayName', trimmed);
+    } else {
+      window.localStorage.removeItem('profileDisplayName');
+    }
+    window.dispatchEvent(new CustomEvent<string>('profile:displayName', { detail: trimmed }));
+  };
 
   if (!open) return null;
 
@@ -94,15 +133,51 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 
   const handleThemeChange = (next: ThemePreference) => {
     updateDraft({ themePreference: next });
+    persistThemeChoice(next);
+    showStatus('Theme preview updated');
   };
 
   const handleSave = async () => {
     setLocalError(null);
     try {
       await onSave(draft);
+      persistDisplayName(draft.displayName);
+      persistThemeChoice(draft.themePreference);
+      showStatus('Settings saved');
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : 'Failed to save settings');
     }
+  };
+
+  const handleTechStackChange = (value: string) => {
+    setDefaultTechStack(value);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('defaultTechStack', value);
+      window.dispatchEvent(new CustomEvent<string>('settings:defaultTechStack', { detail: value }));
+    }
+    showStatus('Default tech stack saved');
+  };
+
+  const handleNotificationsToggle = () => {
+    setNotificationsEnabled(prev => {
+      const next = !prev;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('prefNotifications', next ? '1' : '0');
+      }
+      showStatus(`Notifications ${next ? 'enabled' : 'disabled'}`);
+      return next;
+    });
+  };
+
+  const handleAutoSaveToggle = () => {
+    setAutoSaveProjects(prev => {
+      const next = !prev;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('prefAutoSave', next ? '1' : '0');
+      }
+      showStatus(`Auto-save ${next ? 'enabled' : 'disabled'}`);
+      return next;
+    });
   };
 
   const sectionClass = 'bg-[#101218] border border-white/5 rounded-2xl p-4 sm:p-6 space-y-4 shadow-[0_20px_60px_rgba(0,0,0,0.35)]';
@@ -126,6 +201,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
           {localError && (
             <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-200">
               {localError}
+            </div>
+          )}
+
+          {statusMessage && !localError && (
+            <div className="p-3 rounded-xl bg-white/5 border border-white/15 text-sm text-white/80">
+              {statusMessage}
             </div>
           )}
 
@@ -245,6 +326,42 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   </div>
                 </label>
               ))}
+            </div>
+          </section>
+
+          <section className={sectionClass}>
+            <div>
+              <p className={labelClass}>Generation defaults</p>
+              <h3 className="text-lg font-semibold text-white">Starting preferences</h3>
+              <p className="text-sm text-text/60">Configure how new projects should initialize on this device.</p>
+            </div>
+            <label className="space-y-2 block">
+              <span className="text-xs text-text/60">Preferred tech stack</span>
+              <select
+                value={defaultTechStack}
+                onChange={e => handleTechStackChange(e.target.value)}
+                className="w-full rounded-xl bg-black/30 border border-white/10 px-3 py-2 text-white focus:outline-none focus:border-accent-cyan"
+              >
+                {TECH_STACKS.map(stack => (
+                  <option key={stack.value} value={stack.value}>{stack.name}</option>
+                ))}
+              </select>
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                onClick={handleNotificationsToggle}
+                className={`rounded-2xl border px-4 py-3 text-left transition ${notificationsEnabled ? 'border-accent-cyan bg-accent-cyan/10 text-white' : 'border-white/10 text-text/70 hover:border-white/30'}`}
+              >
+                <p className="font-semibold">Notifications</p>
+                <p className="text-xs text-text/60">{notificationsEnabled ? 'Enabled for new builds' : 'Muted for now'}</p>
+              </button>
+              <button
+                onClick={handleAutoSaveToggle}
+                className={`rounded-2xl border px-4 py-3 text-left transition ${autoSaveProjects ? 'border-accent-cyan bg-accent-cyan/10 text-white' : 'border-white/10 text-text/70 hover:border-white/30'}`}
+              >
+                <p className="font-semibold">Auto-save projects</p>
+                <p className="text-xs text-text/60">{autoSaveProjects ? 'Saves every generation' : 'Manual save only'}</p>
+              </button>
             </div>
           </section>
 

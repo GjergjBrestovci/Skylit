@@ -22,6 +22,11 @@ import {
 } from '../constants/websiteOptions';
 import type { WebsiteConfig, GenerationResult, Step, UserSettings } from '../types';
 
+const getStoredDefaultTechStack = () => {
+  if (typeof window === 'undefined') return 'vanilla';
+  return window.localStorage.getItem('defaultTechStack') || 'vanilla';
+};
+
 interface NewDashboardProps {
   onLogout: () => void;
 }
@@ -29,7 +34,7 @@ interface NewDashboardProps {
 export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [currentStep, setCurrentStep] = useState<Step>('homepage');
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [config, setConfig] = useState<WebsiteConfig>({
+  const [config, setConfig] = useState<WebsiteConfig>(() => ({
     websiteType: '',
     theme: '',
     primaryColor: '#3B82F6',
@@ -39,8 +44,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     pages: [],
     features: [],
     additionalDetails: '',
-    techStack: 'vanilla' // Default to vanilla
-  });
+    techStack: getStoredDefaultTechStack()
+  }));
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [showCode, setShowCode] = useState(false);
@@ -163,6 +168,15 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     setSettingsOpen(false);
   }, [persistUserSettings]);
 
+  useEffect(() => {
+    const handleDefaultStackUpdate = (event: Event) => {
+      const detail = (event as CustomEvent<string>).detail;
+      if (!detail) return;
+      setConfig(prev => ({ ...prev, techStack: detail }));
+    };
+    window.addEventListener('settings:defaultTechStack', handleDefaultStackUpdate as EventListener);
+    return () => window.removeEventListener('settings:defaultTechStack', handleDefaultStackUpdate as EventListener);
+  }, []);
   // Enhancement typing
   useEffect(() => {
     if (currentStep !== 'generating' || generationStage !== 'enhancing') return;
@@ -478,7 +492,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       pages: [],
       features: [],
       additionalDetails: '',
-      techStack: 'vanilla'
+      techStack: getStoredDefaultTechStack()
     });
     setResult(null);
     setError(null);
@@ -1126,7 +1140,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
   const previewLayout = (
     <div className="flex w-full min-h-screen">
-      <Sidebar 
+            <Sidebar 
         onLogout={onLogout} 
         onCreateNew={startOver} 
         onOpenProject={openProjectFromSidebar}
@@ -1135,7 +1149,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         hasUnlimitedCredits={userHasUnlimited}
         onOpenBilling={() => setBillingOpen(true)}
         onOpenSettings={handleOpenSettings}
-      />
+            />
       <main className="flex-1 overflow-x-hidden">
         {renderPreview()}
       </main>
@@ -1144,7 +1158,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
   const builderLayout = (
     <div className="flex w-full min-h-screen">
-      <Sidebar 
+            <Sidebar 
         onLogout={onLogout} 
         onCreateNew={startOver} 
         onOpenProject={openProjectFromSidebar}
@@ -1153,7 +1167,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         hasUnlimitedCredits={userHasUnlimited}
         onOpenBilling={() => setBillingOpen(true)}
         onOpenSettings={handleOpenSettings}
-      />
+            />
       <main className="flex-1 page-transition-container overflow-x-hidden">
         <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
           {renderStepContent()}
