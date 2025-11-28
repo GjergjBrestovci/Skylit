@@ -19,8 +19,9 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
     // Fetch user's projects from Supabase
     const { data, error } = await supabase
       .from('projects')
-      .select('id, title, prompt, preview_url, created_at, updated_at')
+      .select('id, title, prompt, preview_url, preview_id, tech_stack, website_type, is_favorite, created_at, updated_at')
       .eq('user_id', userId)
+      .eq('is_archived', false)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -37,8 +38,12 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
       id: project.id,
       name: project.title,
       createdAt: project.created_at,
+      updatedAt: project.updated_at,
       previewUrl: project.preview_url,
-      previewId: project.preview_url ? project.preview_url.split('/').pop() : undefined
+      previewId: project.preview_id || (project.preview_url ? project.preview_url.split('/').pop() : undefined),
+      techStack: project.tech_stack,
+      websiteType: project.website_type,
+      isFavorite: project.is_favorite
     }));
 
     res.json({

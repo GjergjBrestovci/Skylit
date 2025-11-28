@@ -66,31 +66,68 @@ export const generateSiteSchema = z.object({
 });
 
 export const saveProjectSchema = z.object({
+  // Title is required (can also be sent as 'name' for backwards compatibility)
+  title: z.string()
+    .min(1, 'Project title is required')
+    .max(100, 'Project title cannot exceed 100 characters')
+    .optional(),
+  
   name: z.string()
     .min(1, 'Project name is required')
     .max(100, 'Project name cannot exceed 100 characters')
-    .regex(/^[a-zA-Z0-9\s\-_]+$/, 'Project name can only contain letters, numbers, spaces, hyphens, and underscores'),
-  
-  description: z.string()
-    .max(500, 'Description cannot exceed 500 characters')
     .optional(),
   
-  code: z.object({
-    html: z.string().min(1, 'HTML code is required'),
-    css: z.string().optional().default(''),
-    js: z.string().optional().default('')
-  }),
+  // Original prompt
+  prompt: z.string().max(10000).optional(),
   
+  // Enhanced prompt from AI
+  enhanced_prompt: z.string().max(50000).optional(),
+  
+  // Preview URLs - allow any string since it might be a relative path
+  preview_url: z.string().max(500).optional().nullable(),
+  preview_id: z.string().max(100).optional().nullable(),
+  
+  // Tech stack and type
+  tech_stack: z.string().max(50).optional(),
+  website_type: z.string().max(50).optional().nullable(),
+  
+  // Model used for generation
+  model: z.string().max(100).optional().nullable(),
+  
+  // Generated code (JSON string or object)
+  generated_code: z.union([
+    z.string(),
+    z.object({
+      html: z.string().optional(),
+      css: z.string().optional(),
+      javascript: z.string().optional(),
+      config: z.any().optional(),
+      enhancedPrompt: z.string().optional(),
+      analysis: z.string().optional(),
+      requirements: z.array(z.string()).optional(),
+      notes: z.string().optional(),
+      model: z.string().optional(),
+      previewUrl: z.string().optional(),
+      enhancementUsedAI: z.boolean().optional()
+    })
+  ]).optional(),
+
+  // Legacy fields for backwards compatibility
+  description: z.string().max(500).optional(),
+  code: z.object({
+    html: z.string().optional(),
+    css: z.string().optional(),
+    js: z.string().optional()
+  }).optional(),
   metadata: z.object({
-    prompt: z.string(),
-    techStack: z.object({
-      framework: z.string(),
-      styling: z.string(),
-      features: z.array(z.string()).optional()
-    }),
-    generatedAt: z.string().datetime().optional()
-  })
-});
+    prompt: z.string().optional(),
+    techStack: z.any().optional(),
+    generatedAt: z.string().optional()
+  }).optional()
+}).refine(
+  (data) => data.title || data.name,
+  { message: 'Either title or name is required', path: ['title'] }
+);
 
 export const getUserProjectsSchema = z.object({
   page: z.string()

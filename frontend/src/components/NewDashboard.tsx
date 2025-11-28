@@ -10,6 +10,7 @@ import { PromptEnhancer } from './ui/PromptEnhancer';
 import { CodeGenerator } from './ui/CodeGenerator';
 import { GlassButton } from './ui/GlassButton';
 import { SettingsPage } from './SettingsPage';
+import { SaveProjectModal } from './ui/SaveProjectModal';
 import {
   WEBSITE_TYPES,
   THEME_OPTIONS,
@@ -79,6 +80,13 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState('');
+  
+  // Save project modal state
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [savingProject, setSavingProject] = useState(false);
+  const [projectSaved, setProjectSaved] = useState(false);
+  const [_currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  
   const typingTimerRef = useRef<number | null>(null);
   const codeTimerRef = useRef<number | null>(null);
   const placeholderEnhancedRef = useRef('');
@@ -230,50 +238,93 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       setTimeout(() => { 
         setResult(pendingResult); 
         setCurrentStep('preview');
-        // Save the project to database for future access
-        if (rawPrompt) {
-          saveProjectToDatabase(pendingResult, rawPrompt);
-        }
+        // Reset save state for new generation
+        setProjectSaved(false);
+        setCurrentProjectId(null);
       }, 400);
     }
     return () => { if (codeTimerRef.current) window.clearTimeout(codeTimerRef.current); };
   }, [currentStep, generationStage, codeStage, codeLines.length, cssLines.length, jsLines.length, isApiDone, pendingResult]);
 
   // Function to save project to database
-  const saveProjectToDatabase = async (result: GenerationResult, prompt: string) => {
-    try {
-      // Generate a meaningful title from the prompt or config
-      const title = config.websiteType 
-        ? `${config.websiteType} Website`
-        : prompt.length > 50 
-          ? prompt.substring(0, 50) + '...'
-          : prompt || 'Generated Website';
+  const saveProjectToDatabase = async (title: string, resultData?: GenerationResult, prompt?: string) => {
+    const projectResult = resultData || result;
+    const projectPrompt = prompt || rawPrompt;
+    
+    if (!projectResult) {
+      console.warn('No result to save');
+      return;
+    }
 
-      await apiClient.post('/api/save-project', {
+    setSavingProject(true);
+    
+    try {
+      // Extract preview ID from previewUrl
+      const previewId = projectResult.previewUrl 
+        ? projectResult.previewUrl.split('/').pop()?.split('?')[0] 
+        : undefined;
+
+      const response = await apiClient.post('/api/save-project', {
         title,
-        prompt: prompt,
+        prompt: projectPrompt,
+        enhanced_prompt: projectResult.enhancedPrompt,
+        preview_url: projectResult.previewUrl,
+        preview_id: previewId,
+        tech_stack: config.techStack || 'vanilla',
+        website_type: config.websiteType || null,
+        model: projectResult.model,
         generated_code: JSON.stringify({
-          html: result.html,
-          css: result.css,
-          javascript: result.javascript,
+          html: projectResult.html,
+          css: projectResult.css,
+          javascript: projectResult.javascript,
           config: config,
-          enhancedPrompt: result.enhancedPrompt,
-          analysis: result.analysis,
-          requirements: result.requirements,
-          notes: result.notes,
-          model: result.model,
-          previewUrl: result.previewUrl,
-          enhancementUsedAI: result.enhancementUsedAI
+          enhancedPrompt: projectResult.enhancedPrompt,
+          analysis: projectResult.analysis,
+          requirements: projectResult.requirements,
+          notes: projectResult.notes,
+          model: projectResult.model,
+          previewUrl: projectResult.previewUrl,
+          enhancementUsedAI: projectResult.enhancementUsedAI
         })
       });
       
-      console.log('Project saved successfully');
+      console.log('Project saved successfully:', response);
+      setProjectSaved(true);
+      setCurrentProjectId(response.project?.id || null);
+      setSaveModalOpen(false);
+      
       // Refresh the projects list in the sidebar
       window.dispatchEvent(new Event('projects:refresh'));
     } catch (error) {
-      console.warn('Failed to save project:', error);
-      // Don't show error to user as this is not critical to the main flow
+      console.error('Failed to save project:', error);
+      throw error; // Re-throw so the modal can show an error
+    } finally {
+      setSavingProject(false);
     }
+  };
+
+  // Handler for save modal
+  const handleSaveProject = async (title: string) => {
+    try {
+      await saveProjectToDatabase(title);
+    } catch (error) {
+      // Error is handled in saveProjectToDatabase
+    }
+  };
+
+  // Generate a default title suggestion
+  const getDefaultProjectTitle = () => {
+    if (config.websiteType) {
+      const typeLabel = WEBSITE_TYPES.find(t => t.value === config.websiteType)?.label;
+      return typeLabel ? `${typeLabel} Website` : 'My Website';
+    }
+    if (rawPrompt) {
+      // Extract first meaningful words from prompt
+      const words = rawPrompt.replace(/^(create|build|make|generate)\s+(a|an|the)?\s*/i, '').split(/\s+/);
+      const title = words.slice(0, 4).join(' ');
+      return title.charAt(0).toUpperCase() + title.slice(1);
+    }
+    return 'My Website';
   };
 
   const sampleHtmlLines = [
@@ -501,6 +552,10 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     setManualPromptDraft('');
     setManualPromptError('');
     setManualPromptModalOpen(false);
+    // Reset save state
+    setProjectSaved(false);
+    setCurrentProjectId(null);
+    setSaveModalOpen(false);
   };
 
   const manualPromptProps = {
@@ -916,7 +971,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
         {!showCode && result?.previewUrl ? (
           /* Live Preview */
           <WebsitePreview 
@@ -1026,24 +1081,41 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 )}
               </div>
             </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-              <button
-                onClick={() => { if (result) saveProjectToDatabase(result, rawPrompt); }}
-                className="px-4 sm:px-6 py-3 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-lg transition-all duration-300 text-sm sm:text-base"
-              >
-                Save Project
-              </button>
-              <button
-                onClick={() => { if (result) downloadCombinedHtml(result); }}
-                className="px-4 sm:px-6 py-3 border border-accent-cyan text-accent-cyan hover:bg-accent-cyan/10 rounded-lg transition-all duration-300 text-sm sm:text-base"
-              >
-                Download Code
-              </button>
-            </div>
           </div>
         )}
+
+        {/* Action Buttons - visible in both views */}
+        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 pt-4">
+          <button
+            onClick={() => setSaveModalOpen(true)}
+            disabled={projectSaved}
+            className={`px-4 sm:px-6 py-3 rounded-lg transition-all duration-300 text-sm sm:text-base flex items-center justify-center gap-2 ${
+              projectSaved 
+                ? 'bg-green-500/20 text-green-400 border border-green-500/30 cursor-default' 
+                : 'bg-accent-purple hover:bg-accent-purple/90 text-white'
+            }`}
+          >
+            {projectSaved ? (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Project Saved
+              </>
+            ) : (
+              <>
+                <span>💾</span>
+                Save Project
+              </>
+            )}
+          </button>
+          <button
+            onClick={() => { if (result) downloadCombinedHtml(result); }}
+            className="px-4 sm:px-6 py-3 border border-accent-cyan text-accent-cyan hover:bg-accent-cyan/10 rounded-lg transition-all duration-300 text-sm sm:text-base"
+          >
+            Download Code
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1116,6 +1188,10 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         setEnhancementComplete(true);
       }
 
+      // Mark as saved since it was loaded from database
+      setProjectSaved(true);
+      setCurrentProjectId(project.id);
+
       setCurrentStep('preview');
     } catch (error) {
       console.error('Failed to load project:', error);
@@ -1134,6 +1210,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         model: undefined,
         enhancementUsedAI: false
       });
+      setProjectSaved(false);
+      setCurrentProjectId(null);
       setCurrentStep('preview');
     }
   };
@@ -1190,6 +1268,13 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         onClose={handleCloseSettings}
         onSave={handleSettingsSave}
         onRefresh={loadUserSettings}
+      />
+      <SaveProjectModal
+        open={saveModalOpen}
+        defaultTitle={getDefaultProjectTitle()}
+        saving={savingProject}
+        onSave={handleSaveProject}
+        onClose={() => setSaveModalOpen(false)}
       />
       {manualPromptModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
