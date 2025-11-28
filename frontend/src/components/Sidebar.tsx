@@ -449,7 +449,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-4 space-y-2 animate-fade-in" style={{animationDelay:'180ms'}}>
             <div className="flex flex-wrap gap-2">
               <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">👤 Profile</button>
-              <button className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none">⚙ Settings</button>
+              <button
+                onClick={handleSettingsOpen}
+                className="flex-1 px-2 py-2 rounded-md bg-background text-xs text-text/70 hover:text-text hover:bg-background/80 focus:outline-none"
+              >
+                ⚙ Settings
+              </button>
             </div>
           </div>
         )}
