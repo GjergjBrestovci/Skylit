@@ -85,6 +85,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [savingProject, setSavingProject] = useState(false);
   const [projectSaved, setProjectSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [_currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   
   const typingTimerRef = useRef<number | null>(null);
@@ -253,16 +254,26 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     
     if (!projectResult) {
       console.warn('No result to save');
+      setSaveError('No project data to save');
       return;
     }
 
     setSavingProject(true);
+    setSaveError(null);
     
     try {
       // Extract preview ID from previewUrl
       const previewId = projectResult.previewUrl 
         ? projectResult.previewUrl.split('/').pop()?.split('?')[0] 
         : undefined;
+
+      console.log('Saving project with data:', {
+        title,
+        prompt: projectPrompt?.slice(0, 100),
+        preview_url: projectResult.previewUrl,
+        preview_id: previewId,
+        tech_stack: config.techStack
+      });
 
       const response = await apiClient.post('/api/save-project', {
         title,
@@ -292,12 +303,14 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       setProjectSaved(true);
       setCurrentProjectId(response.project?.id || null);
       setSaveModalOpen(false);
+      setSaveError(null);
       
       // Refresh the projects list in the sidebar
       window.dispatchEvent(new Event('projects:refresh'));
     } catch (error) {
-      console.error('Failed to save project:', error);
-      throw error; // Re-throw so the modal can show an error
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save project';
+      console.error('Failed to save project:', errorMessage, error);
+      setSaveError(errorMessage);
     } finally {
       setSavingProject(false);
     }
@@ -305,11 +318,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
   // Handler for save modal
   const handleSaveProject = async (title: string) => {
-    try {
-      await saveProjectToDatabase(title);
-    } catch (error) {
-      // Error is handled in saveProjectToDatabase
-    }
+    setSaveError(null);
+    await saveProjectToDatabase(title);
   };
 
   // Generate a default title suggestion
@@ -556,6 +566,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     setProjectSaved(false);
     setCurrentProjectId(null);
     setSaveModalOpen(false);
+    setSaveError(null);
   };
 
   const manualPromptProps = {
@@ -1273,8 +1284,12 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         open={saveModalOpen}
         defaultTitle={getDefaultProjectTitle()}
         saving={savingProject}
+        saveError={saveError}
         onSave={handleSaveProject}
-        onClose={() => setSaveModalOpen(false)}
+        onClose={() => {
+          setSaveModalOpen(false);
+          setSaveError(null);
+        }}
       />
       {manualPromptModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">

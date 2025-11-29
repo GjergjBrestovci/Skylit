@@ -18,8 +18,12 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
 
   // In development, bypass auth and attach a mock user
   if (devBypass) {
-    req.userId = (req.headers['x-dev-user-id'] as string) || 'dev-user';
-    req.user = { id: req.userId, email: 'dev@example.com' };
+    // Allow DEV_SUPABASE_USER_ID for testing with real Supabase persistence
+    const devUserId = process.env.DEV_SUPABASE_USER_ID 
+      || (req.headers['x-dev-user-id'] as string) 
+      || 'dev-user';
+    req.userId = devUserId;
+    req.user = { id: devUserId, email: 'dev@example.com' };
     return next();
   }
 

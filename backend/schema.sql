@@ -261,7 +261,10 @@ CREATE TRIGGER set_project_version_number
 -- ============================================
 
 -- View for recent projects with user info
-CREATE OR REPLACE VIEW public.recent_projects AS
+-- Uses SECURITY INVOKER (default) so RLS policies on underlying tables apply
+CREATE OR REPLACE VIEW public.recent_projects 
+WITH (security_invoker = true)
+AS
 SELECT 
   p.id,
   p.user_id,

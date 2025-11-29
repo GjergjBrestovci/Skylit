@@ -4,6 +4,7 @@ interface SaveProjectModalProps {
   open: boolean;
   defaultTitle?: string;
   saving: boolean;
+  saveError?: string | null;
   onSave: (title: string) => void;
   onClose: () => void;
 }
@@ -11,13 +12,30 @@ interface SaveProjectModalProps {
 export function SaveProjectModal({ 
   open, 
   defaultTitle = '', 
-  saving, 
+  saving,
+  saveError,
   onSave, 
   onClose 
 }: SaveProjectModalProps) {
   const [title, setTitle] = useState(defaultTitle);
   const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) {
+      setTitle(defaultTitle);
+      setError('');
+      // Focus input after modal opens
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [open, defaultTitle]);
+
+  // Show save error from parent
+  useEffect(() => {
+    if (saveError) {
+      setError(saveError);
+    }
+  }, [saveError]);
 
   useEffect(() => {
     if (open) {
