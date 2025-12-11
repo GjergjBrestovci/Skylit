@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { apiClient } from './utils/apiClient';
 import { NewDashboard } from './components/NewDashboard';
-import { OnboardingTour, useOnboarding } from './components/OnboardingTour';
 import { Auth } from './components/Auth';
 import { SEOHead } from './components/SEO/SEOHead';
 import BackgroundWrapper from './components/BackgroundWrapper';
@@ -11,7 +10,6 @@ import { DatabaseWarning } from './components/DatabaseWarning';
 function App() {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const { showOnboarding, completeOnboarding } = useOnboarding();
 
   useEffect(() => {
     const init = async () => {
@@ -76,11 +74,6 @@ function App() {
       <BackgroundWrapper>
         {/* Database connection warning */}
         <DatabaseWarning />
-        
-        {/* Onboarding Tour */}
-        {authToken && showOnboarding && (
-          <OnboardingTour onComplete={completeOnboarding} />
-        )}
         
         {/* Add tour data attributes to navigation elements */}
         <div data-tour="navigation">
