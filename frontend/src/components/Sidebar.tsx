@@ -316,9 +316,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
             <div className={`${isCollapsedView ? 'p-1 justify-center gap-2' : 'p-4 gap-2'} flex items-center`}>
           <button
-            onClick={() => setCollapsed(false)}
+            onClick={() => {
+              if (isCollapsedView) {
+                setCollapsed(false);
+                setOpen(true);
+              } else {
+                setCollapsed(true);
+                setOpen(false);
+              }
+            }}
             className={`relative flex items-center justify-center rounded-xl transition-all duration-300 focus:outline-none ${isCollapsedView ? 'w-14 h-14' : 'w-14 h-14'} hover:scale-[1.02] active:scale-[0.98]`}
-            aria-label="Expand navigation"
+            aria-label={isCollapsedView ? 'Expand navigation' : 'Collapse navigation'}
           >
             <Logo size={48} withText={!isCollapsedView} textSizeClass="text-2xl" />
           </button>
