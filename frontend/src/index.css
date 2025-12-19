@@ -23,7 +23,7 @@
   --color-surface: 255 255 255;
   --color-surface-muted: 241 245 255;
   --color-text: 17 17 17;
-  --color-text-muted: 71 85 105;
+  --color-text-muted: 17 17 17;
   --color-border: 15 23 42;
   --color-accent-cyan: 14 165 233;
   --color-accent-purple: 99 102 241;
@@ -64,8 +64,13 @@ html, body {
   color: rgb(var(--color-text)) !important;
 }
 
+.light .text-white,
+.light [class*="text-white/"] {
+  color: rgb(var(--color-text)) !important;
+}
+
 .light [class*="text-text/"] {
-  color: rgb(var(--color-text-muted)) !important;
+  color: rgb(var(--color-text)) !important;
 }
 
 .bg-background {
