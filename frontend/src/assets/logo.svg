@@ -1,15 +1,34 @@
-<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" fill="none">
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="none">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#63b3ff" offset="0%"/>
-      <stop stop-color="#0e7de9" offset="50%"/>
-      <stop stop-color="#0561c2" offset="100%"/>
+    <linearGradient id="bg" x1="64" y1="48" x2="448" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1a0f2d"/>
+      <stop offset="0.4" stop-color="#132a45"/>
+      <stop offset="1" stop-color="#052c3d"/>
     </linearGradient>
-    <linearGradient id="s" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#ffffff" offset="0%"/>
-      <stop stop-color="#e4f5ff" offset="100%"/>
+    <linearGradient id="accent" x1="120" y1="96" x2="408" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7bf3ff"/>
+      <stop offset="0.35" stop-color="#6ad1ff"/>
+      <stop offset="0.7" stop-color="#9b7bff"/>
+      <stop offset="1" stop-color="#ff6bdc"/>
     </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="40%" r="70%">
+      <stop stop-color="#6fffff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#6fffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#00c8ff" flood-opacity="0.28"/>
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#5d2dff" flood-opacity="0.24"/>
+    </filter>
   </defs>
-  <rect rx="56" ry="56" x="0" y="0" width="256" height="256" fill="url(#g)"/>
-  <path d="M164.5 170.8c-8.7 8.3-20.8 12.8-36.2 12.8-14.9 0-27.3-4.3-37.2-12.8-9.9-8.6-14.9-19.1-14.9-31.6h29.2c0 6.8 2.4 12.1 7.3 15.9 4.9 3.8 10.8 5.7 17.7 5.7 6.7 0 12.1-1.6 16.2-4.9 4.2-3.4 6.3-7.4 6.3-12.2 0-4.9-2.1-8.7-6.4-11.5-4.1-2.9-10-5.6-17.6-8.2-7.6-2.7-13.7-5.1-18.4-7.3-16.3-7.9-24.4-18.6-24.4-32 0-11 4.4-19.7 13.1-26.1 8.9-6.6 20-9.9 33.4-9.9 13.4 0 24.6 3.5 33.6 10.5 9.1 6.9 13.7 16.5 13.7 28.6H171c0-6.1-2.4-11.1-7.1-15-4.6-3.9-10.5-5.8-17.7-5.8-6.5 0-11.7 1.4-15.7 4.3-4 2.9-6.1 6.6-6.1 11 0 4.3 2 7.8 6 10.4 4.1 2.6 10.2 5.3 18.3 7.9 8.1 2.7 14.7 5.3 19.7 8 11.8 6.4 17.7 15.7 17.7 27.9 0 12.9-4.4 23.2-13.6 31.5z" fill="url(#s)"/>
+  <rect x="20" y="20" width="472" height="472" rx="116" fill="url(#bg)" stroke="#1a9fe8" stroke-opacity="0.16" stroke-width="6"/>
+  <rect x="60" y="44" width="392" height="392" rx="96" fill="url(#glow)"/>
+  <path d="M343 142c-31-39-83-56-142-45-49 10-88 41-94 83-7 49 26 84 95 107l54 18c32 11 48 27 46 49-2 20-18 35-42 41-32 7-66-1-87-19-16-14-24-32-22-52l-46-6c-4 32 8 63 35 87 31 27 78 41 127 34 60-9 104-46 110-93 5-41-18-72-67-89l-52-17c-55-18-79-38-76-69 2-21 21-42 52-50 41-10 87 5 113 35z" stroke="url(#accent)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"/>
+  <path d="M352 282c36-12 82 10 87 48 4 30-21 55-63 60-34 4-66-11-77-36" stroke="url(#accent)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"/>
+  <circle cx="215" cy="156" r="10" fill="#7bf3ff" stroke="#0a1a2d" stroke-width="4"/>
+  <circle cx="173" cy="216" r="9" fill="#6ad1ff" stroke="#0a1a2d" stroke-width="4"/>
+  <circle cx="288" cy="248" r="10" fill="#9b7bff" stroke="#0a1a2d" stroke-width="4"/>
+  <circle cx="260" cy="326" r="10" fill="#7bf3ff" stroke="#0a1a2d" stroke-width="4"/>
+  <circle cx="320" cy="358" r="10" fill="#ff6bdc" stroke="#0a1a2d" stroke-width="4"/>
+  <circle cx="382" cy="310" r="9" fill="#6ad1ff" stroke="#0a1a2d" stroke-width="4"/>
+  <path d="M110 370c18 46 74 76 140 76 62 0 120-28 148-70" stroke="#7bf3ff" stroke-opacity="0.22" stroke-width="12" stroke-linecap="round"/>
 </svg>
