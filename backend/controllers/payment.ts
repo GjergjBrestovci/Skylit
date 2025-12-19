@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
-import { createPaymentIntent, createSubscription, PRICING_PLANS, PricingPlan } from '../services/stripe';
+import { createPaymentIntent, createSubscription, PRICING_PLANS, PricingPlan, stripeEnabled } from '../services/stripe';
 import { getCredits } from '../services/credits';
 
 // Get available pricing plans
@@ -14,7 +14,7 @@ export const getPricingPlans = async (req: AuthRequest, res: Response) => {
       features: plan.features
     }));
     
-    res.json({ plans, stripeEnabled: process.env.STRIPE_ENABLED !== 'false' });
+    res.json({ plans, stripeEnabled });
   } catch (error) {
     console.error('Get pricing plans error:', error);
     res.status(500).json({ error: 'Failed to fetch pricing plans' });
@@ -24,8 +24,8 @@ export const getPricingPlans = async (req: AuthRequest, res: Response) => {
 // Create payment intent for one-time purchase
 export const createPayment = async (req: AuthRequest, res: Response) => {
   try {
-    if (process.env.STRIPE_ENABLED === 'false') {
-      return res.status(503).json({ error: 'Payments disabled in development' });
+    if (!stripeEnabled) {
+      return res.status(503).json({ error: 'Payments are disabled (Stripe not configured).' });
     }
     const { planId } = req.body as { planId: PricingPlan };
     
@@ -48,8 +48,8 @@ export const createPayment = async (req: AuthRequest, res: Response) => {
 // Create subscription
 export const createSubscriptionPayment = async (req: AuthRequest, res: Response) => {
   try {
-    if (process.env.STRIPE_ENABLED === 'false') {
-      return res.status(503).json({ error: 'Payments disabled in development' });
+    if (!stripeEnabled) {
+      return res.status(503).json({ error: 'Payments are disabled (Stripe not configured).' });
     }
     const { planId, customerId } = req.body as { planId: PricingPlan; customerId?: string };
     

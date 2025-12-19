@@ -78,15 +78,21 @@ export function Pricing({ onClose: _ }: PricingProps) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[80]">
-        <div className="glass-medium rounded-3xl p-8 max-w-md w-full mx-4 border border-white/20">
-          <div className="text-center space-y-4">
-            <div className="w-12 h-12 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-white/20 rounded-full animate-pulse"></div>
-              <div className="h-3 bg-white/10 rounded-full w-2/3 mx-auto animate-pulse"></div>
+      <div className="w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {[1,2,3].map(i => (
+            <div key={i} className="glass-medium rounded-3xl border border-white/10 p-6 animate-pulse space-y-4">
+              <div className="h-4 bg-white/10 rounded w-24"></div>
+              <div className="h-8 bg-white/10 rounded w-32"></div>
+              <div className="h-6 bg-white/5 rounded w-20"></div>
+              <div className="space-y-2">
+                {[1,2,3,4].map(j => (
+                  <div key={j} className="h-3 bg-white/5 rounded"></div>
+                ))}
+              </div>
+              <div className="h-10 bg-white/10 rounded"></div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     );

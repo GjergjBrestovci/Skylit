@@ -7,7 +7,17 @@ export interface AuthRequest extends Request {
 }
 
 const supabaseConfigured = !!process.env.SUPABASE_URL && !!process.env.SUPABASE_ANON_KEY;
-const devBypass = process.env.AUTH_BYPASS === 'true' || process.env.NODE_ENV !== 'production';
+// Bypass must be explicitly enabled via env; no automatic bypass based on NODE_ENV
+const devBypass = process.env.AUTH_BYPASS === 'true';
+const logBypass = (() => {
+  let logged = false;
+  return () => {
+    if (!logged && devBypass) {
+      console.warn('[auth] AUTH_BYPASS enabled. Requests are not authenticated.');
+      logged = true;
+    }
+  };
+})();
 
 export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
@@ -18,6 +28,7 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
 
   // In development, bypass auth and attach a mock user
   if (devBypass) {
+    logBypass();
     req.userId = (req.headers['x-dev-user-id'] as string) || 'dev-user';
     req.user = { id: req.userId, email: 'dev@example.com' };
     return next();

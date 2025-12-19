@@ -2,20 +2,21 @@ import Stripe from 'stripe';
 
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
-const isProd = process.env.NODE_ENV === 'production';
+const stripeFlag = process.env.STRIPE_ENABLED;
 
-export const stripe = STRIPE_KEY
-  ? new Stripe(STRIPE_KEY, {
+// Stripe is enabled only if the flag is not explicitly false AND a key is present
+export const stripeEnabled = stripeFlag !== 'false' && !!STRIPE_KEY;
+
+export const stripe = stripeEnabled
+  ? new Stripe(STRIPE_KEY as string, {
       apiVersion: '2025-08-27.basil',
       typescript: true,
     })
   : null;
 
-if (!STRIPE_KEY && isProd) {
-  // In production we require Stripe to be configured
-  throw new Error('STRIPE_SECRET_KEY is required in production');
-} else if (!STRIPE_KEY) {
-  console.warn('[dev] Stripe not configured. Payment endpoints will be disabled.');
+if (!stripeEnabled) {
+  const reason = STRIPE_KEY ? 'flagged off' : 'missing STRIPE_SECRET_KEY';
+  console.warn(`[stripe] Disabled (${reason}). Payment endpoints will return 503.`);
 }
 
 // Pricing configuration
