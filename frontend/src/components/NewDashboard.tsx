@@ -86,7 +86,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const [savingProject, setSavingProject] = useState(false);
   const [projectSaved, setProjectSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [_currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const [, setCurrentProjectId] = useState<string | null>(null);
   
   const typingTimerRef = useRef<number | null>(null);
   const codeTimerRef = useRef<number | null>(null);
@@ -267,14 +267,6 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         ? projectResult.previewUrl.split('/').pop()?.split('?')[0] 
         : undefined;
 
-      console.log('Saving project with data:', {
-        title,
-        prompt: projectPrompt?.slice(0, 100),
-        preview_url: projectResult.previewUrl,
-        preview_id: previewId,
-        tech_stack: config.techStack
-      });
-
       const response = await apiClient.post('/api/save-project', {
         title,
         prompt: projectPrompt,
@@ -299,7 +291,6 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         })
       });
       
-      console.log('Project saved successfully:', response);
       setProjectSaved(true);
       setCurrentProjectId(response.project?.id || null);
       setSaveModalOpen(false);
@@ -498,7 +489,9 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
             setUserCredits(creditsData.credits);
             setUserHasUnlimited(creditsData.hasUnlimitedCredits || false);
           }
-        } catch {}
+        } catch {
+          // ignore error refreshing credits
+        }
         
         const pending: GenerationResult = {
           generated: data.generated,
@@ -529,7 +522,9 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
               setUserCredits(creditsData.credits);
               setUserHasUnlimited(creditsData.hasUnlimitedCredits || false);
             }
-          } catch {}
+          } catch {
+            // ignore
+          }
         }
         
         // If insufficient credits, surface billing

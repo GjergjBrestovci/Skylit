@@ -36,9 +36,9 @@ export const Analytics: React.FC<AnalyticsProps> = ({ trackingId }) => {
     `;
     document.head.appendChild(script2);
 
-    window.gtag = window.gtag || function() {
+    window.gtag = window.gtag || function(...args: any[]) {
       window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push(arguments);
+      window.dataLayer.push(args);
     };
 
     return () => {

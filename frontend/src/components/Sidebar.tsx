@@ -58,7 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   // Persist collapse state
   useEffect(() => {
-    try { localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0'); } catch {}
+    try { localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0'); } catch { /* ignore */ }
   }, [collapsed]);
   const [theme, setTheme] = useState<ThemeChoice>(() => (typeof window === 'undefined' ? 'system' : readThemeChoice()));
   const [projects, setProjects] = useState<ProjectItem[]>([]);
@@ -280,7 +280,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       }
       setProjects(p => p.filter(pr => pr.id !== project.id));
       pushNotification('Project deleted', 'info');
-    } catch (err: any) {
+    } catch {
       pushNotification('Failed to delete project', 'error');
     }
   };
