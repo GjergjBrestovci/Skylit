@@ -36,10 +36,10 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(
         shadow-gray-500/10 hover:shadow-gray-500/20
       `,
       accent: `
-        bg-gradient-to-br from-cyan-500/20 to-pink-500/20 text-white
-        hover:from-cyan-400/30 hover:to-pink-400/30
-        before:from-cyan-400/10 before:to-pink-400/10
-        shadow-cyan-500/20 hover:shadow-pink-500/20
+        bg-gradient-to-br from-accent-primary/20 to-accent-secondary/20 text-white
+        hover:from-accent-primary/30 hover:to-accent-secondary/30
+        before:from-accent-primary/10 before:to-accent-secondary/10
+        shadow-accent-primary/20 hover:shadow-accent-secondary/20
       `,
       danger: `
         bg-gradient-to-br from-red-500/20 to-orange-600/20 text-white

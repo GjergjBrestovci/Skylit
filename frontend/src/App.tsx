@@ -42,8 +42,20 @@ function App() {
   if (loading) {
     return (
       <BackgroundWrapper>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-white">Loading...</div>
+        <div className="min-h-screen flex flex-col items-center justify-center gap-8">
+          {/* Logo skeleton */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl skeleton-loader" />
+            <div className="w-28 h-7 rounded-lg skeleton-loader" />
+          </div>
+          {/* Content skeleton */}
+          <div className="flex flex-col items-center gap-3 w-full max-w-sm px-4">
+            <div className="w-full h-2 rounded-full skeleton-loader" />
+            <div className="w-3/4 h-2 rounded-full skeleton-loader" />
+            <div className="w-5/6 h-2 rounded-full skeleton-loader" />
+          </div>
+          {/* Glow bar */}
+          <div className="w-48 h-1 rounded-full bg-gradient-to-r from-accent-primary/40 via-accent-secondary/60 to-accent-primary/40 animate-glow-pulse" />
         </div>
       </BackgroundWrapper>
     );

@@ -9,21 +9,21 @@ interface BackgroundWrapperProps {
 export default function BackgroundWrapper({ children, className = '' }: BackgroundWrapperProps) {
   return (
     <div className={`relative min-h-screen ${className}`}>
-      {/* Dark base background for Aurora */}
-      <div className="fixed inset-0 z-[-200] bg-[#0a0a0a] w-full h-full" />
+      {/* Deep navy base for Aurora */}
+      <div className="fixed inset-0 z-[-200] bg-[#0a0a0f] w-full h-full" />
       
       {/* Aurora Background */}
       <div className="fixed inset-0 z-[-100] w-full h-full">
         <Aurora 
-          colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
-          blend={0.5}
-          amplitude={1.0}
-          speed={0.5}
+          colorStops={["#8b5cf6", "#ec4899", "#6366f1"]}
+          blend={0.45}
+          amplitude={0.85}
+          speed={0.4}
         />
       </div>
       
-      {/* Minimal overlay for content readability */}
-      <div className="fixed inset-0 bg-black/20 z-[-50]" />
+      {/* Slight overlay for readability */}
+      <div className="fixed inset-0 bg-[#0a0a0f]/30 z-[-50]" />
       
       {/* Content */}
       <div className="relative z-10">

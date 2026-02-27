@@ -28,10 +28,10 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
   
   const selectedClasses = isSelected 
     ? `
-        border-cyan-400/40 bg-gradient-to-br from-cyan-500/15 to-purple-600/15
-        shadow-cyan-500/20 shadow-glass-lg
-        before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br 
-        before:from-cyan-400/10 before:to-purple-500/10 before:opacity-100
+        border-accent-primary/40 bg-gradient-to-br from-accent-primary/15 to-accent-secondary/15
+        shadow-accent-primary/20 shadow-glass-lg
+        before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br
+        before:from-accent-primary/10 before:to-accent-secondary/10 before:opacity-100
         relative before:pointer-events-none
       `
     : `
@@ -56,7 +56,7 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
         <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 transition-transform group-hover:scale-110 duration-300">
           {emoji}
         </div>
-        <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-cyan-200 transition-colors">
+        <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-accent-primary/90 transition-colors">
           {label}
         </h3>
         <p className="text-sm sm:text-base text-white/60 group-hover:text-white/80 transition-colors">
@@ -137,9 +137,9 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
 }) => {
   const selectedClasses = isSelected
     ? `
-        border-cyan-400/40 bg-gradient-to-br from-cyan-500/15 to-purple-600/15
-        shadow-cyan-500/20 shadow-glass-lg
-        before:opacity-100 before:from-cyan-400/10 before:to-purple-500/10
+        border-accent-primary/40 bg-gradient-to-br from-accent-primary/15 to-accent-secondary/15
+        shadow-accent-primary/20 shadow-glass-lg
+        before:opacity-100 before:from-accent-primary/10 before:to-accent-secondary/10
       `
     : `
         border-white/10 bg-gradient-to-br from-white/5 to-white/2
@@ -167,7 +167,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
         <div className="text-2xl sm:text-3xl mb-2 transition-transform group-hover:scale-110 duration-300">
           {emoji}
         </div>
-        <h3 className="text-white font-bold text-sm sm:text-base group-hover:text-cyan-200 transition-colors">
+        <h3 className="text-white font-bold text-sm sm:text-base group-hover:text-accent-primary/90 transition-colors">
           {label}
         </h3>
       </div>

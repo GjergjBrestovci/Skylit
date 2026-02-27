@@ -82,7 +82,7 @@ export function SaveProjectModal({
         {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-cyan to-accent-purple flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-primary to-accent-secondary flex items-center justify-center">
               <span className="text-xl">💾</span>
             </div>
             <h3 className="text-xl font-semibold theme-text-primary">Save Project</h3>
@@ -109,7 +109,7 @@ export function SaveProjectModal({
             onKeyDown={handleKeyDown}
             placeholder="My Awesome Website"
             disabled={saving}
-            className="w-full px-4 py-3 rounded-xl theme-input text-base focus:outline-none focus:ring-2 focus:ring-accent-cyan/50 transition-all disabled:opacity-50"
+            className="w-full px-4 py-3 rounded-xl theme-input text-base focus:outline-none focus:ring-2 focus:ring-accent-primary/50 transition-all disabled:opacity-50"
           />
           {error && (
             <p className="text-sm text-red-400 animate-fade-in">{error}</p>
@@ -130,7 +130,7 @@ export function SaveProjectModal({
             type="button"
             onClick={handleSave}
             disabled={saving || !title.trim()}
-            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-accent-cyan to-accent-purple text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-accent-primary to-accent-secondary text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {saving ? (
               <>

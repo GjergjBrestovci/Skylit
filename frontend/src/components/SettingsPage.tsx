@@ -192,7 +192,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
             <h2 className="text-xl font-semibold text-white">Workspace Settings</h2>
           </div>
           <div className="flex items-center gap-2 text-xs text-text/60">
-            {saving && <span className="text-accent-cyan animate-pulse">Saving…</span>}
+            {saving && <span className="text-accent-primary animate-pulse">Saving…</span>}
             <button onClick={onClose} className="px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition">Close</button>
           </div>
         </div>
@@ -223,7 +223,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   value={draft.displayName ?? ''}
                   onChange={e => updateDraft({ displayName: e.target.value })}
                   placeholder="Add a friendly name"
-                  className="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-accent-cyan"
+                  className="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-accent-primary"
                 />
               </label>
               <label className="space-y-2">
@@ -249,7 +249,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   onClick={() => handleThemeChange(option.value)}
                   className={`text-left rounded-2xl border p-4 transition backdrop-blur ${
                     draft.themePreference === option.value
-                      ? 'border-accent-cyan bg-accent-cyan/10 text-white'
+                      ? 'border-accent-primary bg-accent-primary/10 text-white'
                       : 'border-white/5 bg-black/20 text-text/70 hover:border-white/20'
                   }`}
                 >
@@ -275,7 +275,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   max={60}
                   value={draft.workspace.autosaveInterval}
                   onChange={e => updateDraft({ workspace: { autosaveInterval: Number(e.target.value) } })}
-                  className="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-accent-cyan"
+                  className="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-accent-primary"
                 />
               </label>
               <label className="flex items-start gap-3">
@@ -283,7 +283,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   type="checkbox"
                   checked={draft.workspace.showBetaFeatures}
                   onChange={e => updateDraft({ workspace: { showBetaFeatures: e.target.checked } })}
-                  className="mt-1 accent-accent-cyan"
+                  className="mt-1 accent-accent-primary"
                 />
                 <div>
                   <p className="text-sm text-white font-medium">Enable beta experiments</p>
@@ -318,7 +318,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                     type="checkbox"
                     checked={draft.notifications[item.key]}
                     onChange={e => updateDraft({ notifications: { [item.key]: e.target.checked } as Partial<UserSettings['notifications']> })}
-                    className="mt-1 accent-accent-cyan"
+                    className="mt-1 accent-accent-primary"
                   />
                   <div>
                     <p className="text-sm text-white font-medium">{item.label}</p>
@@ -340,7 +340,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
               <select
                 value={defaultTechStack}
                 onChange={e => handleTechStackChange(e.target.value)}
-                className="w-full rounded-xl bg-black/30 border border-white/10 px-3 py-2 text-white focus:outline-none focus:border-accent-cyan"
+                className="w-full rounded-xl bg-black/30 border border-white/10 px-3 py-2 text-white focus:outline-none focus:border-accent-primary"
               >
                 {TECH_STACKS.map(stack => (
                   <option key={stack.value} value={stack.value}>{stack.name}</option>
@@ -350,14 +350,14 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
             <div className="grid gap-3 sm:grid-cols-2">
               <button
                 onClick={handleNotificationsToggle}
-                className={`rounded-2xl border px-4 py-3 text-left transition ${notificationsEnabled ? 'border-accent-cyan bg-accent-cyan/10 text-white' : 'border-white/10 text-text/70 hover:border-white/30'}`}
+                className={`rounded-2xl border px-4 py-3 text-left transition ${notificationsEnabled ? 'border-accent-primary bg-accent-primary/10 text-white' : 'border-white/10 text-text/70 hover:border-white/30'}`}
               >
                 <p className="font-semibold">Notifications</p>
                 <p className="text-xs text-text/60">{notificationsEnabled ? 'Enabled for new builds' : 'Muted for now'}</p>
               </button>
               <button
                 onClick={handleAutoSaveToggle}
-                className={`rounded-2xl border px-4 py-3 text-left transition ${autoSaveProjects ? 'border-accent-cyan bg-accent-cyan/10 text-white' : 'border-white/10 text-text/70 hover:border-white/30'}`}
+                className={`rounded-2xl border px-4 py-3 text-left transition ${autoSaveProjects ? 'border-accent-primary bg-accent-primary/10 text-white' : 'border-white/10 text-text/70 hover:border-white/30'}`}
               >
                 <p className="font-semibold">Auto-save projects</p>
                 <p className="text-xs text-text/60">{autoSaveProjects ? 'Saves every generation' : 'Manual save only'}</p>
@@ -376,7 +376,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 type="checkbox"
                 checked={draft.integrations.apiMirroringEnabled}
                 onChange={e => updateDraft({ integrations: { apiMirroringEnabled: e.target.checked } })}
-                className="mt-1 accent-accent-cyan"
+                className="mt-1 accent-accent-primary"
               />
               <div>
                 <p className="text-sm text-white font-medium">Turn on mirroring</p>
@@ -391,7 +391,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   value={draft.integrations.webhookUrl ?? ''}
                   onChange={e => updateDraft({ integrations: { webhookUrl: e.target.value } })}
                   placeholder="https://api.yourdomain.com/skylit/mirror"
-                  className="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-accent-cyan"
+                  className="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-accent-primary"
                 />
               </label>
             )}
@@ -410,7 +410,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
               </div>
               <div className="p-3 rounded-xl bg-black/30 border border-white/5 text-xs text-text/60">
                 <p className="text-[10px] uppercase tracking-[0.3em] text-text/40">Mirror status</p>
-                <p className={`text-sm mt-2 ${draft.integrations.apiMirroringEnabled ? 'text-accent-cyan' : 'text-text/60'}`}>
+                <p className={`text-sm mt-2 ${draft.integrations.apiMirroringEnabled ? 'text-accent-primary' : 'text-text/60'}`}>
                   {draft.integrations.apiMirroringEnabled ? 'Enabled — Skylit will POST to your webhook after each build.' : 'Disabled — API stays untouched.'}
                 </p>
               </div>
@@ -435,7 +435,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-5 py-2 rounded-xl bg-accent-cyan text-black text-sm font-semibold hover:brightness-110 disabled:opacity-50"
+              className="px-5 py-2 rounded-xl bg-accent-primary text-black text-sm font-semibold hover:brightness-110 disabled:opacity-50"
             >
               Save changes
             </button>

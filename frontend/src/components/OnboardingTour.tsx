@@ -159,7 +159,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete }) =>
       
       {/* Tooltip */}
       <div
-        className="fixed z-1002 bg-white rounded-lg shadow-2xl p-6 max-w-sm w-full mx-4 transition-all duration-300"
+        className="fixed z-1002 glass-card rounded-lg shadow-2xl p-6 max-w-sm w-full mx-4 transition-all duration-300"
         style={getTooltipPosition()}
       >
         {/* Progress indicator */}
@@ -169,22 +169,22 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete }) =>
               <div
                 key={index}
                 className={`w-2 h-2 rounded-full ${
-                  index <= currentStep ? 'bg-blue-600' : 'bg-gray-300'
+                  index <= currentStep ? 'bg-accent-primary' : 'bg-surface-elevated'
                 }`}
               />
             ))}
           </div>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-white/50">
             {currentStep + 1} of {ONBOARDING_STEPS.length}
           </span>
         </div>
 
         {/* Content */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-white mb-2">
             {step.title}
           </h3>
-          <p className="text-gray-600 text-sm leading-relaxed">
+          <p className="text-white/60 text-sm leading-relaxed">
             {step.description}
           </p>
         </div>
@@ -195,14 +195,14 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete }) =>
             {currentStep > 0 && (
               <button
                 onClick={handlePrevious}
-                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-3 py-2 text-sm text-white/60 hover:text-white/90 transition-colors"
               >
                 Previous
               </button>
             )}
             <button
               onClick={handleSkip}
-              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+              className="px-3 py-2 text-sm text-white/60 hover:text-white/90 transition-colors"
             >
               Skip Tour
             </button>
@@ -210,7 +210,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete }) =>
           
           <button
             onClick={handleNext}
-            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-accent-primary text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
           >
             {currentStep === ONBOARDING_STEPS.length - 1 ? 'Get Started' : 'Next'}
           </button>

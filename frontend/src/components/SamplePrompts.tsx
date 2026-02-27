@@ -44,7 +44,7 @@ export const SamplePrompts: React.FC<SamplePromptsProps> = ({ onSelectPrompt }) 
       case 'beginner': return 'bg-green-100 text-green-800';
       case 'intermediate': return 'bg-yellow-100 text-yellow-800';
       case 'advanced': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-surface-elevated text-white/90';
     }
   };
 
@@ -83,8 +83,8 @@ export const SamplePrompts: React.FC<SamplePromptsProps> = ({ onSelectPrompt }) 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">Sample Prompts</h3>
-        <p className="text-gray-600">Get inspired with these example prompts for different types of websites</p>
+        <h3 className="text-2xl font-bold text-white mb-2">Sample Prompts</h3>
+        <p className="text-white/60">Get inspired with these example prompts for different types of websites</p>
       </div>
 
       {/* Filters */}
@@ -92,7 +92,7 @@ export const SamplePrompts: React.FC<SamplePromptsProps> = ({ onSelectPrompt }) 
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Categories</option>
           <option value="business">Business</option>
@@ -106,7 +106,7 @@ export const SamplePrompts: React.FC<SamplePromptsProps> = ({ onSelectPrompt }) 
         <select
           value={selectedDifficulty}
           onChange={(e) => setSelectedDifficulty(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Levels</option>
           <option value="beginner">Beginner</option>
@@ -118,13 +118,13 @@ export const SamplePrompts: React.FC<SamplePromptsProps> = ({ onSelectPrompt }) 
       {/* Prompts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {prompts.map((prompt) => (
-          <div key={prompt.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+          <div key={prompt.id} className="glass-card rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center">
                 <span className="text-2xl mr-3">{getCategoryIcon(prompt.category)}</span>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">{prompt.title}</h4>
-                  <span className="text-sm text-gray-500 capitalize">{prompt.category}</span>
+                  <h4 className="text-lg font-semibold text-white">{prompt.title}</h4>
+                  <span className="text-sm text-white/50 capitalize">{prompt.category}</span>
                 </div>
               </div>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(prompt.difficulty)}`}>
@@ -132,20 +132,20 @@ export const SamplePrompts: React.FC<SamplePromptsProps> = ({ onSelectPrompt }) 
               </span>
             </div>
 
-            <p className="text-gray-700 text-sm mb-4 line-clamp-3">
+            <p className="text-white/80 text-sm mb-4 line-clamp-3">
               {prompt.prompt}
             </p>
 
             <div className="flex gap-2">
               <button
                 onClick={() => onSelectPrompt(prompt.prompt)}
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                className="flex-1 bg-accent-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
               >
                 Use This Prompt
               </button>
               <button
                 onClick={() => navigator.clipboard.writeText(prompt.prompt)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                className="px-4 py-2 border border-white/15 text-white/80 rounded-lg hover:bg-surface transition-colors text-sm"
                 title="Copy prompt"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -159,13 +159,13 @@ export const SamplePrompts: React.FC<SamplePromptsProps> = ({ onSelectPrompt }) 
 
       {prompts.length === 0 && !loading && (
         <div className="text-center py-12">
-          <div className="text-gray-400 text-6xl mb-4">
+          <div className="text-white/40 text-6xl mb-4">
             <svg className="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"></path>
             </svg>
           </div>
-          <h3 className="text-xl font-medium text-gray-900 mb-2">No prompts found</h3>
-          <p className="text-gray-600">Try adjusting your filters</p>
+          <h3 className="text-xl font-medium text-white mb-2">No prompts found</h3>
+          <p className="text-white/60">Try adjusting your filters</p>
         </div>
       )}
     </div>

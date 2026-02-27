@@ -578,7 +578,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
         <div className="space-y-4 sm:space-y-6">
           <div className="space-y-3 sm:space-y-4">
             <h1
-              className="text-4xl sm:text-6xl md:text-8xl font-black bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500 bg-clip-text text-transparent animate-pulse"
+              className="text-4xl sm:text-6xl md:text-8xl font-black bg-gradient-to-r from-accent-primary via-accent-secondary to-pink-500 bg-clip-text text-transparent animate-pulse"
               style={{ padding: '15px' }}
             >
               Skylit AI
@@ -761,7 +761,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 <button
                   onClick={() => nextStep('features')}
                   disabled={config.pages.length === 0}
-                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-accent-cyan text-white rounded-xl hover:bg-accent-cyan/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-base sm:text-lg font-semibold"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-accent-primary text-white rounded-xl hover:bg-accent-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-base sm:text-lg font-semibold"
                 >
                   Continue ({config.pages.length} pages selected)
                 </button>
@@ -795,7 +795,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
               <div className="text-center">
                 <button
                   onClick={() => nextStep('details')}
-                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-accent-cyan text-white rounded-xl hover:bg-accent-cyan/90 transition-all duration-300 text-base sm:text-lg font-semibold"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-accent-primary text-white rounded-xl hover:bg-accent-primary/90 transition-all duration-300 text-base sm:text-lg font-semibold"
                 >
                   Continue ({config.features.length} features selected)
                 </button>
@@ -817,13 +817,13 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 value={config.additionalDetails}
                 onChange={(e) => setConfig(prev => ({ ...prev, additionalDetails: e.target.value }))}
                 placeholder="Describe any specific requirements, content ideas, or special features you'd like..."
-                className="w-full p-4 sm:p-6 bg-[#1a1a1a] border-2 border-accent-purple/30 rounded-xl text-white placeholder-text/50 focus:outline-none focus:border-accent-cyan/50 transition-all duration-300 text-base sm:text-lg"
+                className="w-full p-4 sm:p-6 bg-surface border-2 border-accent-secondary/30 rounded-xl text-white placeholder-text/50 focus:outline-none focus:border-accent-primary/50 transition-all duration-300 text-base sm:text-lg"
               />
               
               <div className="text-center space-y-4">
                 <button
                   onClick={() => nextStep('techStack')}
-                  className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                  className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
                 >
                   Next: Advanced Options
                 </button>
@@ -857,7 +857,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
               <div className="text-center space-y-4">
                 <button
                   onClick={() => generateWebsite()}
-                  className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                  className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
                 >
                   Create My Website!
                 </button>
@@ -922,7 +922,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
             <div className="space-y-1 w-full sm:flex-1 sm:min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-xl sm:text-2xl font-bold text-text">Your Website is Ready!</h1>
-                <span className="px-2 py-1 bg-accent-cyan/20 border border-accent-cyan/30 rounded-full text-xs text-accent-cyan font-semibold">BETA</span>
+                <span className="px-2 py-1 bg-accent-primary/20 border border-accent-primary/30 rounded-full text-xs text-accent-primary font-semibold">BETA</span>
               </div>
               <p className="text-sm sm:text-base text-text/60 truncate">
                 Created on {result && new Date(result.createdAt).toLocaleDateString()}
@@ -933,12 +933,12 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
             
             <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto sm:flex-none">
               {/* View Toggle */}
-              <div className="flex bg-[#232323] rounded-lg p-1">
+              <div className="flex bg-surface-elevated rounded-lg p-1">
                 <button
                   onClick={() => setShowCode(false)}
                   className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
                     !showCode 
-                      ? 'bg-accent-cyan text-white' 
+                      ? 'bg-accent-primary text-white' 
                       : 'text-text/70 hover:text-white'
                   }`}
                 >
@@ -948,7 +948,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                   onClick={() => setShowCode(true)}
                   className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
                     showCode 
-                      ? 'bg-accent-purple text-white' 
+                      ? 'bg-accent-secondary text-white' 
                       : 'text-text/70 hover:text-white'
                   }`}
                 >
@@ -959,7 +959,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
               <div className="flex gap-2">
                 <button
                   onClick={startOver}
-                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gradient-to-r from-accent-cyan to-accent-purple text-white rounded-lg hover:scale-105 transition-all duration-300 text-sm sm:text-base"
+                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-lg hover:scale-105 transition-all duration-300 text-sm sm:text-base"
                 >
                   Create Another
                 </button>
@@ -989,12 +989,12 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           /* Code View */
           <div className="space-y-4 sm:space-y-6">
             {/* Code Tabs */}
-            <div className="flex flex-wrap sm:space-x-1 bg-[#1a1a1a] rounded-lg p-1 gap-1 sm:gap-0">
+            <div className="flex flex-wrap sm:space-x-1 bg-surface rounded-lg p-1 gap-1 sm:gap-0">
               <button
                 onClick={() => setActiveCodeTab('html')}
                 className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
                   activeCodeTab === 'html' 
-                    ? 'bg-accent-cyan text-white' 
+                    ? 'bg-accent-primary text-white' 
                     : 'text-text/70 hover:text-white'
                 }`}
               >
@@ -1005,7 +1005,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                   onClick={() => setActiveCodeTab('css')}
                   className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
                     activeCodeTab === 'css' 
-                      ? 'bg-accent-purple text-white' 
+                      ? 'bg-accent-secondary text-white' 
                       : 'text-text/70 hover:text-white'
                   }`}
                 >
@@ -1051,7 +1051,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
             </div>
 
             {/* Code Content */}
-            <div className="bg-[#1a1a1a] rounded-xl border border-accent-purple/20 overflow-hidden">
+            <div className="bg-surface rounded-xl border border-accent-secondary/20 overflow-hidden">
               <div className="p-4 sm:p-6">
                 {activeCodeTab === 'analysis' && result?.analysis ? (
                   <div className="space-y-4">
@@ -1061,7 +1061,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                       
                       {result.requirements && result.requirements.length > 0 && (
                         <div>
-                          <h4 className="text-md font-semibold text-accent-cyan mb-2">Requirements Identified:</h4>
+                          <h4 className="text-md font-semibold text-accent-primary mb-2">Requirements Identified:</h4>
                           <ul className="list-disc pl-6 space-y-1">
                             {result.requirements.map((req, i) => (
                               <li key={i} className="text-text/80">{req}</li>
@@ -1071,8 +1071,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                       )}
                       
                       {result.enhancementUsedAI && (
-                        <div className="mt-4 p-3 bg-accent-cyan/10 border border-accent-cyan/20 rounded-lg">
-                          <p className="text-accent-cyan text-sm">Enhanced by AI prompt refinement</p>
+                        <div className="mt-4 p-3 bg-accent-primary/10 border border-accent-primary/20 rounded-lg">
+                          <p className="text-accent-primary text-sm">Enhanced by AI prompt refinement</p>
                         </div>
                       )}
                     </div>
@@ -1098,7 +1098,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
             className={`px-4 sm:px-6 py-3 rounded-lg transition-all duration-300 text-sm sm:text-base flex items-center justify-center gap-2 ${
               projectSaved 
                 ? 'bg-green-500/20 text-green-400 border border-green-500/30 cursor-default' 
-                : 'bg-accent-purple hover:bg-accent-purple/90 text-white'
+                : 'bg-accent-secondary hover:bg-accent-secondary/90 text-white'
             }`}
           >
             {projectSaved ? (
@@ -1117,7 +1117,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           </button>
           <button
             onClick={() => { if (result) downloadCombinedHtml(result); }}
-            className="px-4 sm:px-6 py-3 border border-accent-cyan text-accent-cyan hover:bg-accent-cyan/10 rounded-lg transition-all duration-300 text-sm sm:text-base"
+            className="px-4 sm:px-6 py-3 border border-accent-primary text-accent-primary hover:bg-accent-primary/10 rounded-lg transition-all duration-300 text-sm sm:text-base"
           >
             Download Code
           </button>
@@ -1222,43 +1222,36 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
     }
   };
 
+  const sidebarProps = {
+    onLogout,
+    onCreateNew: startOver,
+    onOpenProject: openProjectFromSidebar,
+    onCreditsUpdate: fetchUserCredits,
+    credits: userCredits,
+    hasUnlimitedCredits: userHasUnlimited,
+    onOpenBilling: () => setBillingOpen(true),
+    onOpenSettings: handleOpenSettings,
+  };
+
   const previewLayout = (
-    <div className="flex w-full min-h-screen">
-            <Sidebar 
-        onLogout={onLogout} 
-        onCreateNew={startOver} 
-        onOpenProject={openProjectFromSidebar}
-        onCreditsUpdate={fetchUserCredits}
-        credits={userCredits}
-        hasUnlimitedCredits={userHasUnlimited}
-        onOpenBilling={() => setBillingOpen(true)}
-        onOpenSettings={handleOpenSettings}
-            />
-      <main className="flex-1 overflow-x-hidden">
+    <>
+      <Sidebar {...sidebarProps} />
+      <main className="pt-16 min-h-screen overflow-x-hidden">
         {renderPreview()}
       </main>
-    </div>
+    </>
   );
 
   const builderLayout = (
-    <div className="flex w-full min-h-screen">
-            <Sidebar 
-        onLogout={onLogout} 
-        onCreateNew={startOver} 
-        onOpenProject={openProjectFromSidebar}
-        onCreditsUpdate={fetchUserCredits}
-        credits={userCredits}
-        hasUnlimitedCredits={userHasUnlimited}
-        onOpenBilling={() => setBillingOpen(true)}
-        onOpenSettings={handleOpenSettings}
-            />
-      <main className="flex-1 page-transition-container overflow-x-hidden">
+    <>
+      <Sidebar {...sidebarProps} />
+      <main className="pt-16 min-h-screen page-transition-container overflow-x-hidden">
         <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
           {renderStepContent()}
         </div>
       </main>
       <BillingPage open={billingOpen} onClose={() => setBillingOpen(false)} />
-    </div>
+    </>
   );
 
   return (
@@ -1304,7 +1297,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 if (manualPromptError) setManualPromptError('');
               }}
               rows={8}
-              className="w-full rounded-2xl bg-white/5 border border-white/10 text-sm sm:text-base text-white p-4 focus:outline-none focus:border-accent-cyan/60 resize-none"
+              className="w-full rounded-2xl bg-white/5 border border-white/10 text-sm sm:text-base text-white p-4 focus:outline-none focus:border-accent-primary/60 resize-none"
               placeholder="Describe the website you want..."
             />
             {manualPromptError && (
@@ -1332,7 +1325,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 <button
                   type="button"
                   onClick={handleManualPromptSave}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-accent-cyan to-accent-purple text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-accent-primary to-accent-secondary text-white font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
                   Use this prompt
                 </button>

@@ -51,7 +51,7 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
   if (isFullscreen) {
     return (
       <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex flex-col">
-        <div className="bg-[#1e1e1e] border-b border-accent-purple/20 p-4 flex justify-between items-center">
+        <div className="bg-surface border-b border-accent-secondary/20 p-4 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
             <span className="text-xl">🌐</span>
             {title} - Fullscreen
@@ -59,7 +59,7 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
           <div className="flex gap-2">
             <button
               onClick={() => window.open(fullUrl, '_blank')}
-              className="px-4 py-2 bg-accent-cyan text-background rounded-md hover:bg-accent-cyan/90 transition-colors text-sm"
+              className="px-4 py-2 bg-accent-primary text-background rounded-md hover:bg-accent-primary/90 transition-colors text-sm"
             >
               Open in New Tab
             </button>
@@ -95,7 +95,7 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
                     setError(false);
                     setLoading(true);
                   }}
-                  className="mt-4 px-4 py-2 bg-accent-purple text-white rounded-md hover:bg-accent-purple/90 transition-colors"
+                  className="mt-4 px-4 py-2 bg-accent-secondary text-white rounded-md hover:bg-accent-secondary/90 transition-colors"
                 >
                   Retry
                 </button>
@@ -116,8 +116,8 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
   }
 
   return (
-    <div className={`bg-[#1e1e1e] border border-accent-purple/20 rounded-lg overflow-hidden ${className}`}>
-      <div className="bg-[#232323] border-b border-accent-purple/20 p-4 flex justify-between items-center">
+    <div className={`bg-surface border border-accent-secondary/20 rounded-lg overflow-hidden ${className}`}>
+      <div className="bg-surface-elevated border-b border-accent-secondary/20 p-4 flex justify-between items-center">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <span className="text-xl">🌐</span>
           {title}
@@ -125,14 +125,14 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
         <div className="flex gap-2">
           <button
             onClick={() => window.open(fullUrl, '_blank')}
-            className="px-3 py-1 bg-accent-cyan text-background rounded text-sm hover:bg-accent-cyan/90 transition-colors"
+            className="px-3 py-1 bg-accent-primary text-background rounded text-sm hover:bg-accent-primary/90 transition-colors"
             title="Open in new tab"
           >
             <span className="text-sm">Link</span>
           </button>
           <button
             onClick={toggleFullscreen}
-            className="px-3 py-1 bg-accent-purple text-white rounded text-sm hover:bg-accent-purple/90 transition-colors"
+            className="px-3 py-1 bg-accent-secondary text-white rounded text-sm hover:bg-accent-secondary/90 transition-colors"
             title="Fullscreen"
           >
             <span className="text-sm">⛶</span>
@@ -165,7 +165,7 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
                   setError(false);
                   setLoading(true);
                 }}
-                className="px-4 py-2 bg-accent-purple text-white rounded-md hover:bg-accent-purple/90 transition-colors text-sm"
+                className="px-4 py-2 bg-accent-secondary text-white rounded-md hover:bg-accent-secondary/90 transition-colors text-sm"
               >
                 Retry
               </button>
@@ -183,7 +183,7 @@ export function WebsitePreview({ previewUrl, title = "Website Preview", classNam
         />
       </div>
       
-      <div className="bg-[#232323] border-t border-accent-purple/20 p-3">
+      <div className="bg-surface-elevated border-t border-accent-secondary/20 p-3">
         <div className="flex items-center justify-between text-sm text-text/60">
           <span className="flex items-center gap-2">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>

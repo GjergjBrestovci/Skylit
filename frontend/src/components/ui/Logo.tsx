@@ -15,11 +15,11 @@ export const Logo: React.FC<LogoProps> = ({ size = 48, className = '', withText 
         alt="Skylit Logo"
         width={size}
         height={size}
-        className="rounded-[22%] shadow-lg shadow-accent-cyan/10"
+        className="rounded-[22%] shadow-lg shadow-accent-primary/15"
         draggable={false}
       />
       {withText && (
-        <span className={`font-black tracking-tight bg-gradient-to-r from-accent-cyan via-accent-purple to-pink-500 bg-clip-text text-transparent ${textSizeClass}`}>
+        <span className={`font-black tracking-tight bg-gradient-to-r from-accent-primary via-accent-secondary to-pink-400 bg-clip-text text-transparent ${textSizeClass}`}>
           Skylit
         </span>
       )}

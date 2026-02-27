@@ -23,7 +23,7 @@ export const StepContainer: React.FC<StepContainerProps> = ({
 }) => {
   return (
     <div className={`min-h-screen text-text flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 ${className}`}>
-      <div className="w-full max-w-6xl mx-auto space-y-6 sm:space-y-8 lg:space-y-12">
+      <div className="w-full max-w-5xl mx-auto space-y-6 sm:space-y-8 lg:space-y-12">
         <div className="text-center space-y-3 sm:space-y-4 animate-header-in header-first">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text">{title}</h2>
           <p className="text-lg sm:text-xl text-text/70">{subtitle}</p>
@@ -40,7 +40,7 @@ export const StepContainer: React.FC<StepContainerProps> = ({
                 <button
                   type="button"
                   onClick={onCustomPromptReset}
-                  className="text-sm text-accent-cyan hover:text-white transition-colors"
+                  className="text-sm text-accent-primary hover:text-white transition-colors"
                 >
                   Return to guided selections
                 </button>
@@ -48,7 +48,7 @@ export const StepContainer: React.FC<StepContainerProps> = ({
             </div>
           )}
           {customPromptActive && customPromptSnippet && (
-            <p className="text-sm text-accent-cyan/80 max-w-2xl mx-auto">
+            <p className="text-sm text-accent-primary/80 max-w-2xl mx-auto">
               Using custom prompt: “{customPromptSnippet}...”
             </p>
           )}

@@ -100,7 +100,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
       case 'beginner': return 'bg-green-100 text-green-800';
       case 'intermediate': return 'bg-yellow-100 text-yellow-800';
       case 'advanced': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-surface-elevated text-white/90';
     }
   };
 
@@ -115,8 +115,8 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Template Gallery</h2>
-        <p className="text-gray-600">Choose from our curated collection of professional website templates</p>
+        <h2 className="text-3xl font-bold text-white mb-4">Template Gallery</h2>
+        <p className="text-white/60">Choose from our curated collection of professional website templates</p>
       </div>
 
       {/* Filters */}
@@ -126,7 +126,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="all">All Categories</option>
             {categories.map((category) => (
@@ -140,7 +140,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
           <select
             value={selectedDifficulty}
             onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="all">All Levels</option>
             <option value="beginner">Beginner</option>
@@ -154,7 +154,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
             placeholder="Search templates..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent flex-1 min-w-64"
+            className="px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent flex-1 min-w-64"
           />
         </div>
       </div>
@@ -162,7 +162,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
       {/* Templates Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {templates.map((template) => (
-          <div key={template.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+          <div key={template.id} className="glass-card rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
             <div className="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                 <div className="text-white text-6xl opacity-20">
                 <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
@@ -173,36 +173,36 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
             
             <div className="p-6">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-xl font-semibold text-gray-900">{template.name}</h3>
+                <h3 className="text-xl font-semibold text-white">{template.name}</h3>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(template.difficulty)}`}>
                   {template.difficulty}
                 </span>
               </div>
               
-              <p className="text-gray-600 mb-4">{template.description}</p>
+              <p className="text-white/60 mb-4">{template.description}</p>
               
               <div className="mb-4">
                 <div className="flex flex-wrap gap-1">
                   {template.tags.slice(0, 3).map((tag) => (
-                    <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                    <span key={tag} className="px-2 py-1 bg-surface-elevated text-white/80 text-xs rounded">
                       {tag}
                     </span>
                   ))}
                   {template.tags.length > 3 && (
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                    <span className="px-2 py-1 bg-surface-elevated text-white/80 text-xs rounded">
                       +{template.tags.length - 3} more
                     </span>
                   )}
                 </div>
               </div>
               
-              <div className="text-sm text-gray-500 mb-4">
+              <div className="text-sm text-white/50 mb-4">
                 <span className="font-medium">{template.techStack.framework}</span> + {template.techStack.styling}
               </div>
               
               <button
                 onClick={() => handleTemplateSelect(template)}
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="w-full bg-accent-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Use This Template
               </button>
@@ -213,53 +213,53 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
 
       {templates.length === 0 && !loading && (
         <div className="text-center py-12">
-          <div className="text-gray-400 text-6xl mb-4">🔍</div>
-          <h3 className="text-xl font-medium text-gray-900 mb-2">No templates found</h3>
-          <p className="text-gray-600">Try adjusting your search filters</p>
+          <div className="text-white/40 text-6xl mb-4">🔍</div>
+          <h3 className="text-xl font-medium text-white mb-2">No templates found</h3>
+          <p className="text-white/60">Try adjusting your search filters</p>
         </div>
       )}
 
       {/* Customization Modal */}
       {showCustomization && selectedTemplate && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
+          <div className="glass-card rounded-lg max-w-md w-full p-6">
             <h3 className="text-xl font-semibold mb-4">Customize "{selectedTemplate.name}"</h3>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-white/80 mb-1">
                   Company/Project Name
                 </label>
                 <input
                   type="text"
                   value={customizations.companyName}
                   onChange={(e) => setCustomizations({ ...customizations, companyName: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="My Company"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-white/80 mb-1">
                   Industry
                 </label>
                 <input
                   type="text"
                   value={customizations.industry}
                   onChange={(e) => setCustomizations({ ...customizations, industry: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Technology, Healthcare, etc."
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-white/80 mb-1">
                   Color Scheme
                 </label>
                 <select
                   value={customizations.colorScheme}
                   onChange={(e) => setCustomizations({ ...customizations, colorScheme: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Default</option>
                   <option value="blue and white">Blue & White</option>
@@ -273,13 +273,13 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowCustomization(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="flex-1 px-4 py-2 border border-white/15 text-white/80 rounded-lg hover:bg-surface"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUseTemplate}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="flex-1 px-4 py-2 bg-accent-primary text-white rounded-lg hover:bg-blue-700"
               >
                 Generate Site
               </button>
