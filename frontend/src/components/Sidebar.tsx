@@ -41,9 +41,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenSettings
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [projectsPanelOpen, setProjectsPanelOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [showSecretKeyInput, setShowSecretKeyInput] = useState(false);
   const [secretKey, setSecretKey] = useState('');
   const [secretKeyError, setSecretKeyError] = useState('');
@@ -53,24 +50,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
   const [projectError, setProjectError] = useState<string | null>(null);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [notifications] = useState<NotificationItem[]>([]);
   const [userEmail, setUserEmail] = useState<string>('');
   const [username, setUsername] = useState<string>('User');
   const [theme, setTheme] = useState<ThemeChoice>(() => (typeof window === 'undefined' ? 'system' : readThemeChoice()));
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const userDropdownRef = useRef<HTMLDivElement | null>(null);
-  const projectsPanelRef = useRef<HTMLDivElement | null>(null);
-  const notifRef = useRef<HTMLDivElement | null>(null);
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   const creditDisplayValue = hasUnlimitedCredits ? '∞' : typeof credits === 'number' ? String(credits) : null;
   const billingAttentionNeeded = typeof credits === 'number' && credits < 3 && !hasUnlimitedCredits;
 
+  // Close menus on outside click
   useEffect(() => {
     const handler = (e: PointerEvent) => {
       const t = e.target as Node;
-      if (!userDropdownRef.current?.contains(t)) setUserDropdownOpen(false);
-      if (!projectsPanelRef.current?.contains(t)) setProjectsPanelOpen(false);
-      if (!notifRef.current?.contains(t)) setNotificationsOpen(false);
+      if (!userMenuRef.current?.contains(t)) setUserMenuOpen(false);
     };
     window.addEventListener('pointerdown', handler, true);
     return () => window.removeEventListener('pointerdown', handler, true);
@@ -79,9 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setUserDropdownOpen(false);
-        setProjectsPanelOpen(false);
-        setNotificationsOpen(false);
+        setUserMenuOpen(false);
         setMobileMenuOpen(false);
       }
     };
@@ -89,6 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
+  // Extract user info from token
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     let derivedName = 'User';
@@ -108,6 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return () => window.removeEventListener('profile:displayName', h as EventListener);
   }, []);
 
+  // Theme management
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const cur = initializeThemeFromStorage();
@@ -132,8 +127,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
     persistThemeChoice(next);
   };
 
-  const themeIcon = theme === 'dark' ? '🌙' : theme === 'light' ? '🔆' : '🖥';
+  const themeIcon = theme === 'dark' ? (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+  ) : theme === 'light' ? (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+  ) : (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+  );
 
+  // Load projects
   const loadProjects = async () => {
     setLoadingProjects(true);
     setProjectError(null);
@@ -161,7 +163,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   useEffect(() => { loadProjects(); }, []);
-
   useEffect(() => {
     const h = () => loadProjects();
     window.addEventListener('projects:refresh', h);
@@ -174,7 +175,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     try {
       if (project.previewId) await apiClient.delete('/api/preview/' + project.previewId);
       setProjects(p => p.filter(pr => pr.id !== project.id));
-    } catch { /* show nothing */ }
+    } catch { /* ignore */ }
   };
 
   const filteredProjects = projects.filter(p => {
@@ -203,280 +204,265 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  const pushNotification = (message: string, type: NotificationItem['type'] = 'info') => {
-    setNotifications(prev => [{ id: Math.random().toString(36).slice(2), message, type, ts: Date.now() }, ...prev.slice(0, 24)]);
-  };
+  const sidebarContent = (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-border">
+        <Logo size={28} withText textSizeClass="text-lg" />
+      </div>
 
-  useEffect(() => { pushNotification('Welcome back!'); }, []);
+      {/* New Project Button */}
+      <div className="p-3">
+        <button
+          onClick={() => { onCreateNew(); setMobileMenuOpen(false); }}
+          className="w-full flex items-center justify-center gap-2 btn-primary py-2.5 rounded-lg text-sm font-medium"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          New Project
+        </button>
+      </div>
+
+      {/* Search */}
+      <div className="px-3 pb-2">
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search projects..."
+          className="input-base w-full text-xs py-1.5"
+        />
+      </div>
+
+      {/* Projects List */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar px-2 py-1">
+        <div className="px-2 py-1.5 flex items-center justify-between">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">Projects</span>
+          <button onClick={loadProjects} className="text-muted hover:text-text transition-colors p-0.5" title="Reload">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+
+        {loadingProjects && [1, 2, 3].map(i => (
+          <div key={i} className="h-9 rounded-lg skeleton-loader mx-1 mb-1" />
+        ))}
+
+        {projectError && <p className="text-xs text-red-500 px-2 py-1">{projectError}</p>}
+
+        {!loadingProjects && filteredProjects.length === 0 && (
+          <div className="text-center py-6 px-2">
+            <p className="text-xs text-muted">No projects yet</p>
+            <button
+              onClick={() => { onCreateNew(); setMobileMenuOpen(false); }}
+              className="mt-2 text-xs text-accent-primary hover:underline"
+            >
+              Create your first project
+            </button>
+          </div>
+        )}
+
+        {filteredProjects.map(p => (
+          <div
+            key={p.id}
+            className="group flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-surface-overlay cursor-pointer transition-colors mx-1 mb-0.5"
+            onClick={() => { onOpenProject(p); setMobileMenuOpen(false); }}
+          >
+            <div className="w-7 h-7 rounded-md bg-accent-primary/10 text-accent-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
+              {p.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-text truncate">{p.name}</p>
+              <p className="text-[10px] text-muted">{new Date(p.createdAt).toLocaleDateString()}</p>
+            </div>
+            <button
+              onClick={e => deleteProject(p, e)}
+              className="opacity-0 group-hover:opacity-100 text-muted hover:text-red-500 transition-all p-1 rounded"
+              title="Delete"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom Section */}
+      <div className="border-t border-border p-3 space-y-2">
+        {/* Credits */}
+        {creditDisplayValue && (
+          <button
+            onClick={() => onOpenBilling?.()}
+            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+              billingAttentionNeeded
+                ? 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20'
+                : 'bg-accent-primary/5 text-accent-primary border border-accent-primary/10'
+            }`}
+          >
+            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+            </svg>
+            {billingAttentionNeeded ? `${creditDisplayValue} credits left` : `${creditDisplayValue} credits`}
+          </button>
+        )}
+
+        {/* Nav buttons row */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onOpenSettings?.()}
+            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs text-muted hover:text-text hover:bg-surface-overlay transition-colors"
+            title="Settings"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+          <button
+            onClick={cycleTheme}
+            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs text-muted hover:text-text hover:bg-surface-overlay transition-colors"
+            title={`Theme: ${theme}`}
+          >
+            {themeIcon}
+          </button>
+          {!secretKeySuccess && (
+            <button
+              onClick={() => setShowSecretKeyInput(o => !o)}
+              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs text-muted hover:text-text hover:bg-surface-overlay transition-colors"
+              title="Secret Key"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {/* Secret Key Input */}
+        {showSecretKeyInput && !secretKeySuccess && (
+          <div className="space-y-2 animate-fade-in">
+            <input
+              type="text"
+              value={secretKey}
+              onChange={e => setSecretKey(e.target.value)}
+              placeholder="Enter secret key..."
+              className="input-base w-full text-xs"
+              onKeyPress={e => e.key === 'Enter' && handleSecretKeySubmit()}
+              disabled={secretKeyLoading}
+            />
+            {secretKeyError && <p className="text-xs text-red-500">{secretKeyError}</p>}
+            <button
+              onClick={handleSecretKeySubmit}
+              disabled={secretKeyLoading || !secretKey.trim()}
+              className="w-full btn-primary py-1.5 text-xs rounded-lg disabled:opacity-50"
+            >
+              {secretKeyLoading ? 'Verifying...' : 'Activate'}
+            </button>
+          </div>
+        )}
+
+        {secretKeySuccess && (
+          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs px-2">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Unlimited Access
+          </div>
+        )}
+
+        {/* User menu */}
+        <div className="relative" ref={userMenuRef}>
+          <button
+            onClick={() => setUserMenuOpen(o => !o)}
+            className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-surface-overlay transition-colors"
+          >
+            <div className="w-8 h-8 rounded-full bg-accent-primary/10 text-accent-primary flex items-center justify-center text-sm font-semibold flex-shrink-0">
+              {username.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0 text-left">
+              <p className="text-sm font-medium text-text truncate">{username}</p>
+              <p className="text-[10px] text-muted truncate">{userEmail || ''}</p>
+            </div>
+            <svg className={`w-4 h-4 text-muted transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {userMenuOpen && (
+            <div className="absolute bottom-full left-0 right-0 mb-1 card shadow-lg rounded-lg overflow-hidden animate-scale-in z-50">
+              <div className="py-1">
+                <button
+                  onClick={() => { onOpenBilling?.(); setUserMenuOpen(false); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-text hover:bg-surface-overlay transition-colors text-left"
+                >
+                  <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                  Billing
+                </button>
+                <div className="my-0.5 mx-3 border-t border-border" />
+                <button
+                  onClick={() => { onLogout(); setUserMenuOpen(false); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <>
-      {/* ── Top Navbar ───────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 h-16 glass-navbar">
-        <div className="max-w-screen-2xl mx-auto h-full px-4 sm:px-6 flex items-center justify-between gap-4">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 bg-surface border-r border-border z-40 flex-col">
+        {sidebarContent}
+      </aside>
 
-          {/* Left */}
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <Logo size={36} withText textSizeClass="text-xl font-bold" />
-            <button
-              onClick={() => { onCreateNew(); setProjectsPanelOpen(false); }}
-              className="hidden sm:flex items-center gap-1.5 btn-gradient text-sm font-semibold px-4 py-2 rounded-lg"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-              New Project
-            </button>
-          </div>
-
-          {/* Center: Projects (desktop) */}
-          <div className="hidden md:flex items-center">
-            <button
-              onClick={() => setProjectsPanelOpen(o => !o)}
-              className={'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ' +
-                (projectsPanelOpen
-                  ? 'bg-accent-primary/15 text-accent-primary border border-accent-primary/30'
-                  : 'text-white/70 hover:text-white hover:bg-white/5 border border-transparent')}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-14 bg-background/95 backdrop-blur-sm border-b border-border flex items-center justify-between px-4">
+        <Logo size={24} withText textSizeClass="text-base" />
+        <div className="flex items-center gap-2">
+          {creditDisplayValue && (
+            <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+              billingAttentionNeeded ? 'bg-red-50 dark:bg-red-500/10 text-red-500' : 'bg-accent-primary/10 text-accent-primary'
+            }`}>
+              {creditDisplayValue}
+            </span>
+          )}
+          <button
+            onClick={() => setMobileMenuOpen(o => !o)}
+            className="p-2 rounded-lg text-muted hover:text-text hover:bg-surface-overlay transition-colors"
+          >
+            {mobileMenuOpen ? (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
-              Projects
-              {projects.length > 0 && (
-                <span className="text-[11px] bg-accent-primary/20 text-accent-primary px-1.5 py-0.5 rounded-full font-semibold">
-                  {projects.length}
-                </span>
-              )}
-            </button>
-          </div>
-
-          {/* Right */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-
-            {/* Credits */}
-            {creditDisplayValue && (
-              <button
-                onClick={() => onOpenBilling?.()}
-                className={'hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 ' +
-                  (billingAttentionNeeded
-                    ? 'bg-red-500/15 border-red-400/40 text-red-300 hover:bg-red-500/25'
-                    : 'bg-accent-primary/10 border-accent-primary/20 text-accent-primary hover:bg-accent-primary/20')}
-              >
-                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                </svg>
-                {creditDisplayValue} credits
-              </button>
+            ) : (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             )}
-
-            {/* Notifications */}
-            <div className="relative" ref={notifRef}>
-              <button
-                onClick={() => setNotificationsOpen(o => !o)}
-                className={'relative flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 ' +
-                  (notificationsOpen ? 'bg-accent-primary/15 text-accent-primary' : 'text-white/60 hover:text-white hover:bg-white/8')}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                {notifications.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-accent-secondary text-[9px] font-bold text-white flex items-center justify-center">
-                    {notifications.length > 9 ? '9+' : notifications.length}
-                  </span>
-                )}
-              </button>
-              {notificationsOpen && (
-                <div className="absolute right-0 top-12 w-80 glass-card shadow-glass-lg rounded-xl overflow-hidden animate-fade-in z-50">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/6">
-                    <span className="text-sm font-semibold text-white">Notifications</span>
-                    <button onClick={() => { setNotifications([]); setNotificationsOpen(false); }} className="text-xs text-white/50 hover:text-white transition-colors">Clear all</button>
-                  </div>
-                  <div className="max-h-72 overflow-y-auto custom-scrollbar divide-y divide-white/5">
-                    {notifications.length === 0 && <p className="px-4 py-6 text-sm text-center text-white/40">No notifications</p>}
-                    {notifications.map(n => (
-                      <div key={n.id} className={'px-4 py-3 text-sm ' + (n.type === 'error' ? 'border-l-2 border-red-500' : n.type === 'success' ? 'border-l-2 border-green-500' : n.type === 'warning' ? 'border-l-2 border-yellow-500' : 'border-l-2 border-accent-primary/50')}>
-                        <p className="text-white/90 text-xs leading-snug">{n.message}</p>
-                        <p className="text-[10px] text-white/40 mt-0.5">{new Date(n.ts).toLocaleTimeString()}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* User dropdown */}
-            <div className="relative" ref={userDropdownRef}>
-              <button
-                onClick={() => setUserDropdownOpen(o => !o)}
-                className={'flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all duration-200 ' + (userDropdownOpen ? 'bg-white/8' : 'hover:bg-white/5')}
-              >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent-primary to-accent-secondary flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-                  {username.charAt(0).toUpperCase()}
-                </div>
-                <div className="hidden sm:flex flex-col items-start leading-none">
-                  <span className="text-sm font-medium text-white/90 max-w-[110px] truncate">{username}</span>
-                  {creditDisplayValue && (
-                    <span className={'text-[10px] ' + (billingAttentionNeeded ? 'text-red-400' : 'text-accent-primary/70')}>
-                      {billingAttentionNeeded ? '⚠ Low credits' : '⚡ ' + creditDisplayValue}
-                    </span>
-                  )}
-                </div>
-                <svg className={'w-4 h-4 text-white/40 transition-transform duration-200 ' + (userDropdownOpen ? 'rotate-180' : '')} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {userDropdownOpen && (
-                <div className="absolute right-0 top-12 w-64 glass-card shadow-glass-lg rounded-xl overflow-hidden animate-fade-in z-50">
-                  <div className="px-4 py-3 border-b border-white/6">
-                    <p className="text-sm font-semibold text-white truncate">{username}</p>
-                    <p className="text-xs text-white/50 truncate mt-0.5">{userEmail || '—'}</p>
-                  </div>
-                  <div className="py-1">
-                    <button onClick={() => { onOpenSettings?.(); setUserDropdownOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors text-left">
-                      <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><circle cx="12" cy="12" r="3" /></svg>
-                      Settings
-                    </button>
-                    {onOpenBilling && (
-                      <button onClick={() => { onOpenBilling(); setUserDropdownOpen(false); }} className={'w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left ' + (billingAttentionNeeded ? 'text-red-300 hover:text-red-200 hover:bg-red-500/10' : 'text-white/80 hover:text-white hover:bg-white/5')}>
-                        <svg className={'w-4 h-4 ' + (billingAttentionNeeded ? 'text-red-400' : 'text-white/50')} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
-                        {billingAttentionNeeded ? '⚠ Billing (Low)' : 'Billing & Credits'}
-                      </button>
-                    )}
-                    <button onClick={cycleTheme} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors text-left">
-                      <span className="text-base">{themeIcon}</span>
-                      Theme: {theme.charAt(0).toUpperCase() + theme.slice(1)}
-                    </button>
-                    <div className="my-1 border-t border-white/6" />
-                    {!secretKeySuccess && (
-                      <button onClick={() => setShowSecretKeyInput(o => !o)} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/60 hover:text-accent-primary hover:bg-accent-primary/5 transition-colors text-left">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
-                        Unlock Unlimited Access
-                      </button>
-                    )}
-                    {secretKeySuccess && (
-                      <div className="px-4 py-2.5 flex items-center gap-2 text-green-400 text-sm">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        Unlimited Access Active
-                      </div>
-                    )}
-                    {showSecretKeyInput && !secretKeySuccess && (
-                      <div className="px-4 py-3 space-y-2 border-t border-white/6 animate-fade-in">
-                        <input
-                          type="text"
-                          value={secretKey}
-                          onChange={e => setSecretKey(e.target.value)}
-                          placeholder="Enter secret key..."
-                          className="w-full px-3 py-2 text-xs bg-[#0f0f1a] rounded-lg border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-accent-primary/50 transition-colors"
-                          onKeyPress={e => e.key === 'Enter' && handleSecretKeySubmit()}
-                          disabled={secretKeyLoading}
-                        />
-                        {secretKeyError && <p className="text-xs text-red-400">{secretKeyError}</p>}
-                        <button onClick={handleSecretKeySubmit} disabled={secretKeyLoading || !secretKey.trim()} className="w-full py-1.5 px-3 btn-gradient text-xs font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                          {secretKeyLoading ? 'Verifying…' : 'Activate'}
-                        </button>
-                      </div>
-                    )}
-                    <div className="my-1 border-t border-white/6" />
-                    <button onClick={() => { onLogout(); setUserDropdownOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-left">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                      Sign Out
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setMobileMenuOpen(o => !o)}
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-white/60 hover:text-white hover:bg-white/8 transition-all duration-200"
-            >
-              {mobileMenuOpen ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-              )}
-            </button>
-          </div>
+          </button>
         </div>
-      </nav>
+      </div>
 
-      {/* ── Projects Panel ──────────────────────────────────────── */}
-      {projectsPanelOpen && (
-        <>
-          <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]" onClick={() => setProjectsPanelOpen(false)} />
-          <div ref={projectsPanelRef} className="fixed top-16 left-0 h-[calc(100vh-4rem)] w-72 z-50 glass-card rounded-none rounded-r-2xl shadow-glass-lg flex flex-col animate-fade-in overflow-hidden">
-            <div className="p-4 border-b border-white/6 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white">Projects</h3>
-              <button onClick={loadProjects} className="text-white/40 hover:text-accent-primary transition-colors" title="Reload">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-              </button>
-            </div>
-            <div className="px-4 py-3 border-b border-white/5">
-              <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search projects..." className="w-full px-3 py-2 text-sm bg-[#0f0f1a] rounded-lg border border-white/8 text-white placeholder:text-white/40 focus:outline-none focus:border-accent-primary/50 transition-colors" />
-            </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1">
-              {loadingProjects && [1,2,3].map(i => <div key={i} className="h-10 rounded-lg skeleton-loader" />)}
-              {projectError && <p className="text-xs text-red-400 px-2">{projectError}</p>}
-              {!loadingProjects && filteredProjects.length === 0 && (
-                <div className="text-center py-8">
-                  <p className="text-sm text-white/40">No projects yet</p>
-                  <button onClick={() => { onCreateNew(); setProjectsPanelOpen(false); }} className="mt-3 text-xs text-accent-primary hover:text-accent-primary/80 transition-colors">Create your first project →</button>
-                </div>
-              )}
-              {filteredProjects.map(p => (
-                <div key={p.id} className="group flex items-center gap-2 p-2.5 rounded-lg hover:bg-white/5 border border-transparent hover:border-accent-primary/15 transition-all cursor-pointer" onClick={() => { onOpenProject(p); setProjectsPanelOpen(false); }}>
-                  <div className="w-7 h-7 rounded-md bg-gradient-to-br from-accent-primary/30 to-accent-secondary/30 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                    {p.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white/90 group-hover:text-white truncate">{p.name}</p>
-                    <p className="text-[10px] text-white/40">{new Date(p.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <button onClick={e => deleteProject(p, e)} className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-red-400 transition-all p-1 rounded" title="Delete">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* ── Mobile Menu ─────────────────────────────────────────── */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <>
-          <div className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <div className="md:hidden fixed top-16 left-0 right-0 z-50 glass-card border-t border-white/8 shadow-glass-lg animate-fade-in">
-            <div className="p-4 space-y-3">
-              {creditDisplayValue && (
-                <div className={'flex items-center gap-2 px-3 py-2 rounded-lg text-sm ' + (billingAttentionNeeded ? 'bg-red-500/10 text-red-300 border border-red-400/20' : 'bg-accent-primary/10 text-accent-primary border border-accent-primary/20')}>
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
-                  {billingAttentionNeeded ? 'Only ' + creditDisplayValue + ' credits left' : creditDisplayValue + ' credits remaining'}
-                </div>
-              )}
-              <button onClick={() => { onCreateNew(); setMobileMenuOpen(false); }} className="w-full btn-gradient py-3 rounded-xl text-sm font-semibold">+ New Project</button>
-              <button onClick={() => { setProjectsPanelOpen(o => !o); setMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 bg-white/4 rounded-xl border border-white/8 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" /></svg>
-                My Projects ({projects.length})
-              </button>
-              {onOpenSettings && (
-                <button onClick={() => { onOpenSettings(); setMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 bg-white/4 rounded-xl border border-white/8 transition-colors">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><circle cx="12" cy="12" r="3" /></svg>
-                  Settings
-                </button>
-              )}
-              {onOpenBilling && (
-                <button onClick={() => { onOpenBilling(); setMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white/80 bg-white/4 rounded-xl border border-white/8 transition-colors">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
-                  Billing
-                </button>
-              )}
-              <button onClick={() => { onLogout(); setMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 bg-red-500/8 rounded-xl border border-red-500/15 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                Sign Out
-              </button>
-            </div>
-          </div>
+          <div className="lg:hidden fixed inset-0 z-40 bg-black/30" onClick={() => setMobileMenuOpen(false)} />
+          <aside className="lg:hidden fixed left-0 top-14 bottom-0 w-72 bg-surface border-r border-border z-50 animate-slide-down">
+            {sidebarContent}
+          </aside>
         </>
       )}
     </>

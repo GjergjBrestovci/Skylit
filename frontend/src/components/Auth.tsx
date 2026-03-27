@@ -23,21 +23,17 @@ export function Auth({ onAuthSuccess }: AuthProps) {
     try {
       const endpoint = isLogin ? '/api/login' : '/api/register';
       const data = await apiClient.post(endpoint, { email, password });
-      
+
       if (isLogin) {
-        // Login success - store tokens and notify parent
         localStorage.setItem('authToken', data.token);
         if (data.refreshToken) {
           localStorage.setItem('refreshToken', data.refreshToken);
         }
         onAuthSuccess(data.token);
       } else {
-        // Registration success - check if email confirmation is required
         if (data.emailConfirmationRequired) {
           setSuccess(data.message);
-          // Don't auto-login, wait for email confirmation
         } else {
-          // Auto-confirm enabled, proceed with login
           localStorage.setItem('authToken', data.token);
           if (data.refreshToken) {
             localStorage.setItem('refreshToken', data.refreshToken);
@@ -53,75 +49,97 @@ export function Auth({ onAuthSuccess }: AuthProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background text-white">
-      <div className="w-full max-w-md rounded-2xl p-8 glass-card shadow-glow-lg transition-all duration-300">
-        <div className="text-center mb-6 space-y-3">
-          <Logo size={56} withText className="mx-auto justify-center" textSizeClass="text-3xl" />
-          <h2 className="text-xl font-semibold text-white">{isLogin ? 'Sign In' : 'Create Account'}</h2>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <div className="w-full max-w-sm">
+        {/* Logo & Title */}
+        <div className="text-center mb-8">
+          <Logo size={40} withText className="mx-auto justify-center" textSizeClass="text-2xl" />
+          <p className="mt-3 text-sm text-muted">
+            {isLogin ? 'Welcome back' : 'Create your account'}
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-semibold mb-2 text-white/80">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              className="w-full p-3 rounded-md text-sm bg-surface-elevated border border-accent-secondary/30 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-accent-secondary/30"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-semibold mb-2 text-white/80">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              className="w-full p-3 rounded-md text-sm bg-surface-elevated border border-accent-secondary/30 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-accent-secondary/30"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          {error && (
-            <div className="p-3 bg-red-500/15 border border-red-500/30 rounded-md text-red-400 text-sm">
-              {error}
+        {/* Form Card */}
+        <div className="card p-6 shadow-lg">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium mb-1.5 text-text">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                className="input-base w-full"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-          )}
 
-          {success && (
-            <div className="p-3 bg-emerald-500/15 border border-emerald-500/25 rounded-md text-emerald-400 text-sm">
-              {success}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium mb-1.5 text-text">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                className="input-base w-full"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-gradient-to-r from-accent-primary to-accent-secondary text-white font-semibold py-3 px-4 shadow-glow hover:from-accent-primary/90 hover:to-accent-secondary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-secondary/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-          >
-            {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
-          </button>
-        </form>
+            {error && (
+              <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg text-red-600 dark:text-red-400 text-sm">
+                {error}
+              </div>
+            )}
 
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setError(null);
-              setSuccess(null);
-            }}
-            className="text-accent-secondary hover:text-accent-secondary/80 text-sm font-medium"
-          >
-            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-          </button>
+            {success && (
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-lg text-emerald-600 dark:text-emerald-400 text-sm">
+                {success}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full btn-primary py-2.5 text-sm font-medium"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Loading...
+                </span>
+              ) : (
+                isLogin ? 'Sign In' : 'Create Account'
+              )}
+            </button>
+          </form>
+
+          <div className="mt-5 pt-5 border-t border-border text-center">
+            <button
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError(null);
+                setSuccess(null);
+              }}
+              className="text-sm text-muted hover:text-accent-primary transition-colors"
+            >
+              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+            </button>
+          </div>
         </div>
+
+        <p className="mt-6 text-center text-xs text-muted/60">
+          Powered by SkyLit AI
+        </p>
       </div>
     </div>
   );

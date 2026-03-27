@@ -19,17 +19,17 @@ export const BillingPage: React.FC<BillingPageProps> = ({ open, onClose }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="relative w-full max-w-5xl max-h-[92vh] overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d0d12] via-[#0f1523] to-[#0c101a] border border-white/10 shadow-[0_20px_120px_-40px_rgba(0,0,0,0.9)]">
+    <div className="fixed inset-0 z-[60] bg-black/50 dark:bg-black/60 flex items-center justify-center p-4">
+      <div className="relative w-full max-w-5xl max-h-[92vh] overflow-hidden rounded-2xl bg-background border border-border shadow-lg">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[#0f1523]/80 backdrop-blur-md">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-border bg-surface">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-white/50">Billing</p>
-            <h2 className="text-lg font-semibold text-white">Plans & Credits</h2>
+            <p className="text-xs uppercase tracking-widest text-muted">Billing</p>
+            <h2 className="text-lg font-semibold text-text">Plans & Credits</h2>
           </div>
           <button
             onClick={onClose}
-            className="rounded-full px-3 py-1.5 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/10 transition"
+            className="btn-ghost text-xs"
             aria-label="Close billing"
           >
             Close
@@ -41,11 +41,11 @@ export const BillingPage: React.FC<BillingPageProps> = ({ open, onClose }) => {
           {showPricing ? (
             <Pricing onClose={() => setShowPricing(false)} />
           ) : (
-            <div className="p-8 text-center text-white/70">
+            <div className="p-8 text-center text-muted">
               <p className="text-base">Billing closed.</p>
               <button
                 onClick={() => setShowPricing(true)}
-                className="mt-4 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-purple-500 text-black text-sm font-semibold shadow-lg"
+                className="btn-primary mt-4"
               >
                 Reopen Pricing
               </button>

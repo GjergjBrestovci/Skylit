@@ -9,13 +9,13 @@ interface SaveProjectModalProps {
   onClose: () => void;
 }
 
-export function SaveProjectModal({ 
-  open, 
-  defaultTitle = '', 
+export function SaveProjectModal({
+  open,
+  defaultTitle = '',
   saving,
   saveError,
-  onSave, 
-  onClose 
+  onSave,
+  onClose
 }: SaveProjectModalProps) {
   const [title, setTitle] = useState(defaultTitle);
   const [error, setError] = useState('');
@@ -25,26 +25,13 @@ export function SaveProjectModal({
     if (open) {
       setTitle(defaultTitle);
       setError('');
-      // Focus input after modal opens
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [open, defaultTitle]);
 
-  // Show save error from parent
   useEffect(() => {
-    if (saveError) {
-      setError(saveError);
-    }
+    if (saveError) setError(saveError);
   }, [saveError]);
-
-  useEffect(() => {
-    if (open) {
-      setTitle(defaultTitle);
-      setError('');
-      // Focus input after modal opens
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [open, defaultTitle]);
 
   const handleSave = () => {
     const trimmed = title.trim();
@@ -60,41 +47,23 @@ export function SaveProjectModal({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !saving) {
-      handleSave();
-    } else if (e.key === 'Escape') {
-      onClose();
-    }
+    if (e.key === 'Enter' && !saving) handleSave();
+    else if (e.key === 'Escape') onClose();
   };
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 theme-surface-overlay backdrop-blur-md" 
-        onClick={onClose} 
-      />
-      
-      {/* Modal */}
-      <div className="relative w-full max-w-md rounded-2xl theme-surface-card theme-border-subtle border p-6 shadow-2xl space-y-5 animate-fade-in">
-        {/* Header */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-primary to-accent-secondary flex items-center justify-center">
-              <span className="text-xl">💾</span>
-            </div>
-            <h3 className="text-xl font-semibold theme-text-primary">Save Project</h3>
-          </div>
-          <p className="text-sm theme-text-secondary">
-            Give your project a name so you can find it later.
-          </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-black/40 dark:bg-black/60" onClick={onClose} />
+      <div className="relative w-full max-w-md card p-6 shadow-xl space-y-5 animate-scale-in">
+        <div>
+          <h3 className="text-lg font-semibold text-text">Save Project</h3>
+          <p className="text-sm text-muted mt-1">Give your project a name to find it later.</p>
         </div>
 
-        {/* Input */}
-        <div className="space-y-2">
-          <label htmlFor="project-name" className="block text-sm font-medium theme-text-secondary">
+        <div className="space-y-1.5">
+          <label htmlFor="project-name" className="block text-sm font-medium text-text">
             Project Name
           </label>
           <input
@@ -109,20 +78,19 @@ export function SaveProjectModal({
             onKeyDown={handleKeyDown}
             placeholder="My Awesome Website"
             disabled={saving}
-            className="w-full px-4 py-3 rounded-xl theme-input text-base focus:outline-none focus:ring-2 focus:ring-accent-primary/50 transition-all disabled:opacity-50"
+            className="input-base w-full py-2.5 disabled:opacity-50"
           />
           {error && (
-            <p className="text-sm text-red-400 animate-fade-in">{error}</p>
+            <p className="text-sm text-red-500 animate-fade-in">{error}</p>
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 pt-1">
           <button
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="flex-1 px-4 py-3 rounded-xl theme-border-subtle border theme-text-secondary hover:theme-text-primary transition-colors disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 rounded-lg border border-border text-sm text-muted hover:text-text transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
@@ -130,19 +98,17 @@ export function SaveProjectModal({
             type="button"
             onClick={handleSave}
             disabled={saving || !title.trim()}
-            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-accent-primary to-accent-secondary text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 btn-primary py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {saving ? (
               <>
-                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
                 Saving...
               </>
-            ) : (
-              'Save Project'
-            )}
+            ) : 'Save'}
           </button>
         </div>
       </div>

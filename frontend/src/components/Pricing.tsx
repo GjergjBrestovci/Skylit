@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../utils/apiClient';
 import { loadStripe } from '@stripe/stripe-js';
-import { GlassButton } from './ui/GlassButton';
 
 // Initialize Stripe
 const STRIPE_ENABLED = import.meta.env.VITE_STRIPE_ENABLED !== 'false';
@@ -44,7 +43,7 @@ export function Pricing(_props: PricingProps) {
 
   const handlePurchase = async (planId: string) => {
     if (processingPayment) return;
-    
+
     setProcessingPayment(planId);
     setError(null);
 
@@ -57,14 +56,14 @@ export function Pricing(_props: PricingProps) {
         planId,
         billingMode
       });
-      
+
       const stripe = await stripePromise;
       if (!stripe) throw new Error('Stripe failed to initialize');
-      
+
       const { error: stripeError } = await stripe.redirectToCheckout({
         sessionId: response.sessionId
       });
-      
+
       if (stripeError) {
         throw new Error(stripeError.message);
       }
@@ -81,16 +80,16 @@ export function Pricing(_props: PricingProps) {
       <div className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {[1,2,3].map(i => (
-            <div key={i} className="glass-medium rounded-3xl border border-white/10 p-6 animate-pulse space-y-4">
-              <div className="h-4 bg-white/10 rounded w-24"></div>
-              <div className="h-8 bg-white/10 rounded w-32"></div>
-              <div className="h-6 bg-white/5 rounded w-20"></div>
+            <div key={i} className="card rounded-xl p-6 animate-pulse space-y-4">
+              <div className="h-4 bg-surface-elevated rounded w-24"></div>
+              <div className="h-8 bg-surface-elevated rounded w-32"></div>
+              <div className="h-6 bg-surface rounded w-20"></div>
               <div className="space-y-2">
                 {[1,2,3,4].map(j => (
-                  <div key={j} className="h-3 bg-white/5 rounded"></div>
+                  <div key={j} className="h-3 bg-surface rounded"></div>
                 ))}
               </div>
-              <div className="h-10 bg-white/10 rounded"></div>
+              <div className="h-10 bg-surface-elevated rounded"></div>
             </div>
           ))}
         </div>
@@ -100,23 +99,26 @@ export function Pricing(_props: PricingProps) {
 
   const getPlanIcon = (planId: string) => {
     switch (planId) {
-      case 'basic': return '⚡';
+      case 'basic': return (
+        <svg className="w-5 h-5 text-accent-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      );
       case 'pro': return (
-        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <svg className="w-5 h-5 text-accent-primary" fill="currentColor" viewBox="0 0 20 20">
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
         </svg>
       );
-      case 'enterprise': return '👑';
-      default: return '💫';
-    }
-  };
-
-  const getPlanGradient = (planId: string) => {
-    switch (planId) {
-      case 'basic': return 'from-blue-500/10 to-cyan-500/10 border-blue-500/20';
-      case 'pro': return 'from-cyan-400/10 to-purple-500/10 border-cyan-400/30';
-      case 'enterprise': return 'from-purple-500/10 to-pink-500/10 border-purple-500/20';
-      default: return 'from-purple-500/10 to-cyan-400/10 border-purple-500/20';
+      case 'enterprise': return (
+        <svg className="w-5 h-5 text-accent-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      );
+      default: return (
+        <svg className="w-5 h-5 text-accent-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+        </svg>
+      );
     }
   };
 
@@ -125,35 +127,35 @@ export function Pricing(_props: PricingProps) {
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="space-y-2">
-          <h2 className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            Unlock AI Power
+          <h2 className="text-3xl font-bold text-text">
+            Choose your plan
           </h2>
-          <p className="text-white/60 text-lg">Choose the perfect plan for your creative journey</p>
+          <p className="text-muted text-lg">Select the perfect plan for your creative journey</p>
         </div>
 
         {/* Billing Toggle */}
         <div className="flex items-center justify-center mt-6">
-          <div className="glass-medium rounded-2xl p-1 flex border border-white/20">
+          <div className="bg-surface-elevated rounded-lg p-1 flex border border-border">
             <button
               onClick={() => setBillingMode('credits')}
-              className={`px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 ease-bounce-light ${
+              className={`px-5 py-2.5 rounded-md font-medium text-sm transition-all ${
                 billingMode === 'credits'
-                  ? 'bg-gradient-to-r from-cyan-400 to-purple-500 text-black shadow-glass-lg scale-105'
-                  : 'text-white/60 hover:text-white/80'
+                  ? 'btn-primary shadow-sm'
+                  : 'text-muted hover:text-text'
               }`}
             >
               One-time Credits
             </button>
             <button
               onClick={() => setBillingMode('monthly')}
-              className={`px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 ease-bounce-light ${
+              className={`px-5 py-2.5 rounded-md font-medium text-sm transition-all ${
                 billingMode === 'monthly'
-                  ? 'bg-gradient-to-r from-cyan-400 to-purple-500 text-black shadow-glass-lg scale-105'
-                  : 'text-white/60 hover:text-white/80'
+                  ? 'btn-primary shadow-sm'
+                  : 'text-muted hover:text-text'
               }`}
             >
               Monthly Subscription
-              <span className="ml-2 bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full text-xs">
+              <span className="ml-2 bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full text-xs">
                 Save 20%
               </span>
             </button>
@@ -163,7 +165,7 @@ export function Pricing(_props: PricingProps) {
 
       {/* Error message */}
       {error && (
-        <div className="p-4 glass-light border border-red-400/20 rounded-2xl text-red-400 text-center">
+        <div className="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg text-red-700 dark:text-red-300 text-center">
           <div className="flex items-center justify-center gap-2">
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
@@ -179,34 +181,35 @@ export function Pricing(_props: PricingProps) {
         {plans.map((plan) => (
           <div
             key={plan.id}
-            className={`relative glass-medium rounded-3xl border backdrop-blur-xl transition-all duration-300 ease-bounce-light hover:scale-105 hover:shadow-glass-xl ${getPlanGradient(plan.id)}`}
+            className={`relative card rounded-xl transition-all hover:shadow-md ${
+              plan.id === 'pro' ? 'border-accent-primary ring-1 ring-accent-primary/20' : ''
+            }`}
           >
             {/* Popular badge */}
             {plan.id === 'pro' && (
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <div className="glass-light px-4 py-2 rounded-full text-sm font-semibold text-cyan-400 border border-cyan-400/30">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                    Most Popular
-                  </div>
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <div className="bg-accent-primary text-white px-4 py-1 rounded-full text-xs font-semibold">
+                  Most Popular
                 </div>
               </div>
             )}
 
-            <div className="p-8 space-y-6">
+            <div className="p-6 sm:p-8 space-y-6">
               {/* Plan header */}
               <div className="text-center space-y-4">
-                <div className="text-4xl">{getPlanIcon(plan.id)}</div>
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-surface-elevated border border-border">
+                  {getPlanIcon(plan.id)}
+                </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                  <h3 className="text-xl font-semibold text-text mb-2">{plan.name}</h3>
                   <div className="space-y-1">
-                    <div className="text-4xl font-black text-cyan-400">
+                    <div className="text-4xl font-bold text-text">
                       ${billingMode === 'monthly' ? plan.price : Math.round(plan.price * 0.8)}
                     </div>
-                    <div className="text-white/50 text-sm">
+                    <div className="text-muted text-sm">
                       {billingMode === 'monthly' ? 'per month' : 'one-time purchase'}
                       {billingMode === 'credits' && (
-                        <div className="text-green-400 font-medium mt-1">20% savings!</div>
+                        <div className="text-green-600 dark:text-green-400 font-medium mt-1">20% savings!</div>
                       )}
                     </div>
                   </div>
@@ -214,10 +217,10 @@ export function Pricing(_props: PricingProps) {
               </div>
 
               {/* Credits info */}
-              <div className="text-center p-4 glass-light rounded-2xl border border-purple-500/10">
-                <div className="text-2xl font-bold text-purple-400">{plan.credits}</div>
-                <div className="text-sm text-white/60">AI website generations</div>
-                <div className="text-xs text-white/40 mt-1">
+              <div className="text-center p-4 bg-surface-elevated rounded-lg border border-border">
+                <div className="text-2xl font-bold text-accent-primary">{plan.credits}</div>
+                <div className="text-sm text-muted">AI website generations</div>
+                <div className="text-xs text-muted mt-1">
                   ${(plan.price / plan.credits).toFixed(2)} per generation
                 </div>
               </div>
@@ -226,22 +229,22 @@ export function Pricing(_props: PricingProps) {
               <div className="space-y-3">
                 {plan.features.map((feature, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center flex-shrink-0">
-                      <svg width="12" height="12" fill="none" stroke="white" strokeWidth="2">
-                        <path d="M5 12l2 2 4-4" />
+                    <div className="w-5 h-5 rounded-full bg-accent-primary/15 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-3 h-3 text-accent-primary" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <span className="text-white/80 text-sm">{feature}</span>
+                    <span className="text-text text-sm">{feature}</span>
                   </div>
                 ))}
               </div>
 
               {/* CTA Button */}
               <div className="pt-4">
-                <GlassButton
-                  variant={plan.id === 'pro' ? 'primary' : 'secondary'}
-                  size="lg"
-                  className="w-full"
+                <button
+                  className={`w-full py-3 rounded-lg font-semibold text-sm transition ${
+                    plan.id === 'pro' ? 'btn-primary' : 'btn-secondary'
+                  }`}
                   onClick={() => handlePurchase(plan.id)}
                   disabled={processingPayment === plan.id}
                 >
@@ -253,12 +256,12 @@ export function Pricing(_props: PricingProps) {
                   ) : (
                     `Get ${plan.name} Plan`
                   )}
-                </GlassButton>
+                </button>
               </div>
 
               {/* Plan details */}
-              <div className="text-center text-xs text-white/40 border-t border-white/10 pt-4">
-                {billingMode === 'monthly' ? 'Cancel anytime • No commitment' : 'Credits never expire'}
+              <div className="text-center text-xs text-muted border-t border-border pt-4">
+                {billingMode === 'monthly' ? 'Cancel anytime - No commitment' : 'Credits never expire'}
               </div>
             </div>
           </div>
@@ -266,9 +269,9 @@ export function Pricing(_props: PricingProps) {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-purple-500/10 p-6 glass-light rounded-2xl">
+      <div className="border-t border-border p-6 bg-surface-elevated rounded-lg">
         <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-6 text-sm text-white/60">
+          <div className="flex items-center justify-center gap-6 text-sm text-muted">
             <div className="flex items-center gap-2">
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M9 12l2 2 4-4M7 12H3a2 2 0 01-2-2V5a2 2 0 012-2h4M7 12V9a2 2 0 012-2h9a2 2 0 012 2v3a2 2 0 01-2 2h-1" />
@@ -283,7 +286,7 @@ export function Pricing(_props: PricingProps) {
               <span>30-day money-back guarantee</span>
             </div>
           </div>
-          <p className="text-xs text-white/40">
+          <p className="text-xs text-muted">
             Join thousands of creators building amazing websites with AI
           </p>
         </div>

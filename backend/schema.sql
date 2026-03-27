@@ -56,6 +56,48 @@ CREATE TABLE IF NOT EXISTS public.projects (
 );
 
 -- ============================================
+-- Previews table (temporary storage for unsaved previews)
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.previews (
+  id TEXT PRIMARY KEY,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  html TEXT NOT NULL DEFAULT '',
+  css TEXT NOT NULL DEFAULT '',
+  javascript TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '24 hours') NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_previews_expires_at ON public.previews(expires_at);
+CREATE INDEX IF NOT EXISTS idx_previews_user_id ON public.previews(user_id);
+
+-- Enable RLS on previews table
+ALTER TABLE public.previews ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can read own preview" ON public.previews;
+CREATE POLICY "Anyone can read own preview"
+  ON public.previews FOR SELECT
+  USING (user_id IS NULL OR auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Anyone can insert preview" ON public.previews;
+CREATE POLICY "Anyone can insert preview"
+  ON public.previews FOR INSERT
+  WITH CHECK (user_id IS NULL OR auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Anyone can delete own preview" ON public.previews;
+CREATE POLICY "Anyone can delete own preview"
+  ON public.previews FOR DELETE
+  USING (user_id IS NULL OR auth.uid() = user_id);
+
+-- Cleanup function for expired previews
+CREATE OR REPLACE FUNCTION public.cleanup_expired_previews()
+RETURNS void AS $$
+BEGIN
+  DELETE FROM public.previews WHERE expires_at < NOW();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================
 -- Project versions (optional: for version history)
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.project_versions (

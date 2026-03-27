@@ -86,7 +86,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
       const response = await apiClient.post(`/api/templates/${selectedTemplate.id}/generate`, {
         customizations
       });
-      
+
       onSelectTemplate(selectedTemplate, response.enhancedPrompt);
       setShowCustomization(false);
       setSelectedTemplate(null);
@@ -97,10 +97,10 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-      case 'advanced': return 'bg-red-100 text-red-800';
-      default: return 'bg-surface-elevated text-white/90';
+      case 'beginner': return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      case 'intermediate': return 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
+      case 'advanced': return 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      default: return 'bg-background text-muted';
     }
   };
 
@@ -115,8 +115,8 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-white mb-4">Template Gallery</h2>
-        <p className="text-white/60">Choose from our curated collection of professional website templates</p>
+        <h2 className="text-3xl font-bold text-text mb-2">Template Gallery</h2>
+        <p className="text-muted">Choose from our curated collection of professional website templates</p>
       </div>
 
       {/* Filters */}
@@ -126,7 +126,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="input-base px-4 py-2"
           >
             <option value="all">All Categories</option>
             {categories.map((category) => (
@@ -140,7 +140,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
           <select
             value={selectedDifficulty}
             onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="input-base px-4 py-2"
           >
             <option value="all">All Levels</option>
             <option value="beginner">Beginner</option>
@@ -154,7 +154,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
             placeholder="Search templates..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent flex-1 min-w-64"
+            className="input-base px-4 py-2 flex-1 min-w-64"
           />
         </div>
       </div>
@@ -162,47 +162,47 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
       {/* Templates Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {templates.map((template) => (
-          <div key={template.id} className="glass-card rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                <div className="text-white text-6xl opacity-20">
+          <div key={template.id} className="card rounded-xl border border-border bg-surface dark:bg-surface overflow-hidden hover:shadow-md transition-shadow">
+            <div className="h-48 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center">
+              <div className="text-muted opacity-40">
                 <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"></path>
                 </svg>
               </div>
             </div>
-            
+
             <div className="p-6">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-xl font-semibold text-white">{template.name}</h3>
+                <h3 className="text-xl font-semibold text-text">{template.name}</h3>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(template.difficulty)}`}>
                   {template.difficulty}
                 </span>
               </div>
-              
-              <p className="text-white/60 mb-4">{template.description}</p>
-              
+
+              <p className="text-muted text-sm mb-4">{template.description}</p>
+
               <div className="mb-4">
                 <div className="flex flex-wrap gap-1">
                   {template.tags.slice(0, 3).map((tag) => (
-                    <span key={tag} className="px-2 py-1 bg-surface-elevated text-white/80 text-xs rounded">
+                    <span key={tag} className="px-2 py-1 bg-background dark:bg-background text-muted text-xs rounded-md border border-border">
                       {tag}
                     </span>
                   ))}
                   {template.tags.length > 3 && (
-                    <span className="px-2 py-1 bg-surface-elevated text-white/80 text-xs rounded">
+                    <span className="px-2 py-1 bg-background dark:bg-background text-muted text-xs rounded-md border border-border">
                       +{template.tags.length - 3} more
                     </span>
                   )}
                 </div>
               </div>
-              
-              <div className="text-sm text-white/50 mb-4">
-                <span className="font-medium">{template.techStack.framework}</span> + {template.techStack.styling}
+
+              <div className="text-sm text-muted mb-4">
+                <span className="font-medium text-text">{template.techStack.framework}</span> + {template.techStack.styling}
               </div>
-              
+
               <button
                 onClick={() => handleTemplateSelect(template)}
-                className="w-full bg-accent-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="btn-primary w-full px-4 py-2"
               >
                 Use This Template
               </button>
@@ -213,53 +213,57 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
 
       {templates.length === 0 && !loading && (
         <div className="text-center py-12">
-          <div className="text-white/40 text-6xl mb-4">🔍</div>
-          <h3 className="text-xl font-medium text-white mb-2">No templates found</h3>
-          <p className="text-white/60">Try adjusting your search filters</p>
+          <div className="text-muted text-6xl mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-medium text-text mb-2">No templates found</h3>
+          <p className="text-muted">Try adjusting your search filters</p>
         </div>
       )}
 
       {/* Customization Modal */}
       {showCustomization && selectedTemplate && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="glass-card rounded-lg max-w-md w-full p-6">
-            <h3 className="text-xl font-semibold mb-4">Customize "{selectedTemplate.name}"</h3>
-            
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/60 flex items-center justify-center p-4 z-50">
+          <div className="card bg-surface-elevated dark:bg-surface-elevated rounded-xl border border-border max-w-md w-full p-6 shadow-xl">
+            <h3 className="text-xl font-semibold text-text mb-4">Customize "{selectedTemplate.name}"</h3>
+
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-1">
+                <label className="block text-sm font-medium text-text mb-1">
                   Company/Project Name
                 </label>
                 <input
                   type="text"
                   value={customizations.companyName}
                   onChange={(e) => setCustomizations({ ...customizations, companyName: e.target.value })}
-                  className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="input-base w-full px-3 py-2"
                   placeholder="My Company"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-1">
+                <label className="block text-sm font-medium text-text mb-1">
                   Industry
                 </label>
                 <input
                   type="text"
                   value={customizations.industry}
                   onChange={(e) => setCustomizations({ ...customizations, industry: e.target.value })}
-                  className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="input-base w-full px-3 py-2"
                   placeholder="Technology, Healthcare, etc."
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-1">
+                <label className="block text-sm font-medium text-text mb-1">
                   Color Scheme
                 </label>
                 <select
                   value={customizations.colorScheme}
                   onChange={(e) => setCustomizations({ ...customizations, colorScheme: e.target.value })}
-                  className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="input-base w-full px-3 py-2"
                 >
                   <option value="">Default</option>
                   <option value="blue and white">Blue & White</option>
@@ -269,17 +273,17 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
                 </select>
               </div>
             </div>
-            
+
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowCustomization(false)}
-                className="flex-1 px-4 py-2 border border-white/15 text-white/80 rounded-lg hover:bg-surface"
+                className="btn-secondary flex-1 px-4 py-2"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUseTemplate}
-                className="flex-1 px-4 py-2 bg-accent-primary text-white rounded-lg hover:bg-blue-700"
+                className="btn-primary flex-1 px-4 py-2"
               >
                 Generate Site
               </button>

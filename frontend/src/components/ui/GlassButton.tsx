@@ -12,60 +12,47 @@ interface GlassButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(
   ({ className, variant = 'primary', size = 'md', glow = false, children, ...props }, ref) => {
     const baseClasses = `
-      relative overflow-hidden rounded-2xl font-medium transition-all duration-300 
-      backdrop-blur-xl border border-white/20 shadow-lg hover:shadow-xl
-      transform-gpu active:scale-[0.98] hover:scale-[1.02] 
-      active:transition-transform active:duration-75
-      focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-transparent
-      before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:opacity-60
-      after:absolute after:inset-0 after:rounded-2xl after:bg-gradient-to-t after:from-black/5 after:to-white/10 after:opacity-0 after:transition-opacity after:duration-300
-      hover:after:opacity-100
+      relative inline-flex items-center justify-center rounded-lg font-medium
+      transition-all duration-150 ease-out
+      active:scale-[0.98]
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/50 focus-visible:ring-offset-2
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
     `;
 
     const variants = {
       primary: `
-        bg-gradient-to-br from-blue-500/20 to-purple-600/20 text-white
-        hover:from-blue-400/30 hover:to-purple-500/30
-        before:from-blue-400/10 before:to-purple-500/10
-        shadow-blue-500/20 hover:shadow-blue-500/30
+        bg-accent-primary text-white
+        hover:bg-accent-primary/90
+        shadow-sm hover:shadow-md
       `,
       secondary: `
-        bg-gradient-to-br from-gray-500/15 to-gray-600/15 text-white/90
-        hover:from-gray-400/20 hover:to-gray-500/20
-        before:from-gray-400/5 before:to-gray-500/5
-        shadow-gray-500/10 hover:shadow-gray-500/20
+        bg-surface border border-border text-text
+        hover:bg-surface-overlay
       `,
       accent: `
-        bg-gradient-to-br from-accent-primary/20 to-accent-secondary/20 text-white
-        hover:from-accent-primary/30 hover:to-accent-secondary/30
-        before:from-accent-primary/10 before:to-accent-secondary/10
-        shadow-accent-primary/20 hover:shadow-accent-secondary/20
+        bg-gradient-to-r from-accent-primary to-accent-secondary text-white
+        hover:opacity-90
+        shadow-sm hover:shadow-md
       `,
       danger: `
-        bg-gradient-to-br from-red-500/20 to-orange-600/20 text-white
-        hover:from-red-400/30 hover:to-orange-500/30
-        before:from-red-400/10 before:to-orange-500/10
-        shadow-red-500/20 hover:shadow-red-500/30
+        bg-red-500 text-white
+        hover:bg-red-600
+        shadow-sm
       `,
       ghost: `
-        bg-white/5 text-white/80 hover:text-white
-        hover:bg-white/10
-        before:from-white/5 before:to-white/10
-        shadow-white/5 hover:shadow-white/10
+        bg-transparent text-muted
+        hover:bg-surface hover:text-text
       `
     };
 
     const sizes = {
-      sm: 'px-4 py-2 text-sm min-h-[36px]',
-      md: 'px-6 py-3 text-base min-h-[44px]',
-      lg: 'px-8 py-4 text-lg min-h-[52px]',
-      xl: 'px-12 py-6 text-xl min-h-[64px]'
+      sm: 'px-3 py-1.5 text-sm gap-1.5',
+      md: 'px-4 py-2 text-sm gap-2',
+      lg: 'px-5 py-2.5 text-base gap-2',
+      xl: 'px-8 py-3.5 text-lg gap-3'
     };
 
-    const glowClass = glow ? `
-      shadow-2xl hover:shadow-3xl
-      before:shadow-inner before:shadow-white/20
-    ` : '';
+    const glowClass = glow ? 'shadow-md hover:shadow-lg' : '';
 
     return (
       <button
@@ -79,18 +66,7 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(
         )}
         {...props}
       >
-        {/* Glass highlight effect */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-        
-        {/* Content */}
-        <span className="relative z-10 flex items-center justify-center gap-2">
-          {children}
-        </span>
-        
-        {/* Ripple effect container */}
-        <div className="absolute inset-0 overflow-hidden rounded-2xl">
-          <div className="ripple-container" />
-        </div>
+        {children}
       </button>
     );
   }
