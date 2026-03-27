@@ -138,6 +138,8 @@ export const getPreview = async (req: Request, res: Response) => {
   if (process.env.DEV_ORIGINS) origins.push(...process.env.DEV_ORIGINS.split(',').map(s => s.trim()).filter(Boolean));
   const csp = ["frame-ancestors 'self'", ...origins].join(' ');
   res.setHeader('Content-Security-Policy', csp);
+  // Override global DENY to allow same-origin iframe embedding for previews
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('X-Content-Type-Options', 'nosniff');
 
   res.send(fullHtml);

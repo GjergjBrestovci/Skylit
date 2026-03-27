@@ -52,7 +52,7 @@ export const generateSite = async (req: AuthRequest, res: Response) => {
     }
 
     // Store preview for live viewing
-  const previewId = storePreview(req.userId!, aiResult.html, aiResult.css, aiResult.javascript);
+  const previewId = await storePreview(req.userId!, aiResult.html, aiResult.css, aiResult.javascript);
 
     console.log('✅ Website generated successfully');
 
