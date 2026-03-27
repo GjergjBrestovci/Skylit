@@ -1,5 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 
+// Augment Express Request to carry requestId and userId
+declare global {
+  namespace Express {
+    interface Request {
+      requestId?: string;
+      userId?: string;
+    }
+  }
+}
+
 // Error interface
 interface CustomError extends Error {
   statusCode?: number;
@@ -13,7 +23,6 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  // Set default error values
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
 
@@ -33,27 +42,27 @@ export const errorHandler = (
     message = 'Invalid ID format';
   }
 
-  // Don't leak error details in production
   const isDevelopment = process.env.NODE_ENV === 'development';
-  
-  console.error('Error occurred:', {
-    message: err.message,
-    stack: err.stack,
-    url: req.url,
+
+  const logPayload: Record<string, unknown> = {
+    timestamp: new Date().toISOString(),
+    requestId: req.requestId,
     method: req.method,
+    path: req.path,
+    statusCode,
     ip: req.ip,
-    userAgent: req.get('User-Agent'),
-    timestamp: new Date().toISOString()
-  });
+    userId: req.userId,
+    error: err.message,
+  };
+  if (isDevelopment) logPayload.stack = err.stack;
+  console.error(JSON.stringify(logPayload));
 
   res.status(statusCode).json({
     error: message,
-    ...(isDevelopment && { 
-      stack: err.stack,
-      originalError: err.message 
-    }),
+    requestId: req.requestId,
     timestamp: new Date().toISOString(),
-    path: req.path
+    path: req.path,
+    ...(isDevelopment && { stack: err.stack }),
   });
 };
 
@@ -62,27 +71,32 @@ export const notFoundHandler = (req: Request, res: Response) => {
   res.status(404).json({
     error: 'Route not found',
     message: `Cannot ${req.method} ${req.path}`,
-    timestamp: new Date().toISOString()
+    requestId: req.requestId,
+    timestamp: new Date().toISOString(),
   });
 };
 
-// Request logging middleware
+// Request logging middleware (runs in all environments)
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
-  
-  // Log request
-  console.log(`📝 ${req.method} ${req.path}`, {
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
-    timestamp: new Date().toISOString()
-  });
 
-  // Override res.json to log response
-  const originalJson = res.json;
-  res.json = function(body?: any) {
+  const originalEnd = res.end.bind(res);
+  (res as any).end = function (...args: Parameters<typeof res.end>) {
     const duration = Date.now() - start;
-    console.log(`📤 ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`);
-    return originalJson.call(this, body);
+    const isDev = process.env.NODE_ENV === 'development';
+    const log: Record<string, unknown> = {
+      timestamp: new Date().toISOString(),
+      requestId: req.requestId,
+      method: req.method,
+      path: req.path,
+      statusCode: res.statusCode,
+      duration_ms: duration,
+      ip: req.ip,
+      userId: req.userId,
+    };
+    if (isDev) log.userAgent = req.get('User-Agent');
+    console.log(JSON.stringify(log));
+    return originalEnd(...args);
   };
 
   next();

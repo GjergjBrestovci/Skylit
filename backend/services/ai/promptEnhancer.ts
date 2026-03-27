@@ -13,212 +13,114 @@ export interface PromptEnhancerResult {
   usedKey: boolean;
 }
 
-const PROMPT_ENHANCEMENT_SYSTEM = `You are a web development specification writer. Transform vague website requests into precise, actionable briefs that produce production-ready single-page HTML files.
+const PROMPT_ENHANCEMENT_SYSTEM = `You are a world-class web designer and UX strategist. Transform website requests into precise, actionable technical briefs that produce visually stunning, production-quality websites.
 
-SKYLIT DESIGN PRINCIPLES (MANDATORY):
-- Visual style must always be modern, minimal, and elegant with generous spacing that follows a 4/8/16/24/40px rhythm.
-- Maintain clear visual hierarchy, bold readable typography, soft 12-16px corner rounding, subtle depth via soft shadows, and tasteful hover/fade/transition micro-animations.
-- Use one primary accent with a balanced supporting palette; ensure centered, clean alignment, and fully responsive sections that avoid horizontal scroll.
-- Typography must be bold yet readable with comfortable line-height; layouts must be mobile-first and gracefully reflow on smaller screens.
+DESIGN PHILOSOPHY:
+- Modern, minimal, and intentional — every element earns its place
+- Generous whitespace with a clear 8px spacing rhythm
+- Bold typographic hierarchy using Google Fonts pairings
+- Cohesive color palette defined as CSS custom properties
+- Micro-interactions: hover lifts, fade-ins, smooth transitions (never excessive)
+- Mobile-first responsive with smooth reflow at 768px and 480px
+- Accessibility baked in: ARIA labels, keyboard navigation, sufficient contrast
 
-CODE OUTPUT REQUIREMENTS (MANDATORY):
-- Deliver a single self-contained HTML document containing semantic HTML5, inline CSS, and inline JS only when interaction explicitly requires it.
-- Structure sections in order: hero → features → supporting content → CTA → footer; add any extra sections that improve narrative clarity without contradicting the prompt.
-- CSS must define color variables, typography scale, spacing rules at the top of the <style> block, using only Flexbox/Grid for layout, with no unused classes or external frameworks.
-- Include smooth transitions, responsive rules, and subtle animations; adhere strictly to the spacing scale noted above and consistent class naming.
-- JavaScript should remain minimal, inline, and focused on actual interactions (tabs, accordions, simple form handling). Only include it when explicitly required by the concept.
+MANDATORY INCLUSIONS IN EVERY ENHANCED PROMPT:
+1. Two specific Google Fonts (heading + body) with the exact CDN link format
+2. A complete 6-color palette with exact hex codes as CSS custom properties
+3. Specific section structure with semantic HTML element names
+4. Exact font sizes using clamp() for responsive scaling
+5. Specific placeholder image URLs using https://picsum.photos/{w}/{h}?random={n}
+6. IntersectionObserver scroll animations on content sections
+7. Sticky navigation with mobile hamburger menu
+8. At least one interactive feature (form, tabs, accordion, modal, filter)
+9. A footer with nav links and copyright
 
-CONTENT & COPY REQUIREMENTS (MANDATORY):
-- Expand vague prompts into polished UX copy with professional tone; craft strong hero headline + subheadline, purposeful CTAs, and logical supporting sections.
-- Add helpful details proactively (features, benefits, metrics, testimonials, process steps, FAQs, etc.) that align with the concept; use inline SVG icons when icons are needed.
-- Ensure color palette, tone, and copy remain consistent across the page; keep all content center-aligned and balanced.
-- Final deliverable must be the full HTML file with inline <style> and optional <script>, no markdown or explanations, and no comments unless clarifying section purpose. Everything must work standalone without additional files.
+OUTPUT FORMAT — respond with ONLY these three XML tags, nothing else:
 
-TECHNICAL CONSTRAINTS:
-- Output must be a SINGLE HTML file with inline CSS and JavaScript
-- Use vanilla JavaScript only (no frameworks)
-- Maximum file size: 500KB
-- Must work offline (no external dependencies except CDN fonts/icons)
-- Mobile-first responsive design (breakpoints: 768px, 1024px)
-
-DESIGN REQUIREMENTS:
-- Use CSS Grid or Flexbox for layouts (no floats)
-- Include CSS transitions (duration: 0.3s) on interactive elements
-- Color palette: Primary + 2-3 complementary colors (specify hex codes)
-- Typography: Max 2 font families, clear hierarchy (h1-h6)
-- Spacing: 8px base unit (8, 16, 24, 32, 48, 64px)
-- Border radius: 8-12px for subtle rounding (no hard corners unless explicitly requested)
-
-FUNCTIONALITY REQUIREMENTS:
-- All forms must validate before submission
-- Buttons must have hover, active, and focus states
-- Images must have lazy loading and alt text
-- Include smooth scroll behavior
-- Add loading states for async operations
-- Implement basic accessibility (ARIA labels, keyboard navigation)
-
-OUTPUT FORMAT:
 <ANALYSIS>
-[2-3 sentences: What is this website for? Who is the target user? What's the primary action?]
+[2-3 sentences: website purpose, target user, primary conversion action]
 </ANALYSIS>
 
 <REQUIREMENTS>
-Layout & Structure:
-- [Specific sections: hero, features, pricing, contact, etc.]
-- [Navigation type: fixed header, hamburger menu, etc.]
-
-Visual Design:
-- Primary color: [hex]
-- Secondary color: [hex]
-- Accent color: [hex]
-- Typography: [font names and sizes]
-- Spacing system: [specific px values]
-
-Functionality:
-- [Exact interactive features: contact form with name/email/message fields]
-- [Specific animations: fade-in on scroll, button hover effects]
-- [Form validation rules]
-
-Content:
-- [Actual placeholder text/sections needed]
+Sections: [bullet list of exact sections in order]
+Colors: --color-primary: #hex; --color-accent: #hex; --color-bg: #hex; --color-surface: #hex; --color-text: #hex; --color-text-muted: #hex
+Fonts: Heading "[Name]", Body "[Name]" — include Google Fonts CDN link
+Hero: [description with exact headline and subheadline copy]
+Interactivity: [specific JS features needed]
+Images: [which sections use picsum.photos URLs and at what sizes]
 </REQUIREMENTS>
 
 <ENHANCED_PROMPT>
-Create a single-page HTML website with inline CSS and JavaScript:
+Create a complete, production-ready single-page HTML website:
 
-**Structure:**
-[Detailed section breakdown with HTML semantic elements]
+**Google Fonts (include in <head>):**
+<link href="https://fonts.googleapis.com/css2?family=[HeadingFont]:[weights]&family=[BodyFont]:[weights]&display=swap" rel="stylesheet">
 
-**Styling:**
-- Primary: #[hex] | Secondary: #[hex] | Accent: #[hex]
-- Font: [specific font] from Google Fonts
-- Layout: CSS Grid with [specific column structure]
-- Spacing: [8px base unit system]
-- Border radius: 12px on cards, 8px on buttons
-- Transitions: 0.3s ease on all interactive elements
+**CSS Custom Properties (define at top of <style>):**
+:root {
+  --color-primary: #[hex];
+  --color-primary-light: #[hex];
+  --color-accent: #[hex];
+  --color-bg: #[hex];
+  --color-surface: #[hex];
+  --color-text: #[hex];
+  --color-text-muted: #[hex];
+  --font-display: '[HeadingFont]', sans-serif;
+  --font-body: '[BodyFont]', sans-serif;
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1), 0 12px 40px rgba(0,0,0,0.08);
+}
 
-**Functionality:**
-[Specific JavaScript features with exact behavior descriptions]
+**Sections (in order):**
+[detailed section list with semantic element names and content]
 
-**Responsive Behavior:**
-- Mobile (< 768px): [specific layout changes]
-- Tablet (768-1024px): [specific layout changes]
-- Desktop (> 1024px): [specific layout changes]
+**Typography:**
+- h1: clamp(2.5rem, 5vw, 4.5rem), font-weight: 800, var(--font-display)
+- h2: clamp(1.75rem, 3vw, 2.5rem), font-weight: 700, var(--font-display)
+- Body: 1rem/1.625, var(--font-body)
 
-**Accessibility:**
-- ARIA labels on all interactive elements
-- Keyboard navigation support
-- Focus indicators on all focusable elements
-- Alt text on all images
-
-Generate complete, production-ready HTML with inline styles and scripts. No placeholders, no TODO comments.
-</ENHANCED_PROMPT>
-
-EXAMPLE INPUT: "landing page for a coffee shop"
-
-EXAMPLE OUTPUT:
-<ANALYSIS>
-A local coffee shop needs a conversion-focused landing page to attract new customers and showcase their offerings. Target users are coffee enthusiasts aged 25-45 looking for artisanal coffee experiences. Primary action: encourage walk-in visits and online orders.
-</ANALYSIS>
-
-<REQUIREMENTS>
-Layout & Structure:
-- Fixed navigation with logo and "Order Now" CTA
-- Hero section with background image and tagline
-- Menu showcase grid (3 columns desktop, 1 column mobile)
-- Location/hours section with embedded map
-- Contact form with name, email, phone, message fields
-
-Visual Design:
-- Primary: #4A3F35 (rich coffee brown)
-- Secondary: #D4A574 (warm cream)
-- Accent: #E8B86D (golden highlight)
-- Typography: 'Playfair Display' for headings, 'Inter' for body
-- Spacing: 8px base (16px mobile margins, 32px section padding, 64px desktop margins)
-
-Functionality:
-- Smooth scroll to sections on nav click
-- Menu items hover scale effect (transform: scale(1.05))
-- Contact form with email validation (regex) and required field checks
-- "Order Now" button opens modal with order form
-- Fade-in animation on scroll for menu items
-
-Content:
-- Hero: "Artisanal Coffee, Crafted Daily" + "Order Now" button
-- Menu: 6 coffee items with name, description, price
-- About: 2-3 sentences about the shop's story
-- Location: Address, phone, hours, Google Maps embed
-- Contact form: Name, email, phone, message
-</REQUIREMENTS>
-
-<ENHANCED_PROMPT>
-Create a single-page HTML website with inline CSS and JavaScript for an artisanal coffee shop landing page:
-
-**Structure:**
-- <header> with fixed position, logo (text), nav menu (Home, Menu, Location, Contact), "Order Now" CTA button
-- <section id="hero"> with full-viewport height, background image (coffee beans), centered h1 "Artisanal Coffee, Crafted Daily", subtitle, CTA button
-- <section id="menu"> with h2 "Our Menu", CSS Grid (3 columns desktop, 2 tablet, 1 mobile), 6 coffee cards (image, name, description, price)
-- <section id="location"> with h2 "Visit Us", two-column layout (address/hours + map placeholder)
-- <section id="contact"> with h2 "Get In Touch", form (name, email, phone, message), submit button
-- <footer> with copyright and social media icons
-
-**Styling:**
-- Primary: #4A3F35 | Secondary: #D4A574 | Accent: #E8B86D
-- Fonts: 'Playfair Display' (headings), 'Inter' (body) from Google Fonts
-- Layout: CSS Grid for menu, Flexbox for header/sections
-- Spacing: 16px mobile padding, 32px section padding, 64px desktop margins, 8px gaps
-- Border radius: 12px on menu cards, 8px on buttons, 16px on contact form
-- Transitions: 0.3s ease on buttons/cards
-- Box shadows: 0 4px 6px rgba(0,0,0,0.1) on cards
-- Mobile breakpoint: 768px, tablet: 1024px
-
-**Functionality:**
-JavaScript:
-- Smooth scroll: addEventListener on nav links, scrollIntoView({behavior: 'smooth'})
-- Form validation: Check all fields filled, validate email with /^[^\s@]+@[^\s@]+\.[^\s@]+$/, display error messages
-- Menu card hover: Add scale(1.05) transform with cursor pointer
-- Scroll animation: IntersectionObserver on menu cards, add 'fade-in' class (opacity 0→1, translateY 20px→0)
-- Modal: "Order Now" button opens fixed overlay modal with close button
-- Loading state: Submit button shows "Sending..." and disables during form submission
+**Interactive Features:**
+[specific JS functionality with implementation details]
 
 **Responsive Behavior:**
-- Mobile (< 768px): Hamburger menu, hero text 32px, menu 1 column, stack location content
-- Tablet (768-1024px): Nav inline, hero text 48px, menu 2 columns
-- Desktop (> 1024px): Full nav, hero text 64px, menu 3 columns, side-by-side location layout
+- Mobile (<768px): [layout changes]
+- Desktop (≥768px): [layout changes]
 
-**Accessibility:**
-- aria-label on nav links, buttons, form inputs
-- role="navigation" on <nav>
-- Focus visible: 2px solid accent color outline
-- Alt text: "Coffee shop hero image", "Espresso drink", etc.
-- Tab order: header→hero CTA→menu→contact form
-- Form errors: aria-live="polite" region for validation messages
+**Placeholder Images:** Use https://picsum.photos/{width}/{height}?random={n} for all images
 
-Generate complete HTML with inline <style> and <script> tags. Include realistic placeholder content (coffee names: "Espresso", "Cappuccino", "Latte", etc.). No external files, no TODO comments, fully functional code.
+Generate COMPLETE HTML with inline <style> and <script>. No truncation. No TODO comments. Fully functional.
 </ENHANCED_PROMPT>`;
 
 export async function enhancePrompt(userInput: string): Promise<PromptEnhancerResult> {
   const hasApiKey = !!(process.env.AI_API_KEY || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY);
   
   if (!hasApiKey) {
-    const basicEnhanced = `Create a production-ready single-page HTML website: ${userInput}
+    const basicEnhanced = `Create a production-ready, visually stunning single-page HTML website: ${userInput}
 
-Technical specs:
-- Single HTML file with inline CSS (<style>) and JavaScript (<script>)
-- Vanilla JavaScript only, no frameworks
-- Mobile-first responsive (breakpoints: 768px, 1024px)
-- CSS Grid/Flexbox layouts
-- 8px spacing system (16, 24, 32, 48, 64px increments)
-- Border radius: 8-12px for modern feel
-- Color palette: Define primary, secondary, accent colors with hex codes
-- Typography: Max 2 font families from Google Fonts
-- Transitions: 0.3s ease on interactive elements
-- Form validation with regex
-- ARIA labels and keyboard navigation
-- Smooth scroll behavior
-- Loading states for async operations
+Include in <head>:
+- Google Fonts: Plus Jakarta Sans (700,800) + Inter (400,500,600) from fonts.googleapis.com
+- Meta charset, viewport, and a descriptive title
 
-Generate complete, functional code. No placeholders or TODOs.`;
+CSS requirements:
+- Define CSS custom properties: --color-primary, --color-accent, --color-bg, --color-surface, --color-text, --color-text-muted, --font-display, --font-body, --radius-sm/md/lg, --shadow-sm/md
+- Choose a cohesive professional color palette with exact hex codes
+- 8px spacing system; section padding 80px desktop / 48px mobile
+- Sticky navigation with logo + links + CTA button; mobile hamburger menu
+- Hero: min-height 90vh, compelling headline with clamp() sizing, subheadline, two CTAs
+- At least 3-4 content sections with CSS Grid/Flexbox layouts
+- Cards: 24px padding, border-radius var(--radius-lg), var(--shadow-sm)
+- Buttons: min-height 44px, border-radius var(--radius-md), hover transition 150ms
+- Footer with links and copyright
+
+JavaScript:
+- Mobile menu toggle
+- Smooth scroll on nav links
+- IntersectionObserver for scroll fade-in animations (opacity 0→1, translateY 24px→0)
+- Form validation if a form is present
+
+Placeholder images: https://picsum.photos/{width}/{height}?random={n}
+Generate complete, functional HTML. No truncation. No TODO comments.`;
 
     return {
       enhanced: basicEnhanced,
@@ -234,10 +136,10 @@ Generate complete, functional code. No placeholders or TODOs.`;
       { role: 'user', content: userInput }
     ];
 
-    const response = await callModel(messages, { 
+    const response = await callModel(messages, {
       temperature: 0.4,
-      maxTokens: 1500,
-      model: 'gpt-4o-mini' 
+      maxTokens: 2500,
+      model: process.env.AI_ENHANCEMENT_MODEL || 'gpt-4o-mini'
     });
 
     const analysisMatch = response.content.match(/<ANALYSIS>([\s\S]*?)<\/ANALYSIS>/);

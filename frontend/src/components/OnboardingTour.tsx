@@ -64,7 +64,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete }) =>
     if (step.target) {
       const element = document.querySelector(step.target) as HTMLElement;
       setTargetElement(element);
-      
+
       if (element) {
         // Highlight the target element
         element.style.position = 'relative';
@@ -155,36 +155,36 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete }) =>
   return (
     <>
       {/* Overlay */}
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-1000 transition-opacity duration-300" />
-      
+      <div className="fixed inset-0 bg-black/50 dark:bg-black/60 z-1000 transition-opacity duration-300" />
+
       {/* Tooltip */}
       <div
-        className="fixed z-1002 glass-card rounded-lg shadow-2xl p-6 max-w-sm w-full mx-4 transition-all duration-300"
+        className="fixed z-1002 bg-surface-elevated dark:bg-surface-elevated rounded-xl border border-border shadow-xl p-6 max-w-sm w-full mx-4 transition-all duration-300"
         style={getTooltipPosition()}
       >
         {/* Progress indicator */}
         <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-1">
+          <div className="flex space-x-1.5">
             {ONBOARDING_STEPS.map((_, index) => (
               <div
                 key={index}
-                className={`w-2 h-2 rounded-full ${
-                  index <= currentStep ? 'bg-accent-primary' : 'bg-surface-elevated'
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index <= currentStep ? 'bg-blue-500' : 'bg-border'
                 }`}
               />
             ))}
           </div>
-          <span className="text-sm text-white/50">
+          <span className="text-sm text-muted">
             {currentStep + 1} of {ONBOARDING_STEPS.length}
           </span>
         </div>
 
         {/* Content */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-white mb-2">
+          <h3 className="text-lg font-semibold text-text mb-2">
             {step.title}
           </h3>
-          <p className="text-white/60 text-sm leading-relaxed">
+          <p className="text-muted text-sm leading-relaxed">
             {step.description}
           </p>
         </div>
@@ -195,22 +195,22 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete }) =>
             {currentStep > 0 && (
               <button
                 onClick={handlePrevious}
-                className="px-3 py-2 text-sm text-white/60 hover:text-white/90 transition-colors"
+                className="btn-ghost px-3 py-2 text-sm"
               >
                 Previous
               </button>
             )}
             <button
               onClick={handleSkip}
-              className="px-3 py-2 text-sm text-white/60 hover:text-white/90 transition-colors"
+              className="btn-ghost px-3 py-2 text-sm"
             >
               Skip Tour
             </button>
           </div>
-          
+
           <button
             onClick={handleNext}
-            className="px-4 py-2 bg-accent-primary text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+            className="btn-primary px-4 py-2 text-sm"
           >
             {currentStep === ONBOARDING_STEPS.length - 1 ? 'Get Started' : 'Next'}
           </button>
@@ -220,10 +220,10 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete }) =>
         {targetElement && (
           <div
             className={`absolute w-0 h-0 ${
-              step.position === 'top' ? 'border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white top-full left-1/2 transform -translate-x-1/2' :
-              step.position === 'left' ? 'border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-white left-full top-1/2 transform -translate-y-1/2' :
-              step.position === 'right' ? 'border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-white right-full top-1/2 transform -translate-y-1/2' :
-              'border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white bottom-full left-1/2 transform -translate-x-1/2'
+              step.position === 'top' ? 'border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-surface-elevated top-full left-1/2 transform -translate-x-1/2' :
+              step.position === 'left' ? 'border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-surface-elevated left-full top-1/2 transform -translate-y-1/2' :
+              step.position === 'right' ? 'border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-surface-elevated right-full top-1/2 transform -translate-y-1/2' :
+              'border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-surface-elevated bottom-full left-1/2 transform -translate-x-1/2'
             }`}
           />
         )}

@@ -18,51 +18,25 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
   className = '',
   animationIndex = 0
 }) => {
-  const baseClasses = `
-    group p-4 sm:p-6 lg:p-8 rounded-3xl border transition-all duration-300 
-    text-left animate-stagger-in stagger-${Math.min(animationIndex + 1, 6)}
-    backdrop-blur-xl transform-gpu hover:scale-[1.02] active:scale-[0.98]
-    shadow-glass hover:shadow-glass-lg
-    ease-bounce-light
-  `;
-  
-  const selectedClasses = isSelected 
-    ? `
-        border-accent-primary/40 bg-gradient-to-br from-accent-primary/15 to-accent-secondary/15
-        shadow-accent-primary/20 shadow-glass-lg
-        before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br
-        before:from-accent-primary/10 before:to-accent-secondary/10 before:opacity-100
-        relative before:pointer-events-none
-      `
-    : `
-        border-white/10 bg-gradient-to-br from-white/5 to-white/2
-        hover:border-white/20 hover:from-white/10 hover:to-white/5
-        hover:shadow-white/10
-        relative before:absolute before:inset-0 before:rounded-3xl 
-        before:bg-gradient-to-br before:from-white/5 before:to-transparent 
-        before:opacity-0 hover:before:opacity-100 before:transition-opacity 
-        before:duration-300 before:pointer-events-none
-      `;
-
   return (
     <button
       onClick={onClick}
-      className={`${baseClasses} ${selectedClasses} ${className}`}
+      className={`
+        group p-4 sm:p-5 rounded-xl border transition-all duration-150
+        text-left animate-stagger-in stagger-${Math.min(animationIndex + 1, 6)}
+        hover:shadow-card-hover active:scale-[0.98]
+        ${isSelected
+          ? 'border-accent-primary bg-accent-primary/5 shadow-card-hover'
+          : 'border-border bg-surface-elevated hover:border-accent-primary/30'
+        }
+        ${className}
+      `}
     >
-      {/* Glass highlight */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-t-3xl" />
-      
-      <div className="relative z-10">
-        <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 transition-transform group-hover:scale-110 duration-300">
-          {emoji}
-        </div>
-        <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-accent-primary/90 transition-colors">
-          {label}
-        </h3>
-        <p className="text-sm sm:text-base text-white/60 group-hover:text-white/80 transition-colors">
-          {description}
-        </p>
-      </div>
+      <div className="text-2xl sm:text-3xl mb-2.5">{emoji}</div>
+      <h3 className="text-base sm:text-lg font-semibold text-text mb-1 group-hover:text-accent-primary transition-colors">
+        {label}
+      </h3>
+      <p className="text-sm text-muted leading-relaxed">{description}</p>
     </button>
   );
 };
@@ -86,35 +60,24 @@ export const ColorPaletteButton: React.FC<ColorPaletteButtonProps> = ({
     <button
       onClick={onClick}
       className={`
-        group p-4 sm:p-6 lg:p-8 rounded-3xl transition-all duration-300 
+        group p-4 sm:p-5 rounded-xl transition-all duration-150
         animate-stagger-in stagger-${Math.min(animationIndex + 1, 6)}
-        backdrop-blur-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/2
-        hover:border-white/20 hover:from-white/10 hover:to-white/5
-        transform-gpu hover:scale-[1.02] active:scale-[0.98] shadow-glass hover:shadow-glass-lg
-        ease-bounce-light relative
-        before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br 
-        before:from-white/5 before:to-transparent before:opacity-0 
-        hover:before:opacity-100 before:transition-opacity before:duration-300 before:pointer-events-none
+        border border-border bg-surface-elevated
+        hover:border-accent-primary/30 hover:shadow-card-hover
+        active:scale-[0.98]
       `}
     >
-      {/* Glass highlight */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-t-3xl" />
-      
-      <div className="relative z-10">
-        <div className="flex space-x-2 sm:space-x-3 mb-3 sm:mb-4 justify-center">
-          <div 
-            className="w-6 h-6 sm:w-8 sm:h-8 rounded-full shadow-lg border border-white/20 transition-transform group-hover:scale-110" 
-            style={{ backgroundColor: primary }}
-          ></div>
-          <div 
-            className="w-6 h-6 sm:w-8 sm:h-8 rounded-full shadow-lg border border-white/20 transition-transform group-hover:scale-110" 
-            style={{ backgroundColor: accent }}
-          ></div>
-        </div>
-        <h3 className="text-sm sm:text-lg lg:text-xl font-bold text-white text-center group-hover:text-white/90 transition-colors">
-          {name}
-        </h3>
+      <div className="flex space-x-2 mb-3 justify-center">
+        <div
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full shadow-sm border border-black/5 dark:border-white/10 transition-transform group-hover:scale-110"
+          style={{ backgroundColor: primary }}
+        />
+        <div
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full shadow-sm border border-black/5 dark:border-white/10 transition-transform group-hover:scale-110"
+          style={{ backgroundColor: accent }}
+        />
       </div>
+      <h3 className="text-sm font-medium text-text text-center">{name}</h3>
     </button>
   );
 };
@@ -135,42 +98,23 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   onClick,
   animationIndex = 0
 }) => {
-  const selectedClasses = isSelected
-    ? `
-        border-accent-primary/40 bg-gradient-to-br from-accent-primary/15 to-accent-secondary/15
-        shadow-accent-primary/20 shadow-glass-lg
-        before:opacity-100 before:from-accent-primary/10 before:to-accent-secondary/10
-      `
-    : `
-        border-white/10 bg-gradient-to-br from-white/5 to-white/2
-        hover:border-white/20 hover:from-white/10 hover:to-white/5
-        before:opacity-0 hover:before:opacity-100 before:from-white/5 before:to-transparent
-      `;
-
   return (
     <button
       onClick={onClick}
       className={`
-        group p-4 sm:p-6 rounded-2xl transition-all duration-300 
+        group p-3 sm:p-4 rounded-xl transition-all duration-150
         animate-stagger-in stagger-${Math.min(animationIndex + 1, 6)}
-        backdrop-blur-xl border transform-gpu hover:scale-[1.02] active:scale-[0.98] 
-        shadow-glass hover:shadow-glass-lg ease-bounce-light relative
-        before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br 
-        before:transition-all before:duration-300 before:pointer-events-none
-        ${selectedClasses}
+        border active:scale-[0.98]
+        ${isSelected
+          ? 'border-accent-primary bg-accent-primary/5 shadow-sm'
+          : 'border-border bg-surface-elevated hover:border-accent-primary/30'
+        }
       `}
     >
-      {/* Glass highlight */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-t-2xl" />
-      
-      <div className="relative z-10">
-        <div className="text-2xl sm:text-3xl mb-2 transition-transform group-hover:scale-110 duration-300">
-          {emoji}
-        </div>
-        <h3 className="text-white font-bold text-sm sm:text-base group-hover:text-accent-primary/90 transition-colors">
-          {label}
-        </h3>
-      </div>
+      <div className="text-xl sm:text-2xl mb-1.5">{emoji}</div>
+      <h3 className={`font-medium text-sm ${isSelected ? 'text-accent-primary' : 'text-text'} transition-colors`}>
+        {label}
+      </h3>
     </button>
   );
 };

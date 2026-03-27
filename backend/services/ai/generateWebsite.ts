@@ -8,22 +8,67 @@ export interface GeneratedWebsite {
   model: string;
 }
 
-const LOVABLE_STYLE_GUIDELINES = `Design for a polished, Lovable.dev quality experience:
-- Fluid mobile-first layouts with intentional whitespace and vertical rhythm
-- Soft gradients, layered glassmorphism, and tasteful frosted panels
-- High-contrast typography pairings (display + sans-serif body) with clear hierarchy
-- Glowing accent buttons, pill-shaped CTAs, and glass cards with subtle drop shadows
-- Motion design: micro-interactions, hover lifts, fade/slide reveals, parallax hero details
-- Hero sections with sweeping gradients, blurred orbs, or organic blobs for depth
-- Component spacing that feels breathable, with 12/16px grids and 64/80px hero padding
-- Consistent iconography (Lucide/Feather style) and rounded avatars
-- Accessibility baked in: ARIA labels, keyboard focus rings, sufficient color contrast`;
+const LOVABLE_STYLE_GUIDELINES = `
+=== MANDATORY DESIGN QUALITY STANDARDS ===
+
+TYPOGRAPHY:
+- Load exactly 2 Google Fonts via <link> in <head>: one display/heading font, one clean body font
+- Suggested pairs: "Outfit"+"Inter", "Plus Jakarta Sans"+"Inter", "Sora"+"DM Sans", "Bricolage Grotesque"+"Manrope"
+- Use CSS custom properties: --font-display, --font-body
+- Hero h1: clamp(2.5rem, 5vw, 4.5rem); Section h2: clamp(1.5rem, 3vw, 2.5rem); Body: 1rem/1.625
+
+COLOR SYSTEM:
+- Define a 6-token color palette as CSS custom properties at top of <style>:
+  --color-primary, --color-primary-light, --color-accent, --color-text, --color-text-muted, --color-bg, --color-surface
+- Use cohesive, professional palettes (e.g. deep violet + warm cream, slate + sky blue, emerald + off-white)
+- Sufficient contrast: text on bg must be ≥4.5:1
+
+SPACING & LAYOUT:
+- 8px base unit. Use only: 4, 8, 12, 16, 24, 32, 48, 64, 80, 96px
+- Section vertical padding: 80-96px desktop, 48px mobile
+- Max content width: 1200px centered with auto margins
+- CSS Grid for complex layouts, Flexbox for linear alignment
+
+COMPONENTS (exact specs):
+- Buttons: min-height 44px, 8px border-radius, 16px horizontal padding, 150ms transition, hover darken 8%
+- Cards: 24px padding, 12px border-radius, 1px solid border (rgba(0,0,0,0.08)), box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04)
+- Inputs/forms: 44px height, 8px border-radius, 1px solid border, 200ms focus transition with accent outline
+- Navigation: sticky top-0, backdrop-filter blur(8px), bg with 90% opacity, max-width 1200px centered
+- Hero: min-height 100vh or 90vh, centered content, gradient or image background, one primary CTA + one ghost CTA
+
+IMAGES & ICONS:
+- Use placeholder images from: https://picsum.photos/{width}/{height}?random={n}
+- Use inline SVG icons (24x24, 1.5px stroke, currentColor). Never use emoji as icons
+
+ANIMATIONS:
+- Fade-in on scroll via IntersectionObserver (opacity 0→1 + translateY 24px→0, 600ms ease)
+- Hover micro-interactions: cards lift 2px + shadow increase (200ms), buttons darken (150ms)
+- NO excessive animations, NO bounce, NO flash, NO marquee
+
+NAVIGATION (always include):
+- Sticky header: logo left, nav links center/right, primary CTA button far right
+- Mobile hamburger menu that slides in an overlay nav
+- Smooth scroll to sections on nav link click
+
+FOOTER (always include):
+- Dark or light background, company name + brief tagline, 3-4 nav links, copyright
+- Optional: social media icons as inline SVGs
+
+MOBILE RESPONSIVENESS:
+- All multi-column layouts stack below 768px
+- Font sizes reduce gracefully
+- Horizontal padding: 16px on mobile, 24px on tablet, auto on desktop
+- Touch targets minimum 44x44px
+
+OUTPUT LENGTH: Generate AT LEAST 250 lines of HTML, 200 lines of CSS, and all required JavaScript. Never truncate.
+=== END DESIGN STANDARDS ===`;
+
       
 function getSystemPrompt(techStack: string): string {
   switch (techStack) {
     case 'react':
       return `You are an expert React developer. Generate COMPLETE, FUNCTIONAL React components with modern hooks and best practices.
-
+${LOVABLE_STYLE_GUIDELINES}
 CRITICAL: You must ONLY return actual code, NOT explanations or briefs.
 
 REQUIRED OUTPUT FORMAT (follow this exactly):
@@ -95,7 +140,7 @@ REQUIREMENTS:
 
     case 'vue':
       return `You are an expert Vue.js developer. Generate COMPLETE, FUNCTIONAL Vue.js application with composition API.
-
+${LOVABLE_STYLE_GUIDELINES}
 CRITICAL: You must ONLY return actual code, NOT explanations or briefs.
 
 REQUIRED OUTPUT FORMAT (follow this exactly):
@@ -169,7 +214,7 @@ REQUIREMENTS:
 
     case 'nextjs':
       return `You are an expert Next.js developer. Generate COMPLETE, FUNCTIONAL Next.js pages and components.
-
+${LOVABLE_STYLE_GUIDELINES}
 CRITICAL: You must ONLY return actual code, NOT explanations or briefs.
 
 REQUIRED OUTPUT FORMAT (follow this exactly):
@@ -242,7 +287,7 @@ REQUIREMENTS:
 
     case 'svelte':
       return `You are an expert SvelteKit developer. Generate COMPLETE, FUNCTIONAL Svelte components.
-
+${LOVABLE_STYLE_GUIDELINES}
 CRITICAL: You must ONLY return actual code, NOT explanations or briefs.
 
 REQUIRED OUTPUT FORMAT (follow this exactly):
@@ -293,7 +338,7 @@ REQUIREMENTS:
 
     case 'angular':
       return `You are an expert Angular developer. Generate COMPLETE, FUNCTIONAL Angular components with TypeScript.
-
+${LOVABLE_STYLE_GUIDELINES}
 CRITICAL: You must ONLY return actual code, NOT explanations or briefs.
 
 REQUIRED OUTPUT FORMAT (follow this exactly):
@@ -360,8 +405,8 @@ REQUIREMENTS:
 - Modern Angular (v15+)`;
 
     default:
-      return `You are an expert web developer. Generate COMPLETE, FUNCTIONAL HTML, CSS, and JavaScript code for a website.
-
+      return `You are an expert web developer specializing in beautiful, production-quality websites. Generate COMPLETE, FUNCTIONAL HTML, CSS, and JavaScript.
+${LOVABLE_STYLE_GUIDELINES}
 CRITICAL: You must ONLY return actual code, NOT explanations or briefs.
 
 REQUIRED OUTPUT FORMAT (follow this exactly):
@@ -372,55 +417,40 @@ REQUIRED OUTPUT FORMAT (follow this exactly):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Title</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Complete HTML structure with semantic elements -->
-    <!-- Include all content, forms, buttons, navigation -->
-    <!-- Use placeholder text and images -->
+    <!-- Full semantic HTML: nav, hero, sections, footer -->
 </body>
 </html>
 </HTML>
 
 <CSS>
-/* Complete CSS styling including:
- * - Responsive design with media queries
- * - Modern styling with animations
- * - Hover effects and transitions
- * - Mobile-first approach
- */
-body {
-    /* styles here */
-}
-/* ... all other CSS ... */
+/* All CSS here — custom properties, typography, layout, components, animations, responsive */
 </CSS>
 
 <JAVASCRIPT>
-// Complete JavaScript functionality including:
-// - Form validation and handling
-// - Interactive UI elements
-// - Smooth scrolling
-// - Mobile menu toggle
-// - Event listeners
+// All JavaScript: smooth scroll, mobile nav, IntersectionObserver animations, form validation, interactions
 document.addEventListener('DOMContentLoaded', function() {
-    // JavaScript code here
+    // code here
 });
 </JAVASCRIPT>
 
 <NOTES>
-• Interactive features implemented
-• Responsive design included
-• Accessibility considerations
-• Browser compatibility notes
-• Key functionality highlights
+• Summary of features and design decisions
 </NOTES>
 
 REQUIREMENTS:
-- Generate ACTUAL working HTML/CSS/JavaScript code, not documentation
-- Make all interactive elements functional
-- Include realistic content and placeholder images
-- Ensure mobile responsiveness
-- Use modern web standards
-- Make the code production-ready`;
+- Generate COMPLETE working HTML/CSS/JavaScript. Never truncate or add "continues below..."
+- Include a real sticky navigation with mobile hamburger menu
+- Include a compelling hero section with gradient or image background
+- Include at least 3-4 content sections
+- Include a footer with links and copyright
+- Use placeholder images from picsum.photos
+- All interactive elements must be functional
+- Mobile-responsive at 768px and 480px breakpoints
+- Smooth scroll + IntersectionObserver fade-in animations`;
   }
 }
 
@@ -619,10 +649,10 @@ export async function generateWebsiteFromPrompt(userPrompt: string, techStack: s
     { role: 'user', content: `Generate a complete, functional website based on: ${userPrompt}` }
   ];
   
-  const resp = await callModel(messages, { 
-    temperature: 0.4, 
-    maxTokens: 4000, // Increased for more complete code
-    model: 'gpt-4o-mini'
+  const resp = await callModel(messages, {
+    temperature: 0.3,
+    maxTokens: 8000,
+    model: process.env.AI_GENERATION_MODEL || 'gpt-4o-mini'
   });
   
   const raw = resp.content;

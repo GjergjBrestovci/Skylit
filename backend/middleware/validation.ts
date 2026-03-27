@@ -1,6 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 
+/**
+ * Strip dangerous HTML/script patterns from user-provided strings.
+ * Prevents stored XSS if values are ever rendered in HTML context.
+ */
+function sanitizeString(s: string): string {
+  return s
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/on\w+\s*=\s*[^\s>]*/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .trim();
+}
+
 // Request validation middleware
 export const validateRequest = (schema: {
   body?: z.ZodSchema;
@@ -49,6 +63,7 @@ export const generateSiteSchema = z.object({
   prompt: z.string()
     .min(10, 'Prompt must be at least 10 characters long')
     .max(2000, 'Prompt cannot exceed 2000 characters')
+    .transform(sanitizeString)
     .refine((prompt: string) => prompt.trim().length > 0, 'Prompt cannot be empty'),
 
   // Accept either a simple string (e.g., 'vanilla', 'react') or a detailed object
@@ -70,15 +85,17 @@ export const saveProjectSchema = z.object({
   title: z.string()
     .min(1, 'Project title is required')
     .max(100, 'Project title cannot exceed 100 characters')
+    .transform(sanitizeString)
     .optional(),
-  
+
   name: z.string()
     .min(1, 'Project name is required')
     .max(100, 'Project name cannot exceed 100 characters')
+    .transform(sanitizeString)
     .optional(),
-  
+
   // Original prompt
-  prompt: z.string().max(10000).optional(),
+  prompt: z.string().max(10000).transform(sanitizeString).optional(),
   
   // Enhanced prompt from AI
   enhanced_prompt: z.string().max(50000).optional(),
@@ -153,7 +170,8 @@ export const getProjectSchema = z.object({
 export const enhancePromptSchema = z.object({
   prompt: z.string()
     .min(1, 'Prompt is required')
-    .max(500, 'Prompt cannot exceed 500 characters'),
+    .max(500, 'Prompt cannot exceed 500 characters')
+    .transform(sanitizeString),
     
   context: z.object({
     industry: z.string().optional(),
@@ -167,10 +185,12 @@ export const updateProjectSchema = z.object({
   name: z.string()
     .min(1, 'Project name is required')
     .max(100, 'Project name cannot exceed 100 characters')
+    .transform(sanitizeString)
     .optional(),
-  
+
   description: z.string()
     .max(500, 'Description cannot exceed 500 characters')
+    .transform(sanitizeString)
     .optional(),
     
   starred: z.boolean().optional(),

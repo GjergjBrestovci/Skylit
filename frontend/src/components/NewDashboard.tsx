@@ -573,45 +573,83 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
   // Step renderers
   const renderHomepage = () => (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center max-w-4xl px-4 sm:px-6 space-y-8 sm:space-y-12 animate-page-fade-in">
-        <div className="space-y-4 sm:space-y-6">
-          <div className="space-y-3 sm:space-y-4">
-            <h1
-              className="text-4xl sm:text-6xl md:text-8xl font-black bg-gradient-to-r from-accent-primary via-accent-secondary to-pink-500 bg-clip-text text-transparent animate-pulse"
-              style={{ padding: '15px' }}
-            >
-              Skylit AI
-            </h1>
-            <p className="text-lg sm:text-2xl md:text-3xl text-text/90 font-light">Dream it. Build it. Launch it.</p>
-          </div>
-          <p className="text-base sm:text-lg md:text-xl text-text/70 max-w-2xl mx-auto leading-relaxed px-2">Transform your ideas into stunning websites in minutes. Our AI understands your vision and crafts the perfect digital experience.</p>
+    <div className="min-h-[calc(100vh-3.5rem)] lg:min-h-screen flex flex-col items-center justify-center px-4 sm:px-6">
+      <div className="w-full max-w-2xl mx-auto space-y-8 animate-page-fade-in">
+        {/* Hero */}
+        <div className="text-center space-y-3">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text">
+            What do you want to <span className="gradient-text">build</span>?
+          </h1>
+          <p className="text-base sm:text-lg text-muted max-w-lg mx-auto">
+            Describe your website idea or use our guided builder to create something incredible.
+          </p>
         </div>
-        <div className="space-y-4 sm:space-y-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+
+        {/* Prompt Input */}
+        <div className="space-y-3">
+          <div className="card p-1.5 shadow-lg">
+            <textarea
+              rows={3}
+              value={manualPrompt}
+              onChange={e => setManualPrompt(e.target.value)}
+              placeholder="e.g. A modern landing page for a coffee shop with online ordering..."
+              className="w-full p-4 bg-transparent text-text placeholder:text-muted/60 resize-none focus:outline-none text-base"
+            />
+            <div className="flex items-center justify-between px-3 pb-2">
+              <div className="flex items-center gap-2">
+                <select
+                  value={config.techStack}
+                  onChange={e => setConfig(prev => ({ ...prev, techStack: e.target.value }))}
+                  className="text-xs bg-surface-overlay border border-border rounded-md px-2 py-1 text-muted focus:outline-none"
+                >
+                  {TECH_STACKS.map(t => (
+                    <option key={t.value} value={t.value}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => {
+                  if (manualPrompt.trim()) {
+                    generateWebsite(manualPrompt.trim());
+                  }
+                }}
+                disabled={!manualPrompt.trim()}
+                className="btn-primary px-5 py-2 text-sm font-medium disabled:opacity-40"
+              >
+                Generate
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted">or use the guided builder</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
           <div className="flex justify-center">
             <GlassButton
-              variant="accent"
-              size="xl"
-              glow={true}
+              variant="secondary"
+              size="lg"
               onClick={() => nextStep('websiteType')}
-              className="font-bold shadow-glass-lg hover:shadow-glass-xl transform-gpu px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl"
+              className="font-medium"
             >
-              <span className="flex items-center justify-center gap-3">Build My Dream Website</span>
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Step-by-Step Builder
             </GlassButton>
           </div>
-          <p className="text-xs sm:text-sm text-text/50 px-4">No coding required • Takes 2-3 minutes • Get live preview instantly</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-3xl mx-auto">
+
+        {/* Feature pills */}
+        <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted">
           {[
-            { icon: '', title: 'Lightning Fast', desc: 'Generate in under 60 seconds' },
-            { icon: '', title: 'Your Style', desc: 'Customized to your brand' },
-            { icon: '', title: 'Mobile Ready', desc: 'Looks perfect on any device' }
-          ].map((feature, i) => (
-            <div key={i} className="space-y-3 opacity-80 hover:opacity-100 transition-all duration-500 p-4 animate-slide-up" style={{ animationDelay: `${0.6 + (i * 0.2)}s`, animationFillMode: 'both', transform: 'translateY(20px)', opacity: '0' }}>
-              <div className="text-2xl sm:text-3xl">{feature.icon}</div>
-              <h3 className="text-base sm:text-lg font-semibold text-white">{feature.title}</h3>
-              <p className="text-sm text-text/60">{feature.desc}</p>
-            </div>
+            'AI-Powered', 'Responsive', 'Live Preview', 'Download Code', 'Multiple Frameworks'
+          ].map(tag => (
+            <span key={tag} className="px-3 py-1 rounded-full bg-surface border border-border">
+              {tag}
+            </span>
           ))}
         </div>
       </div>
@@ -761,7 +799,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 <button
                   onClick={() => nextStep('features')}
                   disabled={config.pages.length === 0}
-                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-accent-primary text-white rounded-xl hover:bg-accent-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-base sm:text-lg font-semibold"
+                  className="btn-primary px-6 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continue ({config.pages.length} pages selected)
                 </button>
@@ -795,7 +833,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
               <div className="text-center">
                 <button
                   onClick={() => nextStep('details')}
-                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-accent-primary text-white rounded-xl hover:bg-accent-primary/90 transition-all duration-300 text-base sm:text-lg font-semibold"
+                  className="btn-primary px-6 py-2.5 text-sm font-medium"
                 >
                   Continue ({config.features.length} features selected)
                 </button>
@@ -817,13 +855,13 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 value={config.additionalDetails}
                 onChange={(e) => setConfig(prev => ({ ...prev, additionalDetails: e.target.value }))}
                 placeholder="Describe any specific requirements, content ideas, or special features you'd like..."
-                className="w-full p-4 sm:p-6 bg-surface border-2 border-accent-secondary/30 rounded-xl text-white placeholder-text/50 focus:outline-none focus:border-accent-primary/50 transition-all duration-300 text-base sm:text-lg"
+                className="input-base w-full p-4 text-base"
               />
               
               <div className="text-center space-y-4">
                 <button
                   onClick={() => nextStep('techStack')}
-                  className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                  className="btn-primary px-8 py-3 text-sm font-medium"
                 >
                   Next: Advanced Options
                 </button>
@@ -834,7 +872,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
             </div>
 
             {error && (
-              <div className="max-w-2xl mx-auto p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-center">
+              <div className="max-w-2xl mx-auto p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg text-red-600 dark:text-red-400 text-sm text-center">
                 {error}
               </div>
             )}
@@ -857,7 +895,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
               <div className="text-center space-y-4">
                 <button
                   onClick={() => generateWebsite()}
-                  className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-xl font-bold text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                  className="btn-primary px-8 py-3 text-sm font-medium"
                 >
                   Create My Website!
                 </button>
@@ -868,7 +906,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
             </div>
 
             {error && (
-              <div className="max-w-6xl mx-auto p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-center">
+              <div className="max-w-6xl mx-auto p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg text-red-600 dark:text-red-400 text-sm text-center">
                 {error}
               </div>
             )}
@@ -877,8 +915,8 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
 
       case 'generating':
         return (
-          <div className="min-h-[70vh] flex items-start pt-8">
-            <div className="w-full transition-all duration-700">
+          <div className="min-h-[calc(100vh-3.5rem)] lg:min-h-[70vh] flex items-start pt-8 px-4 sm:px-6">
+            <div className="w-full max-w-5xl mx-auto transition-all duration-300">
               {generationStage === 'enhancing' && (
                 <div className="animate-fade-in">
                   <PromptEnhancer
@@ -916,169 +954,116 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const renderPreview = () => (
     <div className="min-h-screen">
       {/* Header with toggle */}
-      <div className="sticky top-0 z-50 backdrop-blur-sm bg-black/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1 w-full sm:flex-1 sm:min-w-0">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-bold text-text">Your Website is Ready!</h1>
-                <span className="px-2 py-1 bg-accent-primary/20 border border-accent-primary/30 rounded-full text-xs text-accent-primary font-semibold">BETA</span>
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="space-y-0.5 min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-xl font-semibold text-text">Your Website is Ready</h1>
+                <span className="px-1.5 py-0.5 bg-accent-primary/10 rounded text-[10px] text-accent-primary font-medium">BETA</span>
               </div>
-              <p className="text-sm sm:text-base text-text/60 truncate">
-                Created on {result && new Date(result.createdAt).toLocaleDateString()}
-                {result?.model && ` • Generated by ${result.model}`}
-                {result?.enhancementUsedAI && ' • AI-Enhanced Prompt'}
+              <p className="text-xs text-muted truncate">
+                Created {result && new Date(result.createdAt).toLocaleDateString()}
+                {result?.model && ` · ${result.model}`}
+                {result?.enhancementUsedAI && ' · AI-Enhanced'}
               </p>
             </div>
-            
-            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto sm:flex-none">
+
+            <div className="flex items-center gap-2 flex-wrap">
               {/* View Toggle */}
-              <div className="flex bg-surface-elevated rounded-lg p-1">
+              <div className="flex bg-surface rounded-lg p-0.5 border border-border">
                 <button
                   onClick={() => setShowCode(false)}
-                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
-                    !showCode 
-                      ? 'bg-accent-primary text-white' 
-                      : 'text-text/70 hover:text-white'
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    !showCode
+                      ? 'bg-accent-primary text-white shadow-sm'
+                      : 'text-muted hover:text-text'
                   }`}
                 >
-                  🌐 Live Preview
+                  Preview
                 </button>
                 <button
                   onClick={() => setShowCode(true)}
-                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
-                    showCode 
-                      ? 'bg-accent-secondary text-white' 
-                      : 'text-text/70 hover:text-white'
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    showCode
+                      ? 'bg-accent-primary text-white shadow-sm'
+                      : 'text-muted hover:text-text'
                   }`}
                 >
-                  View Code
+                  Code
                 </button>
               </div>
-              
-              <div className="flex gap-2">
-                <button
-                  onClick={startOver}
-                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-lg hover:scale-105 transition-all duration-300 text-sm sm:text-base"
-                >
-                  Create Another
-                </button>
 
-                <button
-                  onClick={onLogout}
-                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-all duration-300 text-sm sm:text-base"
-                >
-                  Logout
-                </button>
-              </div>
+              <button
+                onClick={startOver}
+                className="btn-primary px-3 py-1.5 text-sm"
+              >
+                New Project
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-4">
         {!showCode && result?.previewUrl ? (
-          /* Live Preview */
-          <WebsitePreview 
+          <WebsitePreview
             previewUrl={result.previewUrl}
             title="Your Generated Website"
             className="min-h-[70vh] sm:min-h-[80vh]"
           />
         ) : (
-          /* Code View */
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-4">
             {/* Code Tabs */}
-            <div className="flex flex-wrap sm:space-x-1 bg-surface rounded-lg p-1 gap-1 sm:gap-0">
-              <button
-                onClick={() => setActiveCodeTab('html')}
-                className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
-                  activeCodeTab === 'html' 
-                    ? 'bg-accent-primary text-white' 
-                    : 'text-text/70 hover:text-white'
-                }`}
-              >
-                HTML
-              </button>
-              {result?.css && (
-                <button
-                  onClick={() => setActiveCodeTab('css')}
-                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
-                    activeCodeTab === 'css' 
-                      ? 'bg-accent-secondary text-white' 
-                      : 'text-text/70 hover:text-white'
-                  }`}
-                >
-                  CSS
-                </button>
-              )}
-              {result?.javascript && (
-                <button
-                  onClick={() => setActiveCodeTab('javascript')}
-                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
-                    activeCodeTab === 'javascript' 
-                      ? 'bg-yellow-500 text-white' 
-                      : 'text-text/70 hover:text-white'
-                  }`}
-                >
-                   JavaScript
-                </button>
-              )}
-              {result?.notes && (
-                <button
-                  onClick={() => setActiveCodeTab('notes')}
-                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
-                    activeCodeTab === 'notes' 
-                      ? 'bg-pink-500 text-white' 
-                      : 'text-text/70 hover:text-white'
-                  }`}
-                >
-                  Notes
-                </button>
-              )}
-              {result?.analysis && (
-                <button
-                  onClick={() => setActiveCodeTab('analysis')}
-                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
-                    activeCodeTab === 'analysis' 
-                      ? 'bg-green-500 text-white' 
-                      : 'text-text/70 hover:text-white'
-                  }`}
-                >
-                  🔍 Analysis
-                </button>
-              )}
+            <div className="flex flex-wrap gap-1 bg-surface rounded-lg p-1 border border-border">
+              {(['html', 'css', 'javascript', 'notes', 'analysis'] as const).map(tab => {
+                if (tab === 'css' && !result?.css) return null;
+                if (tab === 'javascript' && !result?.javascript) return null;
+                if (tab === 'notes' && !result?.notes) return null;
+                if (tab === 'analysis' && !result?.analysis) return null;
+                const labels: Record<string, string> = { html: 'HTML', css: 'CSS', javascript: 'JavaScript', notes: 'Notes', analysis: 'Analysis' };
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveCodeTab(tab)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      activeCodeTab === tab
+                        ? 'bg-accent-primary text-white shadow-sm'
+                        : 'text-muted hover:text-text'
+                    }`}
+                  >
+                    {labels[tab]}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Code Content */}
-            <div className="bg-surface rounded-xl border border-accent-secondary/20 overflow-hidden">
+            <div className="card overflow-hidden">
               <div className="p-4 sm:p-6">
                 {activeCodeTab === 'analysis' && result?.analysis ? (
                   <div className="space-y-4">
-                    <div className="text-text/90">
-                      <h3 className="text-lg font-semibold text-green-400 mb-3">AI Analysis</h3>
-                      <p className="mb-4">{result.analysis}</p>
-                      
-                      {result.requirements && result.requirements.length > 0 && (
-                        <div>
-                          <h4 className="text-md font-semibold text-accent-primary mb-2">Requirements Identified:</h4>
-                          <ul className="list-disc pl-6 space-y-1">
-                            {result.requirements.map((req, i) => (
-                              <li key={i} className="text-text/80">{req}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      
-                      {result.enhancementUsedAI && (
-                        <div className="mt-4 p-3 bg-accent-primary/10 border border-accent-primary/20 rounded-lg">
-                          <p className="text-accent-primary text-sm">Enhanced by AI prompt refinement</p>
-                        </div>
-                      )}
-                    </div>
+                    <h3 className="text-base font-semibold text-text">AI Analysis</h3>
+                    <p className="text-sm text-muted">{result.analysis}</p>
+                    {result.requirements && result.requirements.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-text mb-2">Requirements:</h4>
+                        <ul className="list-disc pl-5 space-y-1">
+                          {result.requirements.map((req, i) => (
+                            <li key={i} className="text-sm text-muted">{req}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {result.enhancementUsedAI && (
+                      <div className="p-3 bg-accent-primary/5 border border-accent-primary/10 rounded-lg">
+                        <p className="text-accent-primary text-xs">Enhanced by AI prompt refinement</p>
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <pre className="text-xs sm:text-sm text-text/90 whitespace-pre-wrap font-mono overflow-x-auto">
+                  <pre className="text-xs sm:text-sm text-text whitespace-pre-wrap font-mono overflow-x-auto">
                     {activeCodeTab === 'html' && (result?.html || result?.generated)}
                     {activeCodeTab === 'css' && result?.css}
                     {activeCodeTab === 'javascript' && result?.javascript}
@@ -1090,34 +1075,29 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
           </div>
         )}
 
-        {/* Action Buttons - visible in both views */}
-        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 pt-4">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
           <button
             onClick={() => setSaveModalOpen(true)}
             disabled={projectSaved}
-            className={`px-4 sm:px-6 py-3 rounded-lg transition-all duration-300 text-sm sm:text-base flex items-center justify-center gap-2 ${
-              projectSaved 
-                ? 'bg-green-500/20 text-green-400 border border-green-500/30 cursor-default' 
-                : 'bg-accent-secondary hover:bg-accent-secondary/90 text-white'
+            className={`px-5 py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all ${
+              projectSaved
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 cursor-default'
+                : 'btn-primary'
             }`}
           >
             {projectSaved ? (
               <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                Project Saved
+                Saved
               </>
-            ) : (
-              <>
-                <span>💾</span>
-                Save Project
-              </>
-            )}
+            ) : 'Save Project'}
           </button>
           <button
             onClick={() => { if (result) downloadCombinedHtml(result); }}
-            className="px-4 sm:px-6 py-3 border border-accent-primary text-accent-primary hover:bg-accent-primary/10 rounded-lg transition-all duration-300 text-sm sm:text-base"
+            className="px-5 py-2.5 border border-border text-text hover:bg-surface-overlay rounded-lg transition-all text-sm font-medium"
           >
             Download Code
           </button>
@@ -1236,7 +1216,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const previewLayout = (
     <>
       <Sidebar {...sidebarProps} />
-      <main className="pt-16 min-h-screen overflow-x-hidden">
+      <main className="pt-14 lg:pt-0 lg:ml-64 min-h-screen overflow-x-hidden bg-background">
         {renderPreview()}
       </main>
     </>
@@ -1245,7 +1225,7 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
   const builderLayout = (
     <>
       <Sidebar {...sidebarProps} />
-      <main className="pt-16 min-h-screen page-transition-container overflow-x-hidden">
+      <main className="pt-14 lg:pt-0 lg:ml-64 min-h-screen page-transition-container overflow-x-hidden bg-background">
         <div className={`page-content ${isTransitioning ? 'page-transitioning-out' : 'page-transitioning-in'}`}>
           {renderStepContent()}
         </div>
@@ -1281,13 +1261,12 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
       />
       {manualPromptModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={closeManualPromptModal} />
-          <div className="relative w-full max-w-2xl rounded-3xl bg-[#0f1117] border border-white/10 p-6 sm:p-8 shadow-2xl space-y-4">
-            <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.3em] text-text/50">Advanced control</p>
-              <h3 className="text-2xl font-semibold text-white">Write your own prompt</h3>
-              <p className="text-sm text-text/70">
-                Paste or type the exact instructions you want the AI to follow. This will override the guided selections until you switch back.
+          <div className="absolute inset-0 bg-black/40 dark:bg-black/60" onClick={closeManualPromptModal} />
+          <div className="relative w-full max-w-2xl card p-6 shadow-xl space-y-4 animate-scale-in">
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-semibold text-text">Write your own prompt</h3>
+              <p className="text-sm text-muted">
+                Type the exact instructions you want the AI to follow.
               </p>
             </div>
             <textarea
@@ -1296,38 +1275,38 @@ export function NewDashboard({ onLogout }: NewDashboardProps) {
                 setManualPromptDraft(e.target.value);
                 if (manualPromptError) setManualPromptError('');
               }}
-              rows={8}
-              className="w-full rounded-2xl bg-white/5 border border-white/10 text-sm sm:text-base text-white p-4 focus:outline-none focus:border-accent-primary/60 resize-none"
+              rows={6}
+              className="input-base w-full p-4 resize-none"
               placeholder="Describe the website you want..."
             />
             {manualPromptError && (
-              <p className="text-sm text-red-400">{manualPromptError}</p>
+              <p className="text-sm text-red-500">{manualPromptError}</p>
             )}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               {manualPromptActive && (
                 <button
                   type="button"
                   onClick={() => { handleManualPromptReset(); closeManualPromptModal(); }}
-                  className="w-full sm:w-auto px-4 py-2 rounded-xl border border-white/15 text-sm text-white/80 hover:text-white transition-colors"
+                  className="text-sm text-muted hover:text-text transition-colors"
                 >
                   Use guided selections instead
                 </button>
               )}
               <div className="flex-1" />
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={closeManualPromptModal}
-                  className="px-4 py-2 rounded-xl border border-white/10 text-white/70 hover:text-white transition-colors"
+                  className="px-4 py-2 rounded-lg border border-border text-sm text-muted hover:text-text transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleManualPromptSave}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-accent-primary to-accent-secondary text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                  className="btn-primary px-4 py-2 text-sm font-medium"
                 >
-                  Use this prompt
+                  Generate
                 </button>
               </div>
             </div>
